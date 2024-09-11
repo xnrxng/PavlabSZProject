@@ -35,17 +35,19 @@ TBF
 
 ### Preview of Data
 The data used is from the [@388Brains] set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). This is an overview of each cohort:
-- CMC: 
-- DevBrain:
-- Girgenti-multiome:
-- IsoHuB:
-- LIBD:
-- Ma_et_al: [@MaSestan]
-- MultiomeBrain:
-- PTSDBrainomics: 
-- SZBDMulti-Seq:
-- UCLA-ASD:
-- Velmeshev_et_al: [@Velmeshev]
+- CMC: 100 samples, 
+- DevBrain: 16 samples, 
+- Girgenti-multiome: 18 samples
+- IsoHuB: 4 samples
+- LIBD: 10 samples
+- Ma_et_al: 2 samples, [@MaSestan]
+- MultiomeBrain:20 samples, 
+- PTSDBrainomics: 18 samples, 
+- SZBDMulti-Seq: 72 samples, 
+- UCLA-ASD: 51 samples
+- Velmeshev_et_al: 26 samples [@Velmeshev]
+
+Note: The DevBrain has 4 duplicated samples. Two from the Ma_et_al cohort, one from the IsoHuB cohort, and one from the UCLA-ASD cohort.
 
 - total number of patients per cohort
 - number of patients/individuals per condition per cohort
