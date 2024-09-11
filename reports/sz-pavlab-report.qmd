@@ -1,0 +1,59 @@
+---
+title: "Gene Analysis of Schizophrenia Patient Samples"
+author: "Rui Xiang Yu & Nairuz Elazzabi (Pavlidis Lab)"
+format: 
+    html:
+        toc: true
+        toc-depth: 3
+        auto-stretch: false
+    pdf:
+        toc: true
+        toc-depth: 3 
+        fig-pos: "H"
+        auto-stretch: false
+editor: source
+bibliography: references.bib
+execute:
+    echo: false
+    warning: false
+---
+
+```{r}
+library(tidyverse)
+```
+
+## Summary
+
+TBF
+
+## Introduction
+
+TBF
+
+## Methods
+TBF
+
+### Preview of Data
+The data used is from the [@388Brains] set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). This is an overview of each cohort:
+- CMC: 
+- DevBrain:
+- Girgenti-multiome:
+- IsoHuB:
+- LIBD:
+- Ma_et_al: [@MaSestan]
+- MultiomeBrain:
+- PTSDBrainomics: 
+- SZBDMulti-Seq:
+- UCLA-ASD:
+- Velmeshev_et_al: [@Velmeshev]
+
+- total number of patients per cohort
+- number of patients/individuals per condition per cohort
+- total number of single cells per cohort
+- distribution of age per condition per cohort
+- summary of brain region studied in each cohort
+- what clinical condition is being studied per cohort
+- number of genes per cohort
+
+## References
+
