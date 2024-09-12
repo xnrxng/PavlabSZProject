@@ -1,7 +1,7 @@
 # Author: Rui Xiang Yu
 # Date: 2024 September 11th
 # This script downloads the data To be expanded.
-# Usage: R/loadmetadata_obtaintable.R
+# Usage: R/loaddata.R
 
 library(tidyverse)
 library(data.table)

@@ -47,14 +47,15 @@ The data used is from the [@388Brains] set of cohorts, with its samples. The raw
 - UCLA-ASD: 51 samples
 - Velmeshev_et_al: 26 samples [@Velmeshev]
 
-Note: The DevBrain has 4 duplicated samples. Two from the Ma_et_al cohort, one from the IsoHuB cohort, and one from the UCLA-ASD cohort.
-
-- total number of patients per cohort
-- number of patients/individuals per condition per cohort
-- total number of single cells per cohort
-- distribution of age per condition per cohort
+- total number of patients per cohort DONE
+- number of patients/individuals per condition per cohort DONE
+- what clinical condition is being studied per cohort DONE
 - summary of brain region studied in each cohort
-- what clinical condition is being studied per cohort
+- number of samples that 
+- filter out rosmap
+
+- distribution of age per condition per cohort
+- total number of single cells per cohort
 - number of genes per cohort
 
 ## References
