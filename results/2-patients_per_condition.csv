@@ -1,0 +1,23 @@
+"","Cohort","Disorder","Number_of_Patients"
+"1","CMC","Schizophrenia",47
+"2","CMC","control",53
+"3","DevBrain","ASD",9
+"4","DevBrain","Williams Syndrome",3
+"5","DevBrain","control",4
+"6","Girgenti-snMultiome","control",19
+"7","IsoHuB","control",4
+"8","LIBD","control",10
+"9","Ma_et_al","Control",2
+"10","MultiomeBrain","Bipolar Disorder",10
+"11","MultiomeBrain","Schizophrenia",6
+"12","MultiomeBrain","control",5
+"13","PTSDBrainomics","MDD",4
+"14","PTSDBrainomics","PTSD",6
+"15","PTSDBrainomics","control",9
+"16","SZBDMulti-Seq","Bipolar Disorder",24
+"17","SZBDMulti-Seq","Schizophrenia",24
+"18","SZBDMulti-Seq","control",24
+"19","UCLA-ASD","ASD",27
+"20","UCLA-ASD","control",25
+"21","Velmeshev_et_al","ASD",13
+"22","Velmeshev_et_al","Control",14

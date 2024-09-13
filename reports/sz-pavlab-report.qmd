@@ -50,11 +50,11 @@ The data used is from the [@388Brains] set of cohorts, with its samples. The raw
 - total number of patients per cohort DONE
 - number of patients/individuals per condition per cohort DONE
 - what clinical condition is being studied per cohort DONE
-- summary of brain region studied in each cohort
-- number of samples that 
-- filter out rosmap
+- filter out rosmap DONE
+- summary of brain region studied in each cohort PFC DONE
+- number of samples that are 89+ DONE
+- distribution of age per condition per cohort 
 
-- distribution of age per condition per cohort
 - total number of single cells per cohort
 - number of genes per cohort
 
