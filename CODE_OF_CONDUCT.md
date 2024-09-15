@@ -1,4 +1,4 @@
-Code of Conduct 
+# Code of Conduct 
 
 ## Statement on Diversity, Equity, and Inclusion
 UBC students hail from a diverse range of backgrounds and experiences. To promote a safe and inclusive working environment, I pledge to making this project harassment-free regardless of age, race, gender, or religion. People who represent the project, either officially or unofficially, must follow the code of conduct.
