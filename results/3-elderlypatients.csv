@@ -1,6 +1,6 @@
 "","Cohort","Disorder","Plus89_patients"
-"1","CMC","Schizophrenia",5
-"2","CMC","control",9
+"1","CMC","Control",9
+"2","CMC","Schizophrenia",5
 "3","SZBDMulti-Seq","Bipolar Disorder",1
-"4","SZBDMulti-Seq","Schizophrenia",2
-"5","SZBDMulti-Seq","control",1
+"4","SZBDMulti-Seq","Control",1
+"5","SZBDMulti-Seq","Schizophrenia",2

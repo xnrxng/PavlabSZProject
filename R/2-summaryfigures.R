@@ -6,31 +6,34 @@
 library(tidyverse)
 library(ggplot2)
 library(stringr)
-library(RColorBrewer)
+library(cowplot)
 
 main <- function() {
-  raw_metadata <- read_csv("data/data_raw/raw_metadata.csv") |>
-    filter(Cohort != "ROSMAP")
+  clean_metadata <- read_csv("data/data_raw/raw_metadata.csv") |>
+    filter(Cohort != "ROSMAP") |>
+    mutate(Disorder = ifelse(tolower(Disorder) == "control", "Control", Disorder))
+
+write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"))
   
-  total_patients <- raw_metadata |>
+  total_patients <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort) |>
     summarize(
       Total_Patients = n(),
       Mean_Age_Death = round(mean(Age, na.rm = TRUE)),
-      Disorder_studied = paste(unique(Disorder[Disorder != "control" & Disorder != "Control"]), collapse = ", "),
+      Disorder_studied = paste(unique(Disorder[Disorder != "Control"]), collapse = ", "),
       Disorder_studied = ifelse(Disorder_studied == "", "None", Disorder_studied)
     )
   
   write.csv(total_patients, file.path("results/1-total_patients.csv"))
   
-  patientpercondition <- raw_metadata |>
+  patientpercondition <- clean_metadata |>
     group_by(Cohort, Disorder) |>
     summarize(Number_of_Patients = n())
   
   write.csv(patientpercondition, file.path("results/2-patients_per_condition.csv"))
   
-  elderlypatients <- raw_metadata |>
+  elderlypatients <- clean_metadata |>
     filter(Cohort == "CMC" | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
     group_by(Cohort, Disorder) |>
     filter(Age_death == "89+") |>
@@ -38,12 +41,25 @@ main <- function() {
   
   write.csv(elderlypatients, file.path("results/3-elderlypatients.csv"))
   
-  meanage_summary <- raw_metadata |>
+  meanage_summary <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort, Disorder) |>
     summarize(Mean_Age = round(mean(Age)))
   
-  CMCageplot <- raw_metadata |>
+  color_palette <- c(
+    "Control" = "turquoise",
+    "Schizophrenia" = "coral",
+    "ASD" = "pink2",
+    "Bipolar Disorder" = "yellow2",
+    "MDD" = "olivedrab3",
+    "PTSD" = "navy",
+    "Williams Syndrome" = "red3"
+  )
+  
+x_limits <- c(0, 90)
+y_limits <- c(0, 0.2)  
+  
+  CMCageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     filter(Cohort == "CMC") |>
     ggplot(aes(x = Age, fill = Disorder)) +
@@ -51,23 +67,23 @@ main <- function() {
     geom_vline(data = meanage_summary |> filter(Cohort == "CMC"), 
                aes(xintercept = Mean_Age, colour = Disorder),
                linetype = "dashed", size = 1) +
-    labs(x = "Age at Death (years)",
-         y = "Density",
-         fill = "Disorder", 
-         colour = "Mean of Age") +
-    scale_color_manual(labels = c("Control", 
-                                  "Schizophrenia"),
-                       values = c("darkseagreen", "coral")) +
-    theme_bw(base_size = 20, base_line_size  = 1) +
-    scale_fill_brewer(palette = "Set2") +
+    labs(title = "CMC") +
+    scale_color_manual(values = color_palette) +
+    scale_fill_manual(values = color_palette) +
+    theme_bw(base_size = 10, base_line_size  = 1) +
+    xlim(x_limits) +
+    ylim(y_limits) +
     theme(
       panel.border = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.line = element_line(colour = "black")
+      axis.line = element_line(colour = "black"),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      legend.position = "none"
     )
   
-  DevBrainageplot <- raw_metadata |>
+  DevBrainageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     filter(Cohort == "DevBrain") |>
     ggplot(aes(x = Age, fill = Disorder)) +
@@ -75,23 +91,23 @@ main <- function() {
     geom_vline(data = meanage_summary |> filter(Cohort == "DevBrain"), 
                aes(xintercept = Mean_Age, colour = Disorder),
                linetype = "dashed", size = 1) +
-    labs(x = "Age at Death (years)",
-         y = "Density",
-         fill = "Disorder", 
-         colour = "Mean of Age") +
-    scale_color_manual(labels = c("Autism SD", 
-                                  "Control", "Williams Syndrome"),
-                       values = c("darkseagreen", "coral", "purple")) +
-    theme_bw(base_size = 20, base_line_size  = 1) +
-    scale_fill_brewer(palette = "Set2") +
+    labs(title = "DevBrain") +
+    scale_color_manual(values = color_palette) +
+    scale_fill_manual(values = color_palette) +
+    theme_bw(base_size = 10, base_line_size  = 1) +
+    xlim(x_limits) +
+    ylim(y_limits) +
     theme(
       panel.border = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.line = element_line(colour = "black")
+      axis.line = element_line(colour = "black"),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      legend.position = "none"
     )
   
-Girgentiageplot <- raw_metadata |>
+Girgentiageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     filter(Cohort == "Girgenti-snMultiome") |>
     ggplot(aes(x = Age, fill = Disorder)) +
@@ -99,22 +115,23 @@ Girgentiageplot <- raw_metadata |>
     geom_vline(data = meanage_summary |> filter(Cohort == "Girgenti-snMultiome"), 
                aes(xintercept = Mean_Age, colour = Disorder),
                linetype = "dashed", size = 1) +
-    labs(x = "Age at Death (years)",
-         y = "Density",
-         fill = "Disorder", 
-         colour = "Mean of Age") +
-    scale_color_manual(labels = c("Control"),
-                       values = c("darkseagreen")) +
-    theme_bw(base_size = 20, base_line_size  = 1) +
-    scale_fill_brewer(palette = "Set2") +
+    labs(title = "Girgenti-snMultiome") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+    theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
     theme(
       panel.border = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.line = element_line(colour = "black")
+      axis.line = element_line(colour = "black"),
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(),
+      legend.position = "none"
     )
 
-ISOhubageplot <- raw_metadata |>
+ISOhubageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "IsoHuB") |>
   ggplot(aes(x = Age, fill = Disorder)) +
@@ -122,22 +139,23 @@ ISOhubageplot <- raw_metadata |>
   geom_vline(data = meanage_summary |> filter(Cohort == "IsoHuB"), 
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", size = 1) +
-  labs(x = "Age at Death (years)",
-       y = "Density",
-       fill = "Disorder", 
-       colour = "Mean of Age") +
-  scale_color_manual(labels = c("Control"),
-                     values = c("darkseagreen")) +
-  theme_bw(base_size = 20, base_line_size  = 1) +
-  scale_fill_brewer(palette = "Set2") +
+  labs(title = "IsoHuB") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
   theme(
     panel.border = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black")
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
   )
 
-LIBDageplot <- raw_metadata |>
+LIBDageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "LIBD") |>
   ggplot(aes(x = Age, fill = Disorder)) +
@@ -145,22 +163,23 @@ LIBDageplot <- raw_metadata |>
   geom_vline(data = meanage_summary |> filter(Cohort == "LIBD"), 
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", size = 1) +
-  labs(x = "Age at Death (years)",
-       y = "Density",
-       fill = "Disorder", 
-       colour = "Mean of Age") +
-  scale_color_manual(labels = c("Control"),
-                     values = c("darkseagreen")) +
-  theme_bw(base_size = 20, base_line_size  = 1) +
-  scale_fill_brewer(palette = "Set2") +
+  labs(title = "LIBD") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
   theme(
     panel.border = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black")
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
   )
   
-Maageplot <- raw_metadata |>
+Maageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "Ma_et_al") |>
   ggplot(aes(x = Age, fill = Disorder)) +
@@ -168,22 +187,23 @@ Maageplot <- raw_metadata |>
   geom_vline(data = meanage_summary |> filter(Cohort == "Ma_et_al"), 
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", size = 1) +
-  labs(x = "Age at Death (years)",
-       y = "Density",
-       fill = "Disorder", 
-       colour = "Mean of Age") +
-  scale_color_manual(labels = c("Control"),
-                     values = c("darkseagreen")) +
-  theme_bw(base_size = 20, base_line_size  = 1) +
-  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Ma-Sestan") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
   theme(
     panel.border = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black")
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
   )
 
-MBageplot <- raw_metadata |>
+MBageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "MultiomeBrain") |>
   ggplot(aes(x = Age, fill = Disorder)) +
@@ -191,23 +211,23 @@ MBageplot <- raw_metadata |>
   geom_vline(data = meanage_summary |> filter(Cohort == "MultiomeBrain"), 
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", size = 1) +
-  labs(x = "Age at Death (years)",
-       y = "Density",
-       fill = "Disorder", 
-       colour = "Mean of Age") +
-  scale_color_manual(labels = c("Bipolar disorder", 
-                                "Control", "Schizophrenia"),
-                     values = c("darkseagreen", "coral", "purple")) +
-  theme_bw(base_size = 20, base_line_size  = 1) +
-  scale_fill_brewer(palette = "Set2") +
+  labs(title = "MultiomeBrain") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
   theme(
     panel.border = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black")
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
   )
 
-PTSDageplot <- raw_metadata |>
+PTSDageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "PTSDBrainomics") |>
   ggplot(aes(x = Age, fill = Disorder)) +
@@ -215,51 +235,125 @@ PTSDageplot <- raw_metadata |>
   geom_vline(data = meanage_summary |> filter(Cohort == "PTSDBrainomics"), 
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", size = 1) +
-  labs(x = "Age at Death (years)",
-       y = "Density",
-       fill = "Disorder", 
-       colour = "Mean of Age") +
-  scale_color_manual(labels = c("Control", 
-                                "MDD", "PTSD"),
-                     values = c("darkseagreen", "coral", "purple")) +
-  theme_bw(base_size = 20, base_line_size  = 1) +
-  scale_fill_brewer(palette = "Set2") +
+  labs(title = "PTSDBrainomics") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
   theme(
     panel.border = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black")
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
   )
 
-SZBDageplot <- raw_metadata |>
+print(PTSDageplot)
+
+SZBDageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "SZBDMulti-Seq") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "SZBDMulti-seq"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "SZBDMulti-Seq"), 
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", size = 1) +
-  labs(x = "Age at Death (years)",
-       y = "Density",
-       fill = "Disorder", 
-       colour = "Mean of Age") +
-  scale_color_manual(labels = c("Bipolar disorder", 
-                                "Control", "Schizophrenia"),
-                     values = c("darkseagreen", "coral", "purple")) +
-  theme_bw(base_size = 20, base_line_size  = 1) +
-  scale_fill_brewer(palette = "Set2") +
+  labs(title = "SZBDMulti-Seq") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
   theme(
     panel.border = element_blank(),
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    axis.line = element_line(colour = "black")
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
   )
 
-  print(SZBDageplot)
+UCLAageplot <- clean_metadata |>
+  mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
+  filter(Cohort == "UCLA-ASD") |>
+  ggplot(aes(x = Age, fill = Disorder)) +
+  geom_density(alpha = 0.3) +
+  geom_vline(data = meanage_summary |> filter(Cohort == "UCLA-ASD"), 
+             aes(xintercept = Mean_Age, colour = Disorder),
+             linetype = "dashed", size = 1) +
+  labs(title = "UCLA-ASD") +
+  scale_color_manual(values = color_palette) +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
+  )
+
+Velageplot <- clean_metadata |>
+  mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
+  filter(Cohort == "Velmeshev_et_al") |>
+  ggplot(aes(x = Age, fill = Disorder)) +
+  geom_density(alpha = 0.3) +
+  geom_vline(data = meanage_summary |> filter(Cohort == "Velmeshev_et_al"), 
+             aes(xintercept = Mean_Age, colour = Disorder),
+             linetype = "dashed", size = 1) +
+  labs(title = "Velmeshev_et_al") +
+  scale_color_manual(values = color_palette, guide = "none") +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
+  )
+
+plot_list <- list(CMCageplot, DevBrainageplot, Girgentiageplot, ISOhubageplot,
+                  LIBDageplot, Maageplot, MBageplot, PTSDageplot, SZBDageplot,
+                  UCLAageplot, Velageplot)
+
+combined_plots <- plot_grid(
+  plotlist = plot_list, 
+  ncol = 3,
+  align = "hv"
+)
+
+print(combined_plots)
+
+legend <- get_legend(
+  Velageplot + theme(legend.position = "bottom"))
+
+final_plot <- plot_grid(
+  combined_plots, 
+  legend, 
+  ncol = 1,
+  rel_heights = c(1, 0.1)
+)
+
+final_plot <- add_sub(final_plot, "Age at Death (years)", x = 0.5, y = 0.5, vjust = 1, size = 16)
+final_plot <- add_sub(final_plot, "Density", x = 0.02, angle = 90, size = 16)
+
+print(final_plot)
   
-  plot_grid(CMCage_plot, ncol = 2)
-  
-  ggsave(file.path("results/4-agedistribution"), histogram)
+ggsave(file.path("results/4-agedistribution.png"), final_plot)
 }
 
 main()
+
