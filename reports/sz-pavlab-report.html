@@ -131,159 +131,28 @@ div.csl-indent {
 <li>UCLA-ASD</li>
 <li>Velmeshev_et_al <span class="citation" data-cites="Velmeshev">(<a href="#ref-Velmeshev" role="doc-biblioref">Velmeshev et al. 2019</a>)</span></li>
 </ol>
-<p>However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata. Here is an overview of the metadata:</p>
-<div class="cell">
-<div id="tbl-clean-metadata" class="cell quarto-float anchored">
-<figure class="quarto-float quarto-float-tbl figure">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-clean-metadata-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: First 6 rows of the cleaned metadata.
-</figcaption>
-<div aria-describedby="tbl-clean-metadata-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output-display">
-<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
-<colgroup>
-<col style="width: 5%">
-<col style="width: 11%">
-<col style="width: 12%">
-<col style="width: 8%">
-<col style="width: 11%">
-<col style="width: 12%">
-<col style="width: 11%">
-<col style="width: 9%">
-<col style="width: 4%">
-<col style="width: 3%">
-<col style="width: 3%">
-<col style="width: 5%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Cohort</th>
-<th style="text-align: left;">Individual_ID</th>
-<th style="text-align: left;">Biological_Sex</th>
-<th style="text-align: left;">Age_death</th>
-<th style="text-align: left;">Disorder</th>
-<th style="text-align: left;">1000G_ancestry</th>
-<th style="text-align: left;">Genotype_data</th>
-<th style="text-align: left;">snATAC-Seq</th>
-<th style="text-align: right;">PMI</th>
-<th style="text-align: right;">pH</th>
-<th style="text-align: right;">RIN</th>
-<th style="text-align: left;">Notes</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">CMC</td>
-<td style="text-align: left;">CMC_MSSM_002</td>
-<td style="text-align: left;">male</td>
-<td style="text-align: left;">42</td>
-<td style="text-align: left;">Control</td>
-<td style="text-align: left;">EUR</td>
-<td style="text-align: left;">Array</td>
-<td style="text-align: left;">None</td>
-<td style="text-align: right;">22.3</td>
-<td style="text-align: right;">6.0</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">CMC</td>
-<td style="text-align: left;">CMC_MSSM_033</td>
-<td style="text-align: left;">female</td>
-<td style="text-align: left;">81</td>
-<td style="text-align: left;">Control</td>
-<td style="text-align: left;">AFR</td>
-<td style="text-align: left;">Array</td>
-<td style="text-align: left;">None</td>
-<td style="text-align: right;">4.0</td>
-<td style="text-align: right;">6.3</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">CMC</td>
-<td style="text-align: left;">CMC_MSSM_035</td>
-<td style="text-align: left;">male</td>
-<td style="text-align: left;">75</td>
-<td style="text-align: left;">Control</td>
-<td style="text-align: left;">EUR</td>
-<td style="text-align: left;">Array</td>
-<td style="text-align: left;">None</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">2.0</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">CMC</td>
-<td style="text-align: left;">CMC_MSSM_036</td>
-<td style="text-align: left;">female</td>
-<td style="text-align: left;">82</td>
-<td style="text-align: left;">Control</td>
-<td style="text-align: left;">EUR</td>
-<td style="text-align: left;">Array</td>
-<td style="text-align: left;">None</td>
-<td style="text-align: right;">3.8</td>
-<td style="text-align: right;">6.4</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">CMC</td>
-<td style="text-align: left;">CMC_MSSM_048</td>
-<td style="text-align: left;">male</td>
-<td style="text-align: left;">84</td>
-<td style="text-align: left;">Schizophrenia</td>
-<td style="text-align: left;">EUR</td>
-<td style="text-align: left;">Array</td>
-<td style="text-align: left;">None</td>
-<td style="text-align: right;">17.7</td>
-<td style="text-align: right;">6.7</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">CMC</td>
-<td style="text-align: left;">CMC_MSSM_049</td>
-<td style="text-align: left;">female</td>
-<td style="text-align: left;">61</td>
-<td style="text-align: left;">Control</td>
-<td style="text-align: left;">EUR</td>
-<td style="text-align: left;">Array</td>
-<td style="text-align: left;">None</td>
-<td style="text-align: right;">20.3</td>
-<td style="text-align: right;">6.9</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</figure>
-</div>
-</div>
+<p>However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata.</p>
 <p>This is an overview of each cohort:</p>
 <div class="cell">
 <div id="tbl-total-patients" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-total-patients-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2: Each cohort with the total patients studied, the mean of the age of death, and disease studied.
+Table&nbsp;1: Each cohort with the total patients studied, the mean of the age of death, and disease studied.
 </figcaption>
 <div aria-describedby="tbl-total-patients-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 24%">
-<col style="width: 18%">
-<col style="width: 18%">
-<col style="width: 39%">
+<col style="width: 28%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 45%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Cohort</th>
-<th style="text-align: right;">Total_Patients</th>
-<th style="text-align: right;">Mean_Age_Death</th>
+<th style="text-align: right;">Patients</th>
+<th style="text-align: right;">Mean_Age</th>
 <th style="text-align: left;">Disorder_studied</th>
 </tr>
 </thead>
@@ -361,12 +230,12 @@ Table&nbsp;2: Each cohort with the total patients studied, the mean of the age o
 </figure>
 </div>
 </div>
-<p>From <a href="#tbl-total-patients" class="quarto-xref">Table&nbsp;2</a>, we can see that the CMC cohort has the biggest number of patient samples with 100 samples, followed by SZBDMulti-seq with 72. Ma_et_al has the smallest size, with only 2 samples. CMC and SZBDMulti-seq also have the highest mean of age of death at 71 years and 65 years respectively. Velmeshev_et_al has the lowest one, at 18 years. A variety of diseases are studied in these cohorts, with some cohorts studying none. These diseases include schizophrenia, autism spectrum disorder (ASD), bipolar disorder, major depressive disorder (MDD), post-traumatic stress disorder (PTSD), and Williams Syndrome.</p>
+<p>From <a href="#tbl-total-patients" class="quarto-xref">Table&nbsp;1</a>, we can see that the CMC cohort has the biggest number of patient samples with 100 samples, followed by SZBDMulti-seq with 72. Ma_et_al has the smallest size, with only 2 samples. CMC and SZBDMulti-seq also have the highest mean of age of death at 71 years and 65 years respectively. Velmeshev_et_al has the lowest one, at 18 years. A variety of diseases are studied in these cohorts, with some cohorts studying none. These diseases include schizophrenia, autism spectrum disorder (ASD), bipolar disorder, major depressive disorder (MDD), post-traumatic stress disorder (PTSD), and Williams Syndrome.</p>
 <div class="cell">
 <div id="tbl-patientpercondition" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-patientpercondition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;3: Number of patients per condition per cohort.
+Table&nbsp;2: Number of patients per condition per cohort.
 </figcaption>
 <div aria-describedby="tbl-patientpercondition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
@@ -496,13 +365,13 @@ Table&nbsp;3: Number of patients per condition per cohort.
 </figure>
 </div>
 </div>
-<p><a href="#tbl-patientpercondition" class="quarto-xref">Table&nbsp;3</a> indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples.</p>
-<p>It must be noted that many patients’ age at death was marked as “89+”. In order to determine the age distribution and the mean age of death, these values were converted to “89”. The number of samples that were marked as “89+” from the Schizophrenia cohorts is in <a href="#tbl-elderlypatients" class="quarto-xref">Table&nbsp;4</a>.</p>
+<p><a href="#tbl-patientpercondition" class="quarto-xref">Table&nbsp;2</a> indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples.</p>
+<p>It must be noted that many patients’ age at death was marked as “89+”. In order to determine the age distribution and the mean age of death, these values were converted to “89”. The number of samples that were marked as “89+” from the Schizophrenia cohorts is in <a href="#tbl-elderlypatients" class="quarto-xref">Table&nbsp;3</a>.</p>
 <div class="cell">
 <div id="tbl-elderlypatients" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-elderlypatients-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;4: Number of patients annotated as “89+” in Schizophrenia cohorts.
+Table&nbsp;3: Number of patients annotated as “89+” in Schizophrenia cohorts.
 </figcaption>
 <div aria-describedby="tbl-elderlypatients-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">

@@ -52,15 +52,7 @@ The data used is from the @388Brains set of cohorts, with its samples. The raw d
 11. UCLA-ASD
 12. Velmeshev_et_al [@Velmeshev]
 
-However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata. Here is an overview of the metadata:
-
-```{r}
-#| label: tbl-clean-metadata
-#| tbl-cap: First 6 rows of the cleaned metadata.
-
-clean_metadata <- read_csv("../data/data_processed/clean_metadata.csv")
-knitr::kable(head(clean_metadata))
-```
+However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata.
 
 This is an overview of each cohort:
 

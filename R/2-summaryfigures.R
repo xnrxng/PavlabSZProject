@@ -19,8 +19,8 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"), r
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort) |>
     summarize(
-      Total_Patients = n(),
-      Mean_Age_Death = round(mean(Age, na.rm = TRUE)),
+      Patients = n(),
+      Mean_Age = round(mean(Age, na.rm = TRUE)),
       Disorder_studied = paste(unique(Disorder[Disorder != "Control"]), collapse = ", "),
       Disorder_studied = ifelse(Disorder_studied == "", "None", Disorder_studied)
     )

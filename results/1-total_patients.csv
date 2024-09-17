@@ -1,4 +1,4 @@
-"Cohort","Total_Patients","Mean_Age_Death","Disorder_studied"
+"Cohort","Patients","Mean_Age","Disorder_studied"
 "CMC",100,71,"Schizophrenia"
 "DevBrain",16,29,"Williams Syndrome, ASD"
 "Girgenti-snMultiome",19,49,"None"
