@@ -46,7 +46,10 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"))
     group_by(Cohort, Disorder) |>
     summarize(Mean_Age = round(mean(Age)))
   
-  color_palette <- c(
+  x_limits <- c(0, 90)
+  y_limits <- c(0, 0.2)  
+  
+color_palette <- c(
     "Control" = "turquoise",
     "Schizophrenia" = "coral",
     "ASD" = "pink2",
@@ -55,9 +58,6 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"))
     "PTSD" = "navy",
     "Williams Syndrome" = "red3"
   )
-  
-x_limits <- c(0, 90)
-y_limits <- c(0, 0.2)  
   
   CMCageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
@@ -251,8 +251,6 @@ PTSDageplot <- clean_metadata |>
     legend.position = "none"
   )
 
-print(PTSDageplot)
-
 SZBDageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "SZBDMulti-Seq") |>
@@ -335,24 +333,45 @@ combined_plots <- plot_grid(
   align = "hv"
 )
 
-print(combined_plots)
+dummyplot <- clean_metadata |>
+  mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
+  ggplot(aes(x = Age, fill = Disorder)) +
+  geom_density(alpha = 0.3) +
+  scale_fill_manual(values = color_palette) +
+  theme_void() +
+  theme(legend.box.margin = margin(0, 0, 0, 0),
+        legend.key.size = unit(1, 'cm'),
+        legend.title = element_text(size = 10))
 
-legend <- get_legend(
-  Velageplot + theme(legend.position = "bottom"))
+legend <- get_legend(dummyplot)
+
+x_label_plot <- ggdraw() + 
+  draw_label("Age at Death (years)", x = 0.5, y = 0.5, size = 14)
+
+y_label_plot <- ggdraw() + 
+  draw_label("Density", x = 0.5, y = 0.5, angle = 90, size = 14)
 
 final_plot <- plot_grid(
-  combined_plots, 
-  legend, 
-  ncol = 1,
+  plot_grid(
+    y_label_plot,
+    combined_plots, 
+    ncol = 2, 
+    rel_widths = c(0.1, 1)
+  ),
+  x_label_plot,
+  ncol = 1, 
   rel_heights = c(1, 0.1)
 )
 
-final_plot <- add_sub(final_plot, "Age at Death (years)", x = 0.5, y = 0.5, vjust = 1, size = 16)
-final_plot <- add_sub(final_plot, "Density", x = 0.02, angle = 90, size = 16)
-
-print(final_plot)
+final_plot_with_legend <- plot_grid(
+  final_plot,
+  legend,
+  ncol = 2,  
+  rel_widths = c(0.85, 0.15)
+)
   
-ggsave(file.path("results/4-agedistribution.png"), final_plot)
+ggsave(file.path("results/4-agedistribution.png"), final_plot_with_legend, width = 12, 
+       height = 8, units = "in", dpi = 300)
 }
 
 main()
