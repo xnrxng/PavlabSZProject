@@ -20,6 +20,7 @@ execute:
 
 ```{r}
 library(tidyverse)
+library(knitr)
 ```
 
 ## Summary
@@ -31,32 +32,73 @@ TBF
 TBF
 
 ## Methods
+
 TBF
 
 ### Preview of Data
-The data used is from the [@388Brains] set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). This is an overview of each cohort:
-- CMC: 100 samples, 
-- DevBrain: 16 samples, 
-- Girgenti-multiome: 18 samples
-- IsoHuB: 4 samples
-- LIBD: 10 samples
-- Ma_et_al: 2 samples, [@MaSestan]
-- MultiomeBrain:20 samples, 
-- PTSDBrainomics: 18 samples, 
-- SZBDMulti-Seq: 72 samples, 
-- UCLA-ASD: 51 samples
-- Velmeshev_et_al: 26 samples [@Velmeshev]
 
-- total number of patients per cohort DONE
-- number of patients/individuals per condition per cohort DONE
-- what clinical condition is being studied per cohort DONE
-- filter out rosmap DONE
-- summary of brain region studied in each cohort PFC DONE
-- number of samples that are 89+ DONE
-- distribution of age per condition per cohort 
+The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
 
-- total number of single cells per cohort
-- number of genes per cohort
+1. CMC
+2. DevBrain
+3. Girgenti-multiome
+4. IsoHuB
+5. LIBD
+6. Ma_et_al [@MaSestan]
+7. MultiomeBrain
+8. PTSDBrainomics
+9. SZBDMulti-Seq
+10. ROSMAP
+11. UCLA-ASD
+12. Velmeshev_et_al [@Velmeshev]
+
+However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata. Here is an overview of the metadata:
+
+```{r}
+#| label: tbl-clean-metadata
+#| tbl-cap: First 6 rows of the cleaned metadata.
+
+clean_metadata <- read_csv("../data/data_processed/clean_metadata.csv")
+knitr::kable(head(clean_metadata))
+```
+
+This is an overview of each cohort:
+
+```{r}
+#| label: tbl-total-patients
+#| tbl-cap: Each cohort with the total patients studied, the mean of the age of death, and disease studied.
+
+total_patients <- read_csv("../results/1-total_patients.csv")
+knitr::kable(total_patients)
+```
+
+From @tbl-total-patients, we can see that the CMC cohort has the biggest number of patient samples with 100 samples, followed by SZBDMulti-seq with 72. Ma_et_al has the smallest size, with only 2 samples. CMC and SZBDMulti-seq also have the highest mean of age of death at 71 years and 65 years respectively. Velmeshev_et_al has the lowest one, at 18 years. A variety of diseases are studied in these cohorts, with some cohorts studying none. These diseases include schizophrenia, autism spectrum disorder (ASD), bipolar disorder, major depressive disorder (MDD), post-traumatic stress disorder (PTSD), and Williams Syndrome.
+
+```{r}
+#| label: tbl-patientpercondition
+#| tbl-cap: Number of patients per condition per cohort.
+
+patientpercondition <- read_csv("../results/2-patients_per_condition.csv")
+knitr::kable(patientpercondition)
+```
+
+@tbl-patientpercondition indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples.
+
+It must be noted that many patients' age at death was marked as "89+". In order to determine the age distribution and the mean age of death, these values were converted to "89". The number of samples that were marked as "89+" from the Schizophrenia cohorts is in @tbl-elderlypatients.
+
+```{r}
+#| label: tbl-elderlypatients
+#| tbl-cap: Number of patients annotated as "89+" in Schizophrenia cohorts.
+
+elderlypatients <- read_csv("../results/3-elderlypatients.csv")
+knitr::kable(elderlypatients)
+```
+
+
+The age distribution of each condition per cohort was also examined.
+
+![Age distribution in each cohort.](../results/4-agedistribution.png){#fig-agedistribution}
+
+In @fig-agedistribution, the dotted vertical lines are the mean of the age at death for each condition. 
 
 ## References
-

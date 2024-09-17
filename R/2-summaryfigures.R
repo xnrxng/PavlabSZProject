@@ -13,7 +13,7 @@ main <- function() {
     filter(Cohort != "ROSMAP") |>
     mutate(Disorder = ifelse(tolower(Disorder) == "control", "Control", Disorder))
 
-write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"))
+write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"), row.names = FALSE)
   
   total_patients <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
@@ -25,13 +25,13 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"))
       Disorder_studied = ifelse(Disorder_studied == "", "None", Disorder_studied)
     )
   
-  write.csv(total_patients, file.path("results/1-total_patients.csv"))
+  write.csv(total_patients, file.path("results/1-total_patients.csv"), row.names = FALSE)
   
   patientpercondition <- clean_metadata |>
     group_by(Cohort, Disorder) |>
     summarize(Number_of_Patients = n())
   
-  write.csv(patientpercondition, file.path("results/2-patients_per_condition.csv"))
+  write.csv(patientpercondition, file.path("results/2-patients_per_condition.csv"), row.names = FALSE)
   
   elderlypatients <- clean_metadata |>
     filter(Cohort == "CMC" | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
@@ -39,7 +39,7 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"))
     filter(Age_death == "89+") |>
     summarize(Plus89_patients = n())
   
-  write.csv(elderlypatients, file.path("results/3-elderlypatients.csv"))
+  write.csv(elderlypatients, file.path("results/3-elderlypatients.csv"), row.names = FALSE)
   
   meanage_summary <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
