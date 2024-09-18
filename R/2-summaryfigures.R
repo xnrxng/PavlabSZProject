@@ -31,7 +31,7 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"), r
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort, Disorder) |>
     summarize(
-      Number_of_Patients = n(),
+      Total = n(),
       Mean_Age = round(mean(Age, na.rm = TRUE)),
       N_Male = sum(Biological_Sex == "male", na.rm = TRUE),
       N_Female = sum(Biological_Sex == "female", na.rm = TRUE)

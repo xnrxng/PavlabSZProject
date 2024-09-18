@@ -1,4 +1,4 @@
-"Cohort","Disorder","Number_of_Patients","Mean_Age","N_Male","N_Female"
+"Cohort","Disorder","Total","Mean_Age","N_Male","N_Female"
 "CMC","Control",53,71,32,21
 "CMC","Schizophrenia",47,71,33,14
 "DevBrain","ASD",9,24,8,1
