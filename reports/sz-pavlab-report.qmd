@@ -105,4 +105,12 @@ knitr::kable(cells_genes)
 
 The number of genes is quite similar across 3 cohorts. SZBDMulti-Seq has the highest number of total cells, at 603281. MultiomeBrain has the lowest number of total cells, at 134666.
 
+The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that L2/3 intratelencephalic excitatory neurons have the highest frequency (279756 in total), especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes with 221554 counts in total. Sst Chodl inhibitory neurons have the lowest count at 746 counts. Smooth muscle cells (SMC) have the second lowest count, at 944.
+
+![Cells per cell-type per patient in each cohort.](../results/6-celltypedistribution.png){#fig-celltypedistribution}
+
+Lastly, in @fig-depthdistribution, the sequencing depth of each cell was investigated. These results were grouped together per cell type in the following plot, and colored by cohort. The CMC points are obscured by the other ones, as they fell within the middle range.
+
+![Depth distribution per cell-type per patient in each cohort.](../results/7-depthdistribution.png){#fig-depthdistribution}
+
 ## References
