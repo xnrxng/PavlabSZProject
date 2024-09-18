@@ -28,8 +28,15 @@ write.csv(clean_metadata, file.path("data/data_processed/clean_metadata.csv"), r
   write.csv(total_patients, file.path("results/1-total_patients.csv"), row.names = FALSE)
   
   patientpercondition <- clean_metadata |>
+    mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort, Disorder) |>
-    summarize(Number_of_Patients = n())
+    summarize(
+      Number_of_Patients = n(),
+      Mean_Age = round(mean(Age, na.rm = TRUE)),
+      N_Male = sum(Biological_Sex == "male", na.rm = TRUE),
+      N_Female = sum(Biological_Sex == "female", na.rm = TRUE)
+    )
+  
   
   write.csv(patientpercondition, file.path("results/2-patients_per_condition.csv"), row.names = FALSE)
   
@@ -375,4 +382,3 @@ ggsave(file.path("results/4-agedistribution.png"), final_plot_with_legend, width
 }
 
 main()
-

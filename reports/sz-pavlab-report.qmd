@@ -35,7 +35,7 @@ TBF
 
 TBF
 
-### Preview of Data
+### Preview of the Data
 
 The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
 
@@ -68,13 +68,13 @@ From @tbl-total-patients, we can see that the CMC cohort has the biggest number 
 
 ```{r}
 #| label: tbl-patientpercondition
-#| tbl-cap: Number of patients per condition per cohort.
+#| tbl-cap: Number of patients per condition per cohort. Includes the mean age and the biological sex as well.
 
 patientpercondition <- read_csv("../results/2-patients_per_condition.csv")
 knitr::kable(patientpercondition)
 ```
 
-@tbl-patientpercondition indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples.
+@tbl-patientpercondition indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples. The mean of age at death and the distribution of the biological sexes is also shown in this table.
 
 It must be noted that many patients' age at death was marked as "89+". In order to determine the age distribution and the mean age of death, these values were converted to "89". The number of samples that were marked as "89+" from the Schizophrenia cohorts is in @tbl-elderlypatients.
 
@@ -92,5 +92,17 @@ The age distribution of each condition per cohort was also examined.
 ![Age distribution in each cohort.](../results/4-agedistribution.png){#fig-agedistribution}
 
 In @fig-agedistribution, the dotted vertical lines are the mean of the age at death for each condition. 
+
+The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort. 
+
+```{r}
+#| label: tbl-genescells
+#| tbl-cap: Number of genes and total number of cells per each Schizophrenia cohort.
+
+cells_genes <- read_csv("../results/5-cells_genes.csv")
+knitr::kable(cells_genes)
+```
+
+The number of genes is quite similar across 3 cohorts. SZBDMulti-Seq has the highest number of total cells, at 603281. MultiomeBrain has the lowest number of total cells, at 134666.
 
 ## References

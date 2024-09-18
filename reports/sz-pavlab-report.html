@@ -70,7 +70,7 @@ div.csl-indent {
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
-  <li><a href="#preview-of-data" id="toc-preview-of-data" class="nav-link" data-scroll-target="#preview-of-data">Preview of Data</a></li>
+  <li><a href="#preview-of-the-data" id="toc-preview-of-the-data" class="nav-link" data-scroll-target="#preview-of-the-data">Preview of the Data</a></li>
   </ul></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul>
@@ -114,8 +114,8 @@ div.csl-indent {
 <section id="methods" class="level2">
 <h2 class="anchored" data-anchor-id="methods">Methods</h2>
 <p>TBF</p>
-<section id="preview-of-data" class="level3">
-<h3 class="anchored" data-anchor-id="preview-of-data">Preview of Data</h3>
+<section id="preview-of-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="preview-of-the-data">Preview of the Data</h3>
 <p>The data used is from the <span class="citation" data-cites="388Brains">Emani et al. (<a href="#ref-388Brains" role="doc-biblioref">2024</a>)</span> set of cohorts, with its samples. The raw data of the annotated expression matrices can be found <a href="https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html">here</a>. All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:</p>
 <ol type="1">
 <li>CMC</li>
@@ -235,16 +235,27 @@ Table&nbsp;1: Each cohort with the total patients studied, the mean of the age o
 <div id="tbl-patientpercondition" class="cell quarto-float anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-patientpercondition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;2: Number of patients per condition per cohort.
+Table&nbsp;2: Number of patients per condition per cohort. Includes the mean age and the biological sex as well.
 </figcaption>
 <div aria-describedby="tbl-patientpercondition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 21%">
+<col style="width: 23%">
+<col style="width: 10%">
+<col style="width: 8%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Cohort</th>
 <th style="text-align: left;">Disorder</th>
 <th style="text-align: right;">Number_of_Patients</th>
+<th style="text-align: right;">Mean_Age</th>
+<th style="text-align: right;">N_Male</th>
+<th style="text-align: right;">N_Female</th>
 </tr>
 </thead>
 <tbody>
@@ -252,111 +263,177 @@ Table&nbsp;2: Number of patients per condition per cohort.
 <td style="text-align: left;">CMC</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">53</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">21</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">CMC</td>
 <td style="text-align: left;">Schizophrenia</td>
 <td style="text-align: right;">47</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">14</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">DevBrain</td>
 <td style="text-align: left;">ASD</td>
 <td style="text-align: right;">9</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">DevBrain</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">4</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">DevBrain</td>
 <td style="text-align: left;">Williams Syndrome</td>
 <td style="text-align: right;">3</td>
+<td style="text-align: right;">31</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Girgenti-snMultiome</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">19</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">IsoHuB</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">4</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">LIBD</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">10</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Ma_et_al</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">2</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">MultiomeBrain</td>
 <td style="text-align: left;">Bipolar Disorder</td>
 <td style="text-align: right;">10</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">MultiomeBrain</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">5</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">MultiomeBrain</td>
 <td style="text-align: left;">Schizophrenia</td>
 <td style="text-align: right;">6</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">PTSDBrainomics</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">9</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">PTSDBrainomics</td>
 <td style="text-align: left;">MDD</td>
 <td style="text-align: right;">4</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">PTSDBrainomics</td>
 <td style="text-align: left;">PTSD</td>
 <td style="text-align: right;">6</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">SZBDMulti-Seq</td>
 <td style="text-align: left;">Bipolar Disorder</td>
 <td style="text-align: right;">24</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">SZBDMulti-Seq</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">24</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">SZBDMulti-Seq</td>
 <td style="text-align: left;">Schizophrenia</td>
 <td style="text-align: right;">24</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">12</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">UCLA-ASD</td>
 <td style="text-align: left;">ASD</td>
 <td style="text-align: right;">27</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">UCLA-ASD</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">25</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Velmeshev_et_al</td>
 <td style="text-align: left;">ASD</td>
 <td style="text-align: right;">13</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Velmeshev_et_al</td>
 <td style="text-align: left;">Control</td>
 <td style="text-align: right;">14</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">5</td>
 </tr>
 </tbody>
 </table>
@@ -365,7 +442,7 @@ Table&nbsp;2: Number of patients per condition per cohort.
 </figure>
 </div>
 </div>
-<p><a href="#tbl-patientpercondition" class="quarto-xref">Table&nbsp;2</a> indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples.</p>
+<p><a href="#tbl-patientpercondition" class="quarto-xref">Table&nbsp;2</a> indicates the number of patients per condition in each cohort. The CMC cohort has the highest numbers, with 53 control samples and 47 schizophrenia samples. The UCLA-ASD is second, with 27 ASD samples and 25 control samples. The mean of age at death and the distribution of the biological sexes is also shown in this table.</p>
 <p>It must be noted that many patients’ age at death was marked as “89+”. In order to determine the age distribution and the mean age of death, these values were converted to “89”. The number of samples that were marked as “89+” from the Schizophrenia cohorts is in <a href="#tbl-elderlypatients" class="quarto-xref">Table&nbsp;3</a>.</p>
 <div class="cell">
 <div id="tbl-elderlypatients" class="cell quarto-float anchored">
@@ -428,6 +505,47 @@ Figure&nbsp;1: Age distribution in each cohort.
 </figure>
 </div>
 <p>In <a href="#fig-agedistribution" class="quarto-xref">Figure&nbsp;1</a>, the dotted vertical lines are the mean of the age at death for each condition.</p>
+<p>The number of genes and single cells per each Schizophrenia cohort was also looked at in <a href="#tbl-genescells" class="quarto-xref">Table&nbsp;4</a>. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort.</p>
+<div class="cell">
+<div id="tbl-genescells" class="cell quarto-float anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-genescells-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Number of genes and total number of cells per each Schizophrenia cohort.
+</figcaption>
+<div aria-describedby="tbl-genescells-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Cohort</th>
+<th style="text-align: right;">Genes</th>
+<th style="text-align: right;">Total_Cells</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">CMC</td>
+<td style="text-align: right;">33792</td>
+<td style="text-align: right;">456560</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SZBDMulti-Seq</td>
+<td style="text-align: right;">34361</td>
+<td style="text-align: right;">603281</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MultiomeBrain</td>
+<td style="text-align: right;">33822</td>
+<td style="text-align: right;">134666</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The number of genes is quite similar across 3 cohorts. SZBDMulti-Seq has the highest number of total cells, at 603281. MultiomeBrain has the lowest number of total cells, at 134666.</p>
 </section>
 </section>
 <section id="references" class="level2 unnumbered">
