@@ -11,6 +11,11 @@ library(RColorBrewer)
 main <- function() {
   clean_metadata <- read_csv("data/data_processed/clean_metadata.csv")
   
+  color_palette <- c(
+    "CMC" = "seagreen3",
+    "MultiomeBrain" = "sienna1",
+    "SZBDMulti-Seq" = "lightskyblue3")
+  
   CMC_list <- clean_metadata |>
     filter(Cohort == "CMC") |>
     pull(Individual_ID)
@@ -69,7 +74,7 @@ main <- function() {
       panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"),
       legend.position = "none") +
-    scale_color_brewer(palette = "Set2") +
+    scale_color_manual(values = color_palette) +
     scale_y_discrete(expand = expansion(mult = c(0.01, 0.01))) +
     facet_wrap(~ Cohort, ncol =1)
   
@@ -89,6 +94,7 @@ main <- function() {
   
   depthplot <- ggplot(depth_df, aes(x = Seq_Depth, y = Cell_Type, color = Cohort)) +
     geom_boxplot(aes(fill = Cohort), alpha = 0.5, color = "black", outlier.shape = NA) + 
+    xlim(0, 200000) +
     labs(x = "Sequencing Depth (number  of reads)",
          y = "Cell type") +
     theme_minimal() + 
@@ -103,10 +109,9 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       legend.position = "none"       
     ) +
-    scale_color_brewer(palette = "Set2") +
+    scale_color_manual(values = color_palette) +
+    scale_fill_manual(values = color_palette) +
     facet_wrap(~ Cohort, ncol =1)
-    
-  print(depthplot)
     
   ggsave(file.path("results/7-depthdistribution.png"), depthplot, width = 8, height = 15)
   
