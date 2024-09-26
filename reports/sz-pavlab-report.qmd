@@ -37,9 +37,9 @@ TBF
 
 ### Preview of the Data
 
-The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
+The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). 10x Genomics Chromium Single Cell 3′ Reagent Kits v3 with sample multiplexing. The metadata contains the information of the following 12 cohorts:
 
-1. CMC
+1. CMC: 10x Genomics CHip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
 2. DevBrain
 3. Girgenti-multiome
 4. IsoHuB
@@ -47,7 +47,7 @@ The data used is from the @388Brains set of cohorts, with its samples. The raw d
 6. Ma_et_al [@MaSestan]
 7. MultiomeBrain
 8. PTSDBrainomics
-9. SZBDMulti-Seq
+9. SZBDMulti-Seq: used 10x Genomics Chip B. LIbraries prepared with 10x Genomics Chromium Single Cell 3’ Reagent Kits v3 and MULTI-Seq protocols. Used Illumina NextSeq500, and an additional round with NovaSeq S2 [@Ruzicka]
 10. ROSMAP
 11. UCLA-ASD
 12. Velmeshev_et_al [@Velmeshev]
@@ -104,6 +104,12 @@ knitr::kable(cells_genes)
 ```
 
 The number of genes is quite similar across 3 cohorts. SZBDMulti-Seq has the highest number of total cells, at 603281. MultiomeBrain has the lowest number of total cells, at 134666.
+
+From @Ruzicka, genes expressed in less than 0.1% cells and cells with fewer than 1000 identified genes were removed. If they had more than 10% unique molecular identifiers in mitochondrial genes or more than 50000 captured UMIs, these were also removed. They also determined outlier cells by checking their total UMI count, percentage of reads mapped to mitochondrial genes, low similarity with other cells, and exploration of 2D projection plots. These were also removed.
+
+From @ling2024concerted, donors with less than 1000 UMIS were excluded. For each cell type, matrices were scaled to 100000 UMIs per donor and filtered to the top expressing genes. Top expressing genes had at least 10 UMIs per 100000 for at least one donor.
+
+For our purposes, genes that are not expressed in at least 5% of cells will be filtered out. Cells must also be in the top 5th percentile in terms of the number of expressed genes. Patients that have less than 20 single cells will also be filtered out. The single cells will be CPM normalized. The cell types will be grouped into major types.
 
 The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that L2/3 intratelencephalic excitatory neurons have the highest frequency (279756 in total), especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes with 221554 counts in total. Sst Chodl inhibitory neurons have the lowest count at 746 counts. Smooth muscle cells (SMC) have the second lowest count, at 944.
 
