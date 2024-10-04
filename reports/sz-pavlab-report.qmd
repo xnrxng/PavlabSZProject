@@ -60,7 +60,7 @@ This is an overview of each cohort:
 #| label: tbl-total-patients
 #| tbl-cap: Each cohort with the total patients studied, the mean of the age of death, and disease studied.
 
-total_patients <- read_csv("../results/1-total_patients.csv")
+total_patients <- read_rds("../results/1-total_patients.rds")
 knitr::kable(total_patients)
 ```
 
@@ -70,7 +70,7 @@ From @tbl-total-patients, we can see that the CMC cohort has the biggest number 
 #| label: tbl-patientpercondition
 #| tbl-cap: Number of patients per condition per cohort. Includes the mean age and the biological sex as well.
 
-patientpercondition <- read_csv("../results/2-patients_per_condition.csv")
+patientpercondition <- read_rds("../results/2-patients_per_condition.rds")
 knitr::kable(patientpercondition)
 ```
 
@@ -82,7 +82,7 @@ It must be noted that many patients' age at death was marked as "89+". In order 
 #| label: tbl-elderlypatients
 #| tbl-cap: Number of patients annotated as "89+" in Schizophrenia cohorts.
 
-elderlypatients <- read_csv("../results/3-elderlypatients.csv")
+elderlypatients <- read_rds("../results/3-elderlypatients.rds")
 knitr::kable(elderlypatients)
 ```
 
@@ -99,7 +99,7 @@ The number of genes and single cells per each Schizophrenia cohort was also look
 #| label: tbl-genescells
 #| tbl-cap: Number of genes and total number of cells per each Schizophrenia cohort.
 
-cells_genes <- read_csv("../results/5-cells_genes.csv")
+cells_genes <- read_rds("../results/5-cells_genes.rds")
 knitr::kable(cells_genes)
 ```
 
