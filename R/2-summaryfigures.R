@@ -9,11 +9,7 @@ library(stringr)
 library(cowplot)
 
 main <- function() {
-  clean_metadata <- read_csv("data/data_raw/raw_metadata.csv") |>
-    filter(Cohort != "ROSMAP") |>
-    mutate(Disorder = ifelse(tolower(Disorder) == "control", "Control", Disorder))
-
-write_rds(clean_metadata, file.path("data/data_processed/clean_metadata.rds"))
+  clean_metadata <- readRDS("data/data_processed/clean_metadata.rds")
   
   total_patients <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
@@ -25,7 +21,7 @@ write_rds(clean_metadata, file.path("data/data_processed/clean_metadata.rds"))
       Disorder_studied = ifelse(Disorder_studied == "", "None", Disorder_studied)
     )
   
-  write_rds(total_patients, file.path("results/1-total_patients.rds"))
+  saveRDS(total_patients, file.path("results/1-total_patients.rds"))
   
   patientpercondition <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
@@ -38,7 +34,7 @@ write_rds(clean_metadata, file.path("data/data_processed/clean_metadata.rds"))
     )
   
   
-  write_rds(patientpercondition, file.path("results/2-patients_per_condition.rds"))
+  saveRDS(patientpercondition, file.path("results/2-patients_per_condition.rds"))
   
   elderlypatients <- clean_metadata |>
     filter(Cohort == "CMC" | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
@@ -46,7 +42,7 @@ write_rds(clean_metadata, file.path("data/data_processed/clean_metadata.rds"))
     filter(Age_death == "89+") |>
     summarize(Plus89_patients = n())
   
-  write_rds(elderlypatients, file.path("results/3-elderlypatients.rds"))
+  saveRDS(elderlypatients, file.path("results/3-elderlypatients.rds"))
   
   meanage_summary <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>

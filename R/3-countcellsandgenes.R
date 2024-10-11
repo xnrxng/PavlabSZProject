@@ -4,14 +4,13 @@
 # Usage: R/countcellsandgenes.R
 
 library(tidyverse)
-library(data.table)
 library(ggplot2)
 library(RColorBrewer)
 library(cowplot)
-source("/home/nelazzabi/benchmark/co-expression/mathys/functions/cpm-log.R")
+library(ggforce)
 
 main <- function() {
-  clean_metadata <- read_rds("data/data_processed/clean_metadata.rds")
+  clean_metadata <- readRDS("data/data_processed/clean_metadata.rds")
   
   CMC_list <- clean_metadata |>
     filter(Cohort == "CMC") |>
@@ -36,7 +35,7 @@ main <- function() {
   results <- process_cohort(SZBD_list, "SZBDMulti-Seq", results)
   results <- process_cohort(MB_list, "MultiomeBrain", results)
 
-  write_rds(results, file.path("results/5-cells_genes.rds"))
+  saveRDS(results, file.path("results/5-cells_genes.rds"))
 
   CMC_control <- clean_metadata |>
     filter(Cohort == "CMC" & Disorder == "Control") |>
@@ -235,9 +234,23 @@ main <- function() {
   depth_df <- sum_columns(SZBD_control, SZBD_sz, "SZBDMulti-Seq", depth_df)
   depth_df <- sum_columns(MB_control, MB_sz, "MultiomeBrain", depth_df)
   
+  depth_df_cpm <- data.frame(
+    Individual_ID = character(),
+    Cohort = character(),
+    Cell_Type = character(),
+    Seq_Depth = integer(),
+    Disorder = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  depth_df_cpm <- sum_columns_cpm(CMC_control, CMC_sz, "CMC", depth_df_cpm)
+  depth_df_cpm <- sum_columns_cpm(SZBD_control, SZBD_sz, "SZBDMulti-Seq", depth_df_cpm)
+  depth_df_cpm <- sum_columns_cpm(MB_control, MB_sz, "MultiomeBrain", depth_df_cpm)
+  
   depthplot <- ggplot(depth_df, aes(x = Seq_Depth, y = Cell_Type, color = Disorder)) +
-    geom_boxplot(aes(fill = Cohort), alpha = 0.5, color = "black", outlier.shape = NA) + 
-    xlim(0, 200000) +
+    geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
+    geom_jitter(aes(color = Disorder), size=0.4, alpha=0.5) +
+    xlim(0, 300000) +
     labs(x = "Sequencing Depth (number  of reads)",
          y = "Cell type") +
     theme_minimal() + 
@@ -251,8 +264,7 @@ main <- function() {
       panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"),
       strip.placement = "outside") +
-    scale_color_brewer(palette = "Pastel1") +
-    scale_fill_brewer(palette = "Pastel1") +
+    scale_color_brewer(palette = "Set2") +
     facet_wrap(~ Cohort, ncol =1, scales = "free_x")
       
   ggsave(file.path("results/7-depthdistribution.png"), depthplot, width = 8, height = 15)
@@ -290,7 +302,9 @@ main <- function() {
   ggsave(file.path("results/8-abundancecondition.png"), abundance_plot, width = 8, height = 12)
     
   }
-  
+
+
+### helper functions  
 process_cohort <- function(sample_list, cohort_name, results_df) {
   total_cells <- 0
   genes <- 0
@@ -305,7 +319,7 @@ process_cohort <- function(sample_list, cohort_name, results_df) {
     }
   }
 
-  results_df <- rbind(results_df, data.frame(
+  results_df <<- rbind(results_df, data.frame(
     Cohort = cohort_name,
     Genes = genes,
     Total_Cells = total_cells,
@@ -329,7 +343,7 @@ process_cohort_filtered <- function(sample_list, cohort_name, results_df) {
     }
   }
   
-  results_df <- rbind(results_df, data.frame(
+  results_df <<- rbind(results_df, data.frame(
     Cohort = cohort_name,
     Genes = genes,
     Total_Cells = total_cells,
@@ -344,13 +358,13 @@ process_sample <- function(control_list, disease_list, cohort_name, summary_df) 
   process_individual <- function(sample_list, disorder_label) {
     for (sample in sample_list) {
       sample_file <- paste0("data/data_processed/", cohort_name, "/", sample, "-annotated_matrix.rds")
-      sample_data <- as.data.frame(read_rds(sample_file))
+      sample_data <- read_rds(sample_file)
       cell_types <- colnames(sample_data)
       cell_type_counts <- as.data.frame(table(cell_types))
       cell_type_counts <- cell_type_counts |>
       rename(Cell_Type = cell_types, Cell_Count = Freq) |>
       mutate(Individual_ID = sample, Cohort = cohort_name, Disorder = disorder_label)
-      summary_df <- bind_rows(summary_df, cell_type_counts)}}
+      summary_df <<- bind_rows(summary_df, cell_type_counts)}}
 
   process_individual(control_list, "Control")
   process_individual(disease_list, "Schizophrenia")
@@ -363,18 +377,45 @@ sum_columns <- function(control_list, disease_list, cohort_name, depth_df) {
   sum_columns_individual <- function(sample_list, disorder_label) {
     for (sample in sample_list) {
       sample_file <- paste0("data/data_processed/", cohort_name, "/", sample, "-annotated_matrix.rds")
-      sample_data <- as.data.frame(read_rds(sample_file))
-      numeric_data <- filtered[, sapply(filtered, is.numeric)]
+      sample_data <- read_rds(sample_file)
+      numeric_data <- sample_data[, sapply(sample_data, is.numeric)]
       seq_depth <- colSums(numeric_data)
+      cleaned_cell_type <- sub("\\.\\d+$", "", colnames(numeric_data))
+      
       seq_depth_df <- data.frame(
-      Cell_Type = colnames(numeric_data),
+      Cell_Type = cleaned_cell_type,
       Seq_Depth = as.integer(seq_depth),
       Cohort = cohort_name,
       Individual_ID = sample,
       Disorder = disorder_label,
-      stringsAsFactors = FALSE)}
+      stringsAsFactors = FALSE)
+      depth_df <<- bind_rows(depth_df, seq_depth_df)
+      }}
+  
+  sum_columns_individual(control_list, "Control")
+  sum_columns_individual(disease_list, "Schizophrenia")
+  return(depth_df)
+}
+
+sum_columns_cpm <- function(control_list, disease_list, cohort_name, depth_df) {
+  
+  sum_columns_individual <- function(sample_list, disorder_label) {
+    for (sample in sample_list) {
+      sample_file <- paste0("data/data_processed/", cohort_name, "_CPM/", sample, "-CPM_annotated_matrix.rds")
+      sample_data <- read_rds(sample_file)
+      #numeric_data <- sample_data[, sapply(sample_data, is.numeric)]
+      seq_depth <- colSums(sample_data)
+      cleaned_cell_type <- sub("\\.\\d+$", "", colnames(sample_data))
       
-      depth_df <- bind_rows(depth_df, seq_depth_df)}
+      seq_depth_df <- data.frame(
+        Cell_Type = cleaned_cell_type,
+        Seq_Depth = as.integer(seq_depth),
+        Cohort = cohort_name,
+        Individual_ID = sample,
+        Disorder = disorder_label,
+        stringsAsFactors = FALSE)
+      depth_df <<- bind_rows(depth_df, seq_depth_df)
+    }}
   
   sum_columns_individual(control_list, "Control")
   sum_columns_individual(disease_list, "Schizophrenia")
@@ -391,7 +432,7 @@ abundance_conditions <- function(control_list, disease_list, cohort_name, summar
     cell_types <- colnames(sample_data)
     cell_type_counts <- as.data.frame(table(cell_types)) |>
       rename(Cell_Type = cell_types, Cell_Count = Freq)
-    control_counts <- bind_rows(control_counts, cell_type_counts)
+    control_counts <<- bind_rows(control_counts, cell_type_counts)
   }
   
   control_counts <- control_counts %>%
