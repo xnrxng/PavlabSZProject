@@ -37,7 +37,7 @@ TBF
 
 ### Preview of the Data
 
-The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). 10x Genomics Chromium Single Cell 3′ Reagent Kits v3 with sample multiplexing. The metadata contains the information of the following 12 cohorts:
+The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
 
 1. CMC: 10x Genomics CHip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
 2. DevBrain
@@ -47,7 +47,7 @@ The data used is from the @388Brains set of cohorts, with its samples. The raw d
 6. Ma_et_al [@MaSestan]
 7. MultiomeBrain
 8. PTSDBrainomics
-9. SZBDMulti-Seq: used 10x Genomics Chip B. LIbraries prepared with 10x Genomics Chromium Single Cell 3’ Reagent Kits v3 and MULTI-Seq protocols. Used Illumina NextSeq500, and an additional round with NovaSeq S2 [@Ruzicka]
+9. SZBDMulti-Seq: used 10x Genomics Chip B. Libraries prepared with 10x Genomics Chromium Single Cell 3’ Reagent Kits v3 and MULTI-Seq protocols. Used Illumina NextSeq500, and an additional round with NovaSeq S2 [@Ruzicka]
 10. ROSMAP
 11. UCLA-ASD
 12. Velmeshev_et_al [@Velmeshev]

@@ -458,34 +458,4 @@ abundance_conditions <- function(control_list, disease_list, cohort_name, summar
   return(summary_df)
 }
 
-cleanCtmat <- function(ctmat, geneThr = 0.05, sampleThr = 0.05) {
-  nCellsTot <- ncol(ctmat)
-  nCellsThr <- geneThr * nCellsTot
-
-  genesNN <- data.frame(gene = rownames(ctmat), nCells = rowSums(ctmat > 0), check.names = FALSE)  |>
-    filter(nCells > nCellsThr)
-  ctmat <- ctmat[genesNN$gene, ] 
-  
-  cellsNN <- data.frame(cell = colnames(ctmat), nGenes = colSums(ctmat > 0), check.names = FALSE) |>
-    mutate(perc = percent_rank(nGenes)) |>
-    filter(perc > sampleThr)
-  ctmat <- ctmat[, cellsNN$cell]
-  
-  colnames(ctmat) <- gsub("\\..*", "", colnames(ctmat))
-  
-  return(ctmat)
-}
-
-do_cpm_log <- function(mtx, log) {
-  colsums <- colSums(mtx)
-  cpm_result <- t(t(mtx) / colsums * 1e6)
-  
-  if (log) {
-    cpm_result <- log1p(cpm_result)
-  }
-  
-  return(cpm_result)
-}
-
-
 main()
