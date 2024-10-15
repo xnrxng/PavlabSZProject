@@ -121,7 +121,7 @@ generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
   metadata <- list() 
   
   excitatory_cell_types <- c("L2/3 IT", "L4 IT", "L5 IT", "L6 IT", "L6 CT", 
-                               "L6 IT Car3", "L5 ET", "LE/6 NP", "L6b IT")
+                               "L6 IT Car3", "L5 ET", "L5/6 NP", "L6b")
     
   inhibitory_cell_types <- c("Sst", "Sst Chodl", "Pvalb", "Chandelier", "Pax6",
                                "Lamp5 Lhx6", "Lamp5", "Sncg", "Vip")
@@ -133,6 +133,7 @@ generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
     sample_data <- sample_data[, -1]
     sample_data <- sample_data[rownames(sample_data) %in% common_genes, , drop = FALSE]
     sample_data[is.na(sample_data)] <- 0
+    colnames(sample_data) <- gsub("\\..*", "", colnames(sample_data))
     
     individual_metadata <- clean_metadata[clean_metadata$Individual_ID == sample, ]
       
@@ -242,8 +243,21 @@ savefiltered <- function(cohort) {
     full_path <- paste0("data/data_processed/", cohort, "/", cell)
     unfiltered <- readRDS(full_path)
     expr_matrix <- unfiltered$expr
+    metadata <- unfiltered$meta
     
-    filtered <- cleanCtmat(expr_matrix)
+    less_than_20_cells <- metadata |>
+      group_by(patientID) |>
+      tally() |>
+      filter(n <20) |>
+      pull(patientID)
+    
+    columns_to_remove <- sapply(colnames(expr_matrix), function(col) {
+      any(sapply(less_than_20_cells, function(str) grepl(str, col)))
+    })
+    
+    matrix_patientsplus20 <- expr_matrix[, !columns_to_remove]
+    
+    filtered <- cleanCtmat(matrix_patientsplus20)
     filtered_path <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell)
     saveRDS(filtered, filtered_path)
     

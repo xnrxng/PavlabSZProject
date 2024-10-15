@@ -39,7 +39,7 @@ TBF
 
 The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
 
-1. CMC: 10x Genomics CHip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
+1. CMC: used 10x Genomics Chip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
 2. DevBrain
 3. Girgenti-multiome
 4. IsoHuB
@@ -60,7 +60,7 @@ This is an overview of each cohort:
 #| label: tbl-total-patients
 #| tbl-cap: Each cohort with the total patients studied, the mean of the age of death, and disease studied.
 
-total_patients <- read_rds("../results/1-total_patients.rds")
+total_patients <- readRDS("../results/1-total_patients.rds")
 knitr::kable(total_patients)
 ```
 
@@ -70,7 +70,7 @@ From @tbl-total-patients, we can see that the CMC cohort has the biggest number 
 #| label: tbl-patientpercondition
 #| tbl-cap: Number of patients per condition per cohort. Includes the mean age and the biological sex as well.
 
-patientpercondition <- read_rds("../results/2-patients_per_condition.rds")
+patientpercondition <- readRDS("../results/2-patients_per_condition.rds")
 knitr::kable(patientpercondition)
 ```
 
@@ -82,16 +82,28 @@ It must be noted that many patients' age at death was marked as "89+". In order 
 #| label: tbl-elderlypatients
 #| tbl-cap: Number of patients annotated as "89+" in Schizophrenia cohorts.
 
-elderlypatients <- read_rds("../results/3-elderlypatients.rds")
+elderlypatients <- readRDS("../results/3-elderlypatients.rds")
 knitr::kable(elderlypatients)
 ```
 
 
-The age distribution of each condition per cohort was also examined.
+The age at death distribution of each condition per cohort was also examined. In @fig-agedistribution, the dotted vertical lines are the mean of the age at death for each condition. From top to bottom and left to right:
+
+- CMC: both conditions fall in the older range.
+- IsoHub: there are only control samples and most fall in the younger range.
+- MultiomeBrain: although most control samples fall between the 30-45 range, there are samples that are younger than 25 and older than 50. Schizophrenia samples fall around the 50 year age range, and BPD samples fall between the 30-45 range.
+- UCLA-ASD: both control and ASD samples fall in the younger range, with an average of around 25 years.
+- DevBrain: control samples fall between the 25-50 range. ASD samples faill in the younger range, with an average of around 25 years. Williams Syndrome samples are also in the younger range, although their average is slightly higher than 25.
+- LIBD: there are only control samples and most of them fall in the 50 year range.
+- PTSDBrainomics: control and MDD samples fall in the 50 year range. PTSD samples are slightly younger in average, but their distribution is wide.
+- Velmeshev_et_al: most ASD and control samples are under 25 years old.
+- Girgenti-snMultiome: there are only control samples. The average is around 50 years old.
+- Ma-Sestan: there are only control samples. There is one sample that falls around 50 years old, and the other that falls around 60 years old.
+- SZBDMulti-Seq: both control and Schizophrenia samples have similar distributions ad averages of around 60 years. THe BPD samples' distribution is shifted slightly more towards the right, with an older average of around 60 years old.
 
 ![Age distribution in each cohort.](../results/4-agedistribution.png){#fig-agedistribution}
 
-In @fig-agedistribution, the dotted vertical lines are the mean of the age at death for each condition. 
+### Examining the Schizophrenia Cohorts
 
 The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort. 
 
@@ -99,7 +111,7 @@ The number of genes and single cells per each Schizophrenia cohort was also look
 #| label: tbl-genescells
 #| tbl-cap: Number of genes and total number of cells per each Schizophrenia cohort.
 
-cells_genes <- read_rds("../results/5-cells_genes.rds")
+cells_genes <- readRDS("../results/5-cells_genes.rds")
 knitr::kable(cells_genes)
 ```
 
@@ -109,7 +121,14 @@ From @Ruzicka, genes expressed in less than 0.1% cells and cells with fewer than
 
 From @ling2024concerted, donors with less than 1000 UMIS were excluded. For each cell type, matrices were scaled to 100000 UMIs per donor and filtered to the top expressing genes. Top expressing genes had at least 10 UMIs per 100000 for at least one donor.
 
-For our purposes, genes that are not expressed in at least 5% of cells will be filtered out. Cells must also be in the top 5th percentile in terms of the number of expressed genes. Patients that have less than 20 single cells will also be filtered out. The single cells will be CPM normalized. The cell types will be grouped into major types.
+For our purposes, genes that are not expressed in at least 5% of cells will be filtered out. Cells must also be in the top 5th percentile in terms of the number of expressed genes. If the cell comes from a patient that had less than 20 cells for that specific cell type, these will be filtered out. The single cells will be CPM and log normalized. The cell types will be grouped into major types:
+
+- Excitatory neurons: these include neurons that are L2/3 intratelencephalic, L4 IT intratelencephalic, L5 intratelencephalic, L6 intratelencephalic, L6 corticothalamic, L6 intratelencephalic Car3, L5 extratelencephalic, LE/6 near-projecting, and L6b intratelencephalic.
+- Inhibitory neurons: these chandelier cells and neurons that express somatostatin, somatostatin and chondrolectin, parvalbumin, paired box 6, lysosomal-associated membrane protein 5 and LIM homeobox protein 6, lysosomal-associated membrane protein 5, synuclein gamma, and vasoactive intestinal polypeptide.
+- Astrocytes
+- Microglia cells
+- OLigodendrocyte progenitor cells
+- Oligodendrocytes
 
 The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that L2/3 intratelencephalic excitatory neurons have the highest frequency (279756 in total), especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes with 221554 counts in total. Sst Chodl inhibitory neurons have the lowest count at 746 counts. Smooth muscle cells (SMC) have the second lowest count, at 944.
 
