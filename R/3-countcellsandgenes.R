@@ -36,72 +36,8 @@ main <- function() {
   results <- process_cohort(MB_list, "MultiomeBrain", results)
 
   saveRDS(results, file.path("results/5-cells_genes.rds"))
-
-  CMC_control <- clean_metadata |>
-    filter(Cohort == "CMC" & Disorder == "Control") |>
-    pull(Individual_ID)
   
-  CMC_sz <- clean_metadata |>
-    filter(Cohort == "CMC" & Disorder == "Schizophrenia") |>
-    pull(Individual_ID)
-  
-  SZBD_control <- clean_metadata |>
-    filter(Cohort == "SZBDMulti-Seq" & Disorder == "Control") |>
-    pull(Individual_ID)
-  
-  SZBD_sz <- clean_metadata |>
-    filter(Cohort == "SZBDMulti-Seq" & Disorder == "Schizophrenia") |>
-    pull(Individual_ID)
-  
-  MB_control <- clean_metadata |>
-    filter(Cohort == "MultiomeBrain" & Disorder == "Control") |>
-    pull(Individual_ID)
-  
-  MB_sz <- clean_metadata |>
-    filter(Cohort == "MultiomeBrain" & Disorder == "Schizophrenia") |>
-    pull(Individual_ID)
-  
-  ### save filtered matrixes
-  for (CMCsample in CMC_list) {
-    sample_file <- paste0("data/data_raw/CMC/", CMCsample, "-annotated_matrix.txt")
-    sample_data <- read.table(sample_file, check.names = FALSE, header = TRUE, row.names = 1, sep ="\t")
-    filtered <- cleanCtmat(as.data.frame(sample_data))
-    if (ncol(filtered) < 20) {
-      next}
-    output_path <- paste0("data/data_processed/CMC/", CMCsample, "-annotated_matrix.rds")
-    write_rds(filtered, output_path)
-    cpmlognormalized <- do_cpm_log(filtered, log=TRUE)
-    CPM_path <- paste0("data/data_processed/CMC_CPM/", CMCsample, "-CPM_annotated_matrix.rds")
-    write_rds(cpmlognormalized, CPM_path)
-  }
-  
-  for (SZBDsample in SZBD_list) {
-    sample_file <- paste0("data/data_raw/SZBDMulti-Seq/", SZBDsample, "-annotated_matrix.txt")
-    sample_data <- read.table(sample_file, check.names = FALSE, header = TRUE, row.names = 1, sep ="\t")
-    filtered <- cleanCtmat(as.data.frame(sample_data))
-    if (ncol(filtered) < 20) {
-      next}
-    output_path <- paste0("data/data_processed/SZBDMulti-Seq/", SZBDsample, "-annotated_matrix.rds")
-    write_rds(filtered, output_path)
-    cpmlognormalized <- do_cpm_log(filtered, log=TRUE)
-    CPM_path <- paste0("data/data_processed/SZBDMulti-Seq_CPM/", SZBDsample, "-CPM_annotated_matrix.rds")
-    write_rds(cpmlognormalized, CPM_path)
-  }
-  
-  for (MBsample in MB_list) {
-    sample_file <- paste0("data/data_raw/MultiomeBrain/", MBsample, "-annotated_matrix.txt")
-    sample_data <- read.table(sample_file, check.names = FALSE, header = TRUE, row.names = 1, sep ="\t")
-    filtered <- cleanCtmat(as.data.frame(sample_data))
-    if (ncol(filtered) < 20) {
-      next}
-    output_path <- paste0("data/data_processed/MultiomeBrain/", MBsample, "-annotated_matrix.rds")
-    write_rds(filtered, output_path)
-    cpmlognormalized <- do_cpm_log(filtered, log=TRUE)
-    CPM_path <- paste0("data/data_processed/MultiomeBrain_CPM/", MBsample, "-CPM_annotated_matrix.rds")
-    write_rds(cpmlognormalized, CPM_path)
-  }
-  
-  ### results data frame but with filtered matrices
+  ### filtered cohort numbers
   results_filtered <- data.frame(
     Cohort = character(),
     Genes = integer(),
@@ -109,38 +45,50 @@ main <- function() {
     stringsAsFactors = FALSE
   )
   
-  results_filtered <- process_cohort_filtered(CMC_list, "CMC", results_filtered)
-  results_filtered <- process_cohort_filtered(SZBD_list, "SZBDMulti-Seq", results_filtered)
-  results_filtered <- process_cohort_filtered(MB_list, "MultiomeBrain", results_filtered)
+  results_filtered <- process_cohort_filtered("CMC", results_filtered)
+  results_filtered <- process_cohort_filtered("SZBDMulti-Seq", results_filtered)
+  results_filtered <- process_cohort_filtered("MultiomeBrain", results_filtered)
   
-  write_rds(results_filtered, file.path("results/5.2-cells_genes.rds"))
-  
+  saveRDS(results_filtered, file.path("results/5.2-cells_genes.rds"))
+
   ### cell type plot
-  summary_df <- data.frame(
-    Individual_ID = character(),
-    Cohort = character(),
-    Cell_Type = character(),
-    Cell_Count = integer(),
+  celltype_summary_CMC <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
     stringsAsFactors = FALSE
   )
   
-  summary_df <- process_sample(CMC_control, CMC_sz, "CMC", summary_df)
-  summary_df <- process_sample(SZBD_control, SZBD_sz, "SZBDMulti-Seq", summary_df)
-  summary_df <- process_sample(MB_control, MB_sz, "MultiomeBrain", summary_df)
+  celltype_summary_SZBD <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
   
-  celltype_perpatient <- summary_df |>
-    filter(Cell_Type != 'featurekey')
+  celltype_summary_MB <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  celltype_summary_CMC <- countcells_pertype("CMC", celltype_summary_CMC)
+  celltype_summary_SZBD <- countcells_pertype("SZBDMulti-Seq", celltype_summary_SZBD)
+  celltype_summary_MB <- countcells_pertype("MultiomeBrain", celltype_summary_MB)
 
-  CMCcelltypeplot <- celltype_perpatient |>
-    filter(Cohort == "CMC") |>
-    ggplot(aes(x = Cell_Count, y = Cell_Type, color = Disorder)) +
-    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.5) +
+  CMCcelltypeplot <- celltype_summary_CMC |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = cells, y = cell_type, color = disorder)) +
+    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.8) +
     labs(
       x = "Number of Cells (Frequency)", 
       y = "Cell Type",
       title = "CMC") +
-    scale_x_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000)) +
-    xlim(c(0, 5000)) +
+    xlim(c(0, 12000)) +
     theme_minimal() +
     theme(
       axis.title.x = element_blank(),
@@ -154,16 +102,15 @@ main <- function() {
       panel.spacing = unit(1, "lines")) +
     scale_color_brewer(palette = "Set2")
   
-  SZBDcelltypeplot <- celltype_perpatient |>
-    filter(Cohort == "SZBDMulti-Seq") |>
-    ggplot(aes(x = Cell_Count, y = Cell_Type, color = Disorder)) +
-    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.5) +
+  SZBDcelltypeplot <- celltype_summary_SZBD |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = cells, y = cell_type, color = disorder)) +
+    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.8) +
     labs(
       x = "Number of Cells (Frequency)", 
       y = "Cell Type",
       title = "SZBDMulti-Seq") +
-    scale_x_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000)) +
-    xlim(c(0, 5000)) +
+    xlim(c(0, 12000)) +
     theme_minimal() +
     theme(
       axis.title.x = element_blank(),
@@ -177,16 +124,15 @@ main <- function() {
       panel.spacing = unit(1, "lines")) +
     scale_color_brewer(palette = "Set2")
   
-  MBcelltypeplot <- celltype_perpatient |>
-    filter(Cohort == "MultiomeBrain") |>
-    ggplot(aes(x = Cell_Count, y = Cell_Type, color = Disorder)) +
-    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.5) +
+  MBcelltypeplot <- celltype_summary_MB |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = cells, y = cell_type, color = disorder)) +
+    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.8) +
     labs(
       x = "Number of Cells (Frequency)", 
       y = "Cell Type",
       title = "MultiomeBrain") +
-    scale_x_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000)) +
-    xlim(c(0, 5000)) +
+    xlim(c(0, 12000)) +
     theme_minimal() +
     theme(
       axis.title.x = element_blank(),
@@ -202,54 +148,60 @@ main <- function() {
   celltypecombined_plots <- plot_grid(
     plotlist = list(CMCcelltypeplot, SZBDcelltypeplot, MBcelltypeplot+ theme(legend.position = "none")), ncol = 1, align = "hv")
   
-  disorderlegend <- get_legend(MBcelltypeplot+ theme(legend.box.margin = margin(0, 0, 0, 3),
+  disorderlegend <- get_legend(MBcelltypeplot+ labs(color = "Disorder") + theme(legend.box.margin = margin(0, 0, 0, 3),
                                              legend.key.size = unit(1, 'cm'),
                                              legend.title = element_text(size = 15)))
   
   x_label_plot <- ggdraw() + 
     draw_label("Number of Cells (Frequency)", x = 0.5, y = 0.5, size = 14)
   
-  celltypefinal_plot <- plot_grid(combined_plots, x_label_plot, ncol = 1, rel_heights = c(1, 0.1))
+  celltypefinal_plot <- plot_grid(celltypecombined_plots, x_label_plot, ncol = 1, rel_heights = c(1, 0.1))
   
   celltypefinal_plot_with_legend <- plot_grid(
-    final_plot,
-    legend,
+    celltypefinal_plot,
+    disorderlegend,
     ncol = 2,  
     rel_widths = c(0.85, 0.15)
   )
   
-  ggsave(file.path("results/6-celltypedistribution.png"), celltypefinal_plot_with_legend, width = 10, height = 15)
+  ggsave(file.path("results/6-celltypedistribution.png"), celltypefinal_plot_with_legend, width = 10, height = 12)
   
   ###sequencing depth plot
-  depth_df <- data.frame(
-    Individual_ID = character(),
-    Cohort = character(),
-    Cell_Type = character(),
-    Seq_Depth = integer(),
-    Disorder = character(),
+  depth_df_CMC <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  depth_df_SZBD <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
     stringsAsFactors = FALSE
   )
 
-  depth_df <- sum_columns(CMC_control, CMC_sz, "CMC", depth_df)
-  depth_df <- sum_columns(SZBD_control, SZBD_sz, "SZBDMulti-Seq", depth_df)
-  depth_df <- sum_columns(MB_control, MB_sz, "MultiomeBrain", depth_df)
-  
-  depth_df_cpm <- data.frame(
-    Individual_ID = character(),
-    Cohort = character(),
-    Cell_Type = character(),
-    Seq_Depth = integer(),
-    Disorder = character(),
+  depth_df_MB <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
     stringsAsFactors = FALSE
   )
   
-  depth_df_cpm <- sum_columns_cpm(CMC_control, CMC_sz, "CMC", depth_df_cpm)
-  depth_df_cpm <- sum_columns_cpm(SZBD_control, SZBD_sz, "SZBDMulti-Seq", depth_df_cpm)
-  depth_df_cpm <- sum_columns_cpm(MB_control, MB_sz, "MultiomeBrain", depth_df_cpm)
+  depth_df_CMC <- sum_columns("CMC", depth_df_CMC)
+  depth_df_SZBD <- sum_columns("SZBDMulti-Seq", depth_df_SZBD)
+  depth_df_MB <- sum_columns("MultiomeBrain", depth_df_MB)
+  combined_depthdf <- rbind(depth_df_CMC, depth_df_SZBD, depth_df_MB)
   
-  depthplot <- ggplot(depth_df, aes(x = Seq_Depth, y = Cell_Type, color = Disorder)) +
+  depthplot <- ggplot(combined_depthdf, aes(x = seq_depth, y = cell_type, color = disorder)) +
     geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
-    geom_jitter(aes(color = Disorder), size=0.4, alpha=0.5) +
+    geom_jitter(aes(color = disorder), size=0.4, alpha=0.5) +
     xlim(0, 300000) +
     labs(x = "Sequencing Depth (number  of reads)",
          y = "Cell type") +
@@ -265,10 +217,68 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       strip.placement = "outside") +
     scale_color_brewer(palette = "Set2") +
-    facet_wrap(~ Cohort, ncol =1, scales = "free_x")
+    facet_wrap(~ cohort, ncol =1, scales = "free_x")
+  
+  print(depthplot)
       
   ggsave(file.path("results/7-depthdistribution.png"), depthplot, width = 8, height = 15)
-
+  
+  ### sequencing depth plot for CPMlog samples
+  depth_df_CMC_CPM <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  depth_df_SZBD_CPM <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  depth_df_MB_CPM <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  depth_df_CMC_CPM <- sum_columns_cpm("CMC", depth_df_CMC_CPM)
+  depth_df_SZBD_CPM <- sum_columns_cpm("SZBDMulti-Seq", depth_df_SZBD_CPM)
+  depth_df_MB_CPM <- sum_columns_cpm("MultiomeBrain", depth_df_MB_CPM)
+  combined_depthdf_cpm <- rbind(depth_df_CMC_CPM, depth_df_SZBD_CPM, depth_df_MB_CPM)
+  
+  
+  depthplot_cpm <- ggplot(combined_depthdf_cpm, aes(x = seq_depth, y = cell_type, color = disorder)) +
+    geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
+    geom_jitter(aes(color = disorder), size=0.4, alpha=0.5) +
+    xlim(0, 300000) +
+    labs(x = "Sequencing Depth (number  of reads)",
+         y = "Cell type") +
+    theme_minimal() + 
+    theme(
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+      axis.title.x = element_text(size = 15),
+      axis.title.y = element_text(size = 15), 
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      strip.placement = "outside") +
+    scale_color_brewer(palette = "Set2") +
+    facet_wrap(~ cohort, ncol =1, scales = "free_x")
+  
+  print(depthplot_cpm)
+  
   ### cell type abundance per condition plot
   abundance_df <- data.frame(Cohort = character(),
                              Disorder = character(),
@@ -329,22 +339,31 @@ process_cohort <- function(sample_list, cohort_name, results_df) {
   return(results_df)
 }
 
-process_cohort_filtered <- function(sample_list, cohort_name, results_df) {
+process_cohort_filtered <- function(cohort, results_df) {
+  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+  microglia <- paste0("Mic_", cohort, "_SZ.rds")
+  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+  opc <- paste0("Opc_", cohort, "_SZ.rds")
+  
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  
   total_cells <- 0
   genes <- 0
-  for (i in seq_along(sample_list)) {
-    sample <- sample_list[i]
-    sample_file <- paste0("data/data_processed/", cohort_name, "/", sample, "-annotated_matrix.rds")
-    sample_data <- read_rds(sample_file)
-    total_cells <- total_cells + ncol(sample_data)
+  for (i in seq_along(cell_list)) {
+    sample <- cell_list[i]
+    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", sample)
+    sample_data <- readRDS(sample_file)
+    total_cells <- total_cells + ncol(sample_data$expr)
     
     if (i == 1) {
-      genes <- nrow(sample_data)
+      genes <- nrow(sample_data$expr)
     }
   }
   
-  results_df <<- rbind(results_df, data.frame(
-    Cohort = cohort_name,
+  results_df <- rbind(results_df, data.frame(
+    Cohort = cohort,
     Genes = genes,
     Total_Cells = total_cells,
     stringsAsFactors = FALSE
@@ -353,73 +372,97 @@ process_cohort_filtered <- function(sample_list, cohort_name, results_df) {
   return(results_df)
 }
 
-process_sample <- function(control_list, disease_list, cohort_name, summary_df) {
+countcells_pertype <- function(cohort, results_df) {
+  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+  microglia <- paste0("Mic_", cohort, "_SZ.rds")
+  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+  opc <- paste0("Opc_", cohort, "_SZ.rds")
   
-  process_individual <- function(sample_list, disorder_label) {
-    for (sample in sample_list) {
-      sample_file <- paste0("data/data_processed/", cohort_name, "/", sample, "-annotated_matrix.rds")
-      sample_data <- read_rds(sample_file)
-      cell_types <- colnames(sample_data)
-      cell_type_counts <- as.data.frame(table(cell_types))
-      cell_type_counts <- cell_type_counts |>
-      rename(Cell_Type = cell_types, Cell_Count = Freq) |>
-      mutate(Individual_ID = sample, Cohort = cohort_name, Disorder = disorder_label)
-      summary_df <<- bind_rows(summary_df, cell_type_counts)}}
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
 
-  process_individual(control_list, "Control")
-  process_individual(disease_list, "Schizophrenia")
+  for (cell_type_file in cell_list) {
+    cell_type <- strsplit(cell_type_file, "_")[[1]][1]
+    
+    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell_type_file)
+    sample_data <- readRDS(sample_file)
+    
+    n_cells <- sample_data$meta |>
+      group_by(patientID, disorder) |>
+      summarize(cells = n()) |>
+      mutate(cell_type = cell_type) |>
+      select(patientID, cells, disorder, cell_type)
+    results_df <- bind_rows(results_df, n_cells)
+  }
   
-  return(summary_df)
+  return(results_df)
 }
 
-sum_columns <- function(control_list, disease_list, cohort_name, depth_df) {
+sum_columns <- function(cohort, results_df) {
+  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+  microglia <- paste0("Mic_", cohort, "_SZ.rds")
+  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+  opc <- paste0("Opc_", cohort, "_SZ.rds")
   
-  sum_columns_individual <- function(sample_list, disorder_label) {
-    for (sample in sample_list) {
-      sample_file <- paste0("data/data_processed/", cohort_name, "/", sample, "-annotated_matrix.rds")
-      sample_data <- read_rds(sample_file)
-      numeric_data <- sample_data[, sapply(sample_data, is.numeric)]
-      seq_depth <- colSums(numeric_data)
-      cleaned_cell_type <- sub("\\.\\d+$", "", colnames(numeric_data))
-      
-      seq_depth_df <- data.frame(
-      Cell_Type = cleaned_cell_type,
-      Seq_Depth = as.integer(seq_depth),
-      Cohort = cohort_name,
-      Individual_ID = sample,
-      Disorder = disorder_label,
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  
+  for (cell_type_file in cell_list) {
+    cell_type <- strsplit(cell_type_file, "_")[[1]][1]
+    
+    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell_type_file)
+    sample_data <- readRDS(sample_file)
+    
+    expr_matrix <- sample_data$expr
+    metadata <- sample_data$meta
+  
+    seq_depth <- colSums(expr_matrix)
+    
+    seq_depth_df <- data.frame(
+      cell_type = cell_type,
+      seq_depth = as.integer(seq_depth),
+      patientID = metadata$patientID[match(colnames(expr_matrix), rownames(metadata))],
+      disorder = metadata$disorder[match(colnames(expr_matrix), rownames(metadata))],
+      cohort = cohort,
       stringsAsFactors = FALSE)
-      depth_df <<- bind_rows(depth_df, seq_depth_df)
-      }}
-  
-  sum_columns_individual(control_list, "Control")
-  sum_columns_individual(disease_list, "Schizophrenia")
-  return(depth_df)
+    results_df <- bind_rows(results_df, seq_depth_df)
+  }
+  return(results_df)
 }
 
-sum_columns_cpm <- function(control_list, disease_list, cohort_name, depth_df) {
+sum_columns_cpm <- function(cohort, results_df) {
+  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+  microglia <- paste0("Mic_", cohort, "_SZ.rds")
+  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+  opc <- paste0("Opc_", cohort, "_SZ.rds")
   
-  sum_columns_individual <- function(sample_list, disorder_label) {
-    for (sample in sample_list) {
-      sample_file <- paste0("data/data_processed/", cohort_name, "_CPM/", sample, "-CPM_annotated_matrix.rds")
-      sample_data <- read_rds(sample_file)
-      #numeric_data <- sample_data[, sapply(sample_data, is.numeric)]
-      seq_depth <- colSums(sample_data)
-      cleaned_cell_type <- sub("\\.\\d+$", "", colnames(sample_data))
-      
-      seq_depth_df <- data.frame(
-        Cell_Type = cleaned_cell_type,
-        Seq_Depth = as.integer(seq_depth),
-        Cohort = cohort_name,
-        Individual_ID = sample,
-        Disorder = disorder_label,
-        stringsAsFactors = FALSE)
-      depth_df <<- bind_rows(depth_df, seq_depth_df)
-    }}
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
   
-  sum_columns_individual(control_list, "Control")
-  sum_columns_individual(disease_list, "Schizophrenia")
-  return(depth_df)
+  for (cell_type_file in cell_list) {
+    cell_type <- strsplit(cell_type_file, "_")[[1]][1]
+    
+    sample_file <- paste0("data/data_processed/", cohort, "/CPMLog/CPM_", cell_type_file)
+    sample_data <- readRDS(sample_file)
+    
+    expr_matrix <- sample_data$expr
+    metadata <- sample_data$meta
+    
+    seq_depth <- colSums(expr_matrix)
+    
+    seq_depth_df <- data.frame(
+      cell_type = cell_type,
+      seq_depth = as.integer(seq_depth),
+      patientID = metadata$patientID[match(colnames(expr_matrix), rownames(metadata))],
+      disorder = metadata$disorder[match(colnames(expr_matrix), rownames(metadata))],
+      cohort = cohort,
+      stringsAsFactors = FALSE)
+    results_df <- bind_rows(results_df, seq_depth_df)
+  }
+  return(results_df)
 }
 
 abundance_conditions <- function(control_list, disease_list, cohort_name, summary_df) {

@@ -130,6 +130,16 @@ For our purposes, genes that are not expressed in at least 5% of cells will be f
 - OLigodendrocyte progenitor cells
 - Oligodendrocytes
 
+In @tbl-genescellsfiltered, we can see that the number of genes still remains quite similar across three cohorts after filtering. Approximately 23000 genes were removed from each cohort. Not that many cells were removed from the CMC cohort. A moderate amount was removed from the SZBDMulti-Seq cohort, and a substantial amount (almost half) was removed from the MultiomeBrain cohort.
+
+```{r}
+#| label: tbl-genescellsfiltered
+#| tbl-cap: Number of genes and total number of cells per each Schizophrenia cohort after filtering.
+
+cells_genes_filtered <- readRDS("../results/5.2-cells_genes.rds")
+knitr::kable(cells_genes_filtered)
+```
+
 The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that L2/3 intratelencephalic excitatory neurons have the highest frequency (279756 in total), especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes with 221554 counts in total. Sst Chodl inhibitory neurons have the lowest count at 746 counts. Smooth muscle cells (SMC) have the second lowest count, at 944.
 
 In @fig-depthdistribution, the sequencing depth of each cell was investigated. These results were grouped together per cell type in the following plot, and colored by cohort.

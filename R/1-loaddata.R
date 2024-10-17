@@ -257,13 +257,20 @@ savefiltered <- function(cohort) {
     
     matrix_patientsplus20 <- expr_matrix[, !columns_to_remove]
     
+    matrix_columns <- colnames(matrix_patientsplus20)
+    meta_rows <- rownames(metadata)
+    common_rows <- meta_rows[meta_rows %in% matrix_columns]
+    filtered_meta <- metadata[common_rows, , drop = FALSE]
+    
     filtered <- cleanCtmat(matrix_patientsplus20)
+    filteredfile <- list(meta = filtered_meta, expr = filtered)
     filtered_path <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell)
-    saveRDS(filtered, filtered_path)
+    saveRDS(filteredfile, filtered_path)
     
     cpmlogged <- do_cpm_log(filtered, TRUE)
+    cpmfile <- list(meta = filtered_meta, expr = cpmlogged)
     cpm_path <- paste0("data/data_processed/", cohort, "/CPMLog/CPM_", cell)
-    saveRDS(cpmlogged, cpm_path)
+    saveRDS(cpmfile, cpm_path)
   }
   return(NULL)
 }
