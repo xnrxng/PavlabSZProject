@@ -54,4 +54,6 @@ data/data_raw/CMC/
 data/data_raw/MultiomeBrain/
 data/data_raw/SZBDMulti-Seq/
 
-data/data_processed/
+data/data_processed/CMC/
+data/data_processed/MultiomeBrain/
+data/data_processed/SZBDMulti-Seq/

@@ -100,7 +100,7 @@ main <- function() {
       legend.position = "none",
       strip.background = element_blank(),
       panel.spacing = unit(1, "lines")) +
-    scale_color_brewer(palette = "Set2")
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
   
   SZBDcelltypeplot <- celltype_summary_SZBD |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
@@ -122,7 +122,7 @@ main <- function() {
       legend.position = "none",
       strip.background = element_blank(),
       panel.spacing = unit(1, "lines")) +
-    scale_color_brewer(palette = "Set2")
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
   
   MBcelltypeplot <- celltype_summary_MB |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
@@ -143,7 +143,7 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       strip.background = element_blank(),
       panel.spacing = unit(1, "lines")) +
-    scale_color_brewer(palette = "Set2")
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
   
   celltypecombined_plots <- plot_grid(
     plotlist = list(CMCcelltypeplot, SZBDcelltypeplot, MBcelltypeplot+ theme(legend.position = "none")), ncol = 1, align = "hv")
@@ -199,12 +199,15 @@ main <- function() {
   depth_df_MB <- sum_columns("MultiomeBrain", depth_df_MB)
   combined_depthdf <- rbind(depth_df_CMC, depth_df_SZBD, depth_df_MB)
   
-  depthplot <- ggplot(combined_depthdf, aes(x = seq_depth, y = cell_type, color = disorder)) +
+  depthplot <- combined_depthdf |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = seq_depth, y = cell_type, color = disorder)) +
     geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
     geom_jitter(aes(color = disorder), size=0.4, alpha=0.5) +
     xlim(0, 300000) +
     labs(x = "Sequencing Depth (number  of reads)",
-         y = "Cell type") +
+         y = "Cell type",
+         color = "Disorder") +
     theme_minimal() + 
     theme(
       axis.text.y = element_text(size = 10),
@@ -216,12 +219,36 @@ main <- function() {
       panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"),
       strip.placement = "outside") +
-    scale_color_brewer(palette = "Set2") +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     facet_wrap(~ cohort, ncol =1, scales = "free_x")
-  
-  print(depthplot)
       
   ggsave(file.path("results/7-depthdistribution.png"), depthplot, width = 8, height = 15)
+  
+  depthplot_unscaled <- combined_depthdf |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = seq_depth, y = cell_type, color = disorder)) +
+    geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
+    geom_jitter(aes(color = disorder), size=0.4, alpha=0.5) +
+    labs(x = "Sequencing Depth (number  of reads)",
+         y = "Cell type",
+         color = "Disorder") +
+    theme_minimal() + 
+    theme(
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+      axis.title.x = element_text(size = 15),
+      axis.title.y = element_text(size = 15), 
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      strip.placement = "outside") +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    facet_wrap(~ cohort, ncol =1, scales = "free_x")
+  
+  print(depthplot_unscaled)
+  
+  ggsave(file.path("results/7.2-depthdistribution_unscaled.png"), depthplot_unscaled, width = 8, height = 15)
   
   ### sequencing depth plot for CPMlog samples
   depth_df_CMC_CPM <- data.frame(
@@ -257,12 +284,15 @@ main <- function() {
   combined_depthdf_cpm <- rbind(depth_df_CMC_CPM, depth_df_SZBD_CPM, depth_df_MB_CPM)
   
   
-  depthplot_cpm <- ggplot(combined_depthdf_cpm, aes(x = seq_depth, y = cell_type, color = disorder)) +
+  depthplot_cpm <- combined_depthdf |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = seq_depth, y = cell_type, color = disorder)) +
     geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
     geom_jitter(aes(color = disorder), size=0.4, alpha=0.5) +
     xlim(0, 300000) +
     labs(x = "Sequencing Depth (number  of reads)",
-         y = "Cell type") +
+         y = "Cell type",
+         color = "Disorder") +
     theme_minimal() + 
     theme(
       axis.text.y = element_text(size = 10),
@@ -274,27 +304,58 @@ main <- function() {
       panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"),
       strip.placement = "outside") +
-    scale_color_brewer(palette = "Set2") +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     facet_wrap(~ cohort, ncol =1, scales = "free_x")
   
   print(depthplot_cpm)
   
+  ggsave(file.path("results/7.3-depthdistribution_cpm.png"), depthplot_cpm, width = 8, height = 15)
+  
+  depthplot_cpm_unscaled <- combined_depthdf |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = seq_depth, y = cell_type, color = disorder)) +
+    geom_boxplot(alpha = 0.5, color = "black", outlier.shape = NA) +
+    geom_jitter(aes(color = disorder), size=0.4, alpha=0.5) +
+    labs(x = "Sequencing Depth (number  of reads)",
+         y = "Cell type",
+         color = "Disorder") +
+    theme_minimal() + 
+    theme(
+      axis.text.y = element_text(size = 10),
+      axis.text.x = element_text(size = 10, angle = 45, hjust = 1),
+      axis.title.x = element_text(size = 15),
+      axis.title.y = element_text(size = 15), 
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      strip.placement = "outside") +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    facet_wrap(~ cohort, ncol =1, scales = "free_x")
+  
+  print(depthplot_cpm_unscaled)
+  
+  ggsave(file.path("results/7.4-depthdistribution_cpm_unscaled.png"), depthplot_cpm_unscaled, width = 8, height = 15)
+  
   ### cell type abundance per condition plot
-  abundance_df <- data.frame(Cohort = character(),
-                             Disorder = character(),
-                             Cell_Type = character(),
-                             Cell_Count = integer(),
+  abundance_df <- data.frame(cohort = character(),
+                             disorder = character(),
+                             cell_type = character(),
+                             cells = integer(),
                              stringsAsFactors = FALSE)
 
-  abundance_df <- abundance_conditions(CMC_control, CMC_sz, "CMC", abundance_df)
-  abundance_df <- abundance_conditions(SZBD_control, SZBD_sz, "SZBDMulti-Seq", abundance_df)
-  abundance_df <- abundance_conditions(MB_control, MB_sz, "MultiomeBrain", abundance_df)
+  abundance_df <- abundance_conditions("CMC", abundance_df)
+  abundance_df <- abundance_conditions("SZBDMulti-Seq", abundance_df)
+  abundance_df <- abundance_conditions("MultiomeBrain", abundance_df)
 
-  abundance_plot <- ggplot(abundance_df, aes(x = Cell_Type, y = Cell_Count, fill = Disorder)) +
+  abundance_plot <- abundance_df |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = cell_type, y = cells, fill = disorder)) +
     geom_bar(stat = "identity", position = "dodge") +
-  facet_wrap(~ Cohort, ncol=1) +
+  facet_wrap(~ cohort, ncol=1, scales = "free_x") +
   labs(x = "Cell Type",
-       y = "Cell Count") +
+       y = "Cell Count",
+       fill = "Disorder") +
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -307,7 +368,7 @@ main <- function() {
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     axis.line = element_line(colour = "black")) +
-    scale_fill_brewer(palette = "Pastel1")
+    scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
   
   ggsave(file.path("results/8-abundancecondition.png"), abundance_plot, width = 8, height = 12)
     
@@ -465,38 +526,31 @@ sum_columns_cpm <- function(cohort, results_df) {
   return(results_df)
 }
 
-abundance_conditions <- function(control_list, disease_list, cohort_name, summary_df) {
-  control_counts <- data.frame(Cell_Type = character(), Cell_Count = integer(), Disorder = character(), Cohort = character(), stringsAsFactors = FALSE)
-  disease_counts <- data.frame(Cell_Type = character(), Cell_Count = integer(), Disorder = character(), Cohort = character(), stringsAsFactors = FALSE)
+abundance_conditions <- function(cohort, summary_df) {
+  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+  microglia <- paste0("Mic_", cohort, "_SZ.rds")
+  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+  opc <- paste0("Opc_", cohort, "_SZ.rds")
   
-  for (control in control_list) {
-    sample_file <- paste0("data/data_processed/", cohort_name, "/", control, "-annotated_matrix.rds")
-    sample_data <- as.data.frame(read_rds(sample_file))
-    cell_types <- colnames(sample_data)
-    cell_type_counts <- as.data.frame(table(cell_types)) |>
-      rename(Cell_Type = cell_types, Cell_Count = Freq)
-    control_counts <<- bind_rows(control_counts, cell_type_counts)
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  
+  for (cell_type_file in cell_list) {
+    cell_type <- strsplit(cell_type_file, "_")[[1]][1]
+    
+    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell_type_file)
+    sample_data <- readRDS(sample_file)
+    
+    metadata <- sample_data$meta
+    
+    cells_per_condition <- metadata |>
+      group_by(disorder) |>
+      summarize(cells = n()) |>
+      mutate(cell_type = cell_type, cohort = cohort) |>
+      select(cells, disorder, cell_type, cohort)
+    summary_df <- bind_rows(summary_df, cells_per_condition)
   }
-  
-  control_counts <- control_counts %>%
-    group_by(Cell_Type) %>%
-    summarise(Cell_Count = sum(Cell_Count)) %>%
-    mutate(Disorder = "Control", Cohort = cohort_name)
-  
-  for (sample in disease_list) {
-    sample_file <- paste0("data/data_processed/", cohort_name, "/", sample, "-annotated_matrix.rds")
-    sample_data <- as.data.frame(read_rds(sample_file))
-    cell_types <- colnames(sample_data)
-    cell_type_counts <- as.data.frame(table(cell_types)) |>
-      rename(Cell_Type = cell_types, Cell_Count = Freq)
-    disease_counts <- bind_rows(disease_counts, cell_type_counts)
-  }
-  disease_counts <- disease_counts %>%
-    group_by(Cell_Type) %>%
-    summarise(Cell_Count = sum(Cell_Count)) %>%
-    mutate(Disorder = "Schizophrenia", Cohort = cohort_name)
-
-  summary_df <- bind_rows(summary_df, control_counts, disease_counts)
   
   return(summary_df)
 }

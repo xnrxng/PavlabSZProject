@@ -56,30 +56,6 @@ main <- function() {
     filter(Cohort == "MultiomeBrain" & Disorder != "Bipolar Disorder") |>
     pull(Individual_ID)
   
-  CMC_control <- clean_metadata |>
-    filter(Cohort == "CMC" & Disorder == "Control") |>
-    pull(Individual_ID)
-  
-  CMC_sz <- clean_metadata |>
-    filter(Cohort == "CMC" & Disorder == "Schizophrenia") |>
-    pull(Individual_ID)
-  
-  SZBD_control <- clean_metadata |>
-    filter(Cohort == "SZBDMulti-Seq" & Disorder == "Control") |>
-    pull(Individual_ID)
-  
-  SZBD_sz <- clean_metadata |>
-    filter(Cohort == "SZBDMulti-Seq" & Disorder == "Schizophrenia") |>
-    pull(Individual_ID)
-  
-  MB_control <- clean_metadata |>
-    filter(Cohort == "MultiomeBrain" & Disorder == "Control") |>
-    pull(Individual_ID)
-  
-  MB_sz <- clean_metadata |>
-    filter(Cohort == "MultiomeBrain" & Disorder == "Schizophrenia") |>
-    pull(Individual_ID)
-  
   ### generate RDS cell type files
   common_genes_CMC <- generate_genes("CMC", CMC_list)
   common_genes_SZBD <- generate_genes("SZBDMulti-Seq", SZBD_list)
@@ -183,7 +159,7 @@ generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
     return(short_name)
   }
   
-  output_path <- paste0("data/data_processed/", cohort, "/", capitalize_first_three(cell_type), "_", cohort, "_SZ.rds")
+  output_path <- paste0("data/data_processed/", cohort, "/Raw/", capitalize_first_three(cell_type), "_", cohort, "_SZ.rds")
   saveRDS(finalRDSfile, output_path)
   return(finalRDSfile)
 }
@@ -240,7 +216,7 @@ savefiltered <- function(cohort) {
   cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
   
   for (cell in cell_list) {
-    full_path <- paste0("data/data_processed/", cohort, "/", cell)
+    full_path <- paste0("data/data_processed/", cohort, "/Raw/", cell)
     unfiltered <- readRDS(full_path)
     expr_matrix <- unfiltered$expr
     metadata <- unfiltered$meta
