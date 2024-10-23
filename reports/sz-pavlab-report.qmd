@@ -1,11 +1,13 @@
 ---
 title: "Gene Analysis of Schizophrenia Patient Samples"
 author: "Rui Xiang Yu & Nairuz Elazzabi (Pavlidis Lab)"
+number-sections: true
 format: 
     html:
         toc: true
         toc-depth: 3
         auto-stretch: false
+        embed-resources: true
     pdf:
         toc: true
         toc-depth: 3 
@@ -39,15 +41,15 @@ TBF
 
 The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
 
-1. CMC: used 10x Genomics Chip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
-2. DevBrain
-3. Girgenti-multiome
-4. IsoHuB
-5. LIBD
-6. Ma_et_al [@MaSestan]
-7. MultiomeBrain
-8. PTSDBrainomics
-9. SZBDMulti-Seq: used 10x Genomics Chip B. Libraries prepared with 10x Genomics Chromium Single Cell 3’ Reagent Kits v3 and MULTI-Seq protocols. Used Illumina NextSeq500, and an additional round with NovaSeq S2 [@Ruzicka]
+1.  CMC: used 10x Genomics Chip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
+2.  DevBrain
+3.  Girgenti-multiome
+4.  IsoHuB
+5.  LIBD
+6.  Ma_et_al [@MaSestan]
+7.  MultiomeBrain
+8.  PTSDBrainomics
+9.  SZBDMulti-Seq: used 10x Genomics Chip B. Libraries prepared with 10x Genomics Chromium Single Cell 3’ Reagent Kits v3 and MULTI-Seq protocols. Used Illumina NextSeq500, and an additional round with NovaSeq S2 [@Ruzicka]
 10. ROSMAP
 11. UCLA-ASD
 12. Velmeshev_et_al [@Velmeshev]
@@ -86,26 +88,25 @@ elderlypatients <- readRDS("../results/3-elderlypatients.rds")
 knitr::kable(elderlypatients)
 ```
 
-
 The age at death distribution of each condition per cohort was also examined. In @fig-agedistribution, the dotted vertical lines are the mean of the age at death for each condition. From top to bottom and left to right:
 
-- CMC: both conditions fall in the older range.
-- IsoHub: there are only control samples and most fall in the younger range.
-- MultiomeBrain: although most control samples fall between the 30-45 range, there are samples that are younger than 25 and older than 50. Schizophrenia samples fall around the 50 year age range, and BPD samples fall between the 30-45 range.
-- UCLA-ASD: both control and ASD samples fall in the younger range, with an average of around 25 years.
-- DevBrain: control samples fall between the 25-50 range. ASD samples faill in the younger range, with an average of around 25 years. Williams Syndrome samples are also in the younger range, although their average is slightly higher than 25.
-- LIBD: there are only control samples and most of them fall in the 50 year range.
-- PTSDBrainomics: control and MDD samples fall in the 50 year range. PTSD samples are slightly younger in average, but their distribution is wide.
-- Velmeshev_et_al: most ASD and control samples are under 25 years old.
-- Girgenti-snMultiome: there are only control samples. The average is around 50 years old.
-- Ma-Sestan: there are only control samples. There is one sample that falls around 50 years old, and the other that falls around 60 years old.
-- SZBDMulti-Seq: both control and Schizophrenia samples have similar distributions ad averages of around 60 years. THe BPD samples' distribution is shifted slightly more towards the right, with an older average of around 60 years old.
+-   CMC: both conditions fall in the older range.
+-   IsoHub: there are only control samples and most fall in the younger range.
+-   MultiomeBrain: although most control samples fall between the 30-45 range, there are samples that are younger than 25 and older than 50. Schizophrenia samples fall around the 50 year age range, and BPD samples fall between the 30-45 range.
+-   UCLA-ASD: both control and ASD samples fall in the younger range, with an average of around 25 years.
+-   DevBrain: control samples fall between the 25-50 range. ASD samples faill in the younger range, with an average of around 25 years. Williams Syndrome samples are also in the younger range, although their average is slightly higher than 25.
+-   LIBD: there are only control samples and most of them fall in the 50 year range.
+-   PTSDBrainomics: control and MDD samples fall in the 50 year range. PTSD samples are slightly younger in average, but their distribution is wide.
+-   Velmeshev_et_al: most ASD and control samples are under 25 years old.
+-   Girgenti-snMultiome: there are only control samples. The average is around 50 years old.
+-   Ma-Sestan: there are only control samples. There is one sample that falls around 50 years old, and the other that falls around 60 years old.
+-   SZBDMulti-Seq: both control and Schizophrenia samples have similar distributions ad averages of around 60 years. THe BPD samples' distribution is shifted slightly more towards the right, with an older average of around 60 years old.
 
 ![Age distribution in each cohort.](../results/4-agedistribution.png){#fig-agedistribution}
 
 ### Examining the Schizophrenia Cohorts
 
-The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort. 
+The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort.
 
 ```{r}
 #| label: tbl-genescells
@@ -123,12 +124,12 @@ From @ling2024concerted, donors with less than 1000 UMIS were excluded. For each
 
 For our purposes, genes that are not expressed in at least 5% of cells will be filtered out. Cells must also be in the top 5th percentile in terms of the number of expressed genes. If the cell comes from a patient that had less than 20 cells for that specific cell type, these will be filtered out. The single cells will be CPM and log normalized. The cell types will be grouped into major types:
 
-- Excitatory neurons: these include neurons that are L2/3 intratelencephalic, L4 IT intratelencephalic, L5 intratelencephalic, L6 intratelencephalic, L6 corticothalamic, L6 intratelencephalic Car3, L5 extratelencephalic, LE/6 near-projecting, and L6b intratelencephalic.
-- Inhibitory neurons: these chandelier cells and neurons that express somatostatin, somatostatin and chondrolectin, parvalbumin, paired box 6, lysosomal-associated membrane protein 5 and LIM homeobox protein 6, lysosomal-associated membrane protein 5, synuclein gamma, and vasoactive intestinal polypeptide.
-- Astrocytes
-- Microglia cells
-- OLigodendrocyte progenitor cells
-- Oligodendrocytes
+-   Excitatory neurons: these include neurons that are L2/3 intratelencephalic, L4 IT intratelencephalic, L5 intratelencephalic, L6 intratelencephalic, L6 corticothalamic, L6 intratelencephalic Car3, L5 extratelencephalic, LE/6 near-projecting, and L6b intratelencephalic.
+-   Inhibitory neurons: these chandelier cells and neurons that express somatostatin, somatostatin and chondrolectin, parvalbumin, paired box 6, lysosomal-associated membrane protein 5 and LIM homeobox protein 6, lysosomal-associated membrane protein 5, synuclein gamma, and vasoactive intestinal polypeptide.
+-   Astrocytes
+-   Microglia cells
+-   OLigodendrocyte progenitor cells
+-   Oligodendrocytes
 
 In @tbl-genescellsfiltered, we can see that the number of genes still remains quite similar across three cohorts after filtering. Approximately 23000 genes were removed from each cohort. Not that many cells were removed from the CMC cohort. A moderate amount was removed from the SZBDMulti-Seq cohort, and a substantial amount (almost half) was removed from the MultiomeBrain cohort.
 
@@ -140,15 +141,21 @@ cells_genes_filtered <- readRDS("../results/5.2-cells_genes.rds")
 knitr::kable(cells_genes_filtered)
 ```
 
-The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that L2/3 intratelencephalic excitatory neurons have the highest frequency (279756 in total), especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes with 221554 counts in total. Sst Chodl inhibitory neurons have the lowest count at 746 counts. Smooth muscle cells (SMC) have the second lowest count, at 944.
+The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that excitatory neurons have the highest frequency, especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes. Microglia and oligodendrocyte progenitor cells have the lowest frequencies.
 
-In @fig-depthdistribution, the sequencing depth of each cell was investigated. These results were grouped together per cell type in the following plot, and colored by cohort.
+The sequencing depth of each cell was investigated, grouped by cell type. @fig-1depthdistribution shows the sequencing depth distribution with all the x-axis at the same scale. @fig-2depthdistribution shows the sequencing depth distribution with all the x-axis unscaled. @fig-3depthdistribution shows the sequencing depth distribution after the matrices had been CPMLog normalized, with all the x-axis at the same scale. @fig-4depthdistribution shows the sequencing depth distrbution after CPMLog normalization, but with the x-axis unscaled. Across all three cohorts, excitatory neurons have the highest sequencing depth, especially in the MultiomeBrain cohort. Microglia have the lowest sequencing depth in all cohorts.
 
-Lastly, the difference in cell type abundance per condition was investigated in each cohort in @fig-abundancecelltype. 
+The difference in cell type abundance per condition was investigated in each cohort in @fig-abundancecelltype. It appears that control samples have a slightly higher number of cells than disease samples. In CMC's microglia, MultiomeBrain's astrocytes and oligodendroctes, SZBDMulti-Seq's astrocytes and OPCs, the disease samples have a slighly higher number of cells. In accordance with what has been seen so far, excitatory neurons have the highest frequency while microglia have the lowest.
 
 ![Cells per cell-type per patient in each cohort.](../results/6-celltypedistribution.png){#fig-celltypedistribution}
 
-![Depth distribution per cell-type per patient in each cohort.](../results/7-depthdistribution.png){#fig-depthdistribution}
+![Depth distribution per cell-type per patient in each cohort, scaled equally.](../results/7-depthdistribution.png){#fig-1depthdistribution}
+
+![Depth distribution per cell-type per patient in each cohort, unscaled.](../results/7.2-depthdistribution_unscaled.png){#fig-2depthdistribution}
+
+![Depth distribution per cell-type per patient in each cohort after CPMLog normalization, scaled equally.](../results/7.3-depthdistribution_cpm.png){#fig-3depthdistribution}
+
+![Depth distribution per cell-type per patient in each cohort after CPMLog normalization, unscaled.](../results/7.4-depthdistribution_cpm_unscaled.png){#fig-4depthdistribution}
 
 ![Cell type abundance within conditions across cohorts.](../results/8-abundancecondition.png){#fig-abundancecelltype}
 

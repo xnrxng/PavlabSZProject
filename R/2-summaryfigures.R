@@ -1,7 +1,7 @@
 # Author: Rui Xiang Yu
 # Date: 2024 September 11th
 # This script obtains summarized tables/figures of the data.
-# Usage: R/summaryfigures.R
+# Usage: R/2-summaryfigures.R
 
 library(tidyverse)
 library(ggplot2)

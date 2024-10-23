@@ -1,7 +1,7 @@
 # Author: Rui Xiang Yu
 # Date: 2024 September 19th
 # This script obtains the number of single cells and genes in the Schizophrenia cohorts.
-# Usage: R/countcellsandgenes.R
+# Usage: R/3-countcellsandgenes.R
 
 library(tidyverse)
 library(ggplot2)

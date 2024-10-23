@@ -19,9 +19,21 @@ main <- function() {
   CMC_age_hist <- CMC_meta |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
     ggplot(aes(x = age)) +
-    geom_histogram()
+    geom_histogram(fill = "blue4") +
+    labs(x = "Age at death (years)",
+         y = "Number of patients",
+         title = "CMC") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"))
   
   print(CMC_age_hist)
+  
+  
+  
 }
 
 main()
