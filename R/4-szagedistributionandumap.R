@@ -299,29 +299,103 @@ main <- function() {
   ggsave(file.path("results/9.12-sex_umap.png"), sex_combined_plot, dpi = 300, width = 8, height = 6)
   
   ### age distributions
-  CMC_meta <- readRDS("data/data_processed/CMC/CMC-patients.rds") |>
-    mutate(age = as.numeric(str_replace(age, "\\+", "")))
-  MB_meta <- readRDS("data/data_processed/MultiomeBrain/MultiomeBrain-patients.rds") |>
-    mutate(age = as.numeric(str_replace(age, "\\+", "")))
-  SZBD_meta <- readRDS("data/data_processed/SZBDMulti-Seq/SZBDMulti-Seq-patients.rds") |>
-    mutate(age = as.numeric(str_replace(age, "\\+", "")))
+  clean_meta <- readRDS("data/data_processed/clean_metadata.rds") |>
+    mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
+    filter(Cohort == "CMC" | Cohort == "SZBDMulti-Seq" | Cohort == "MultiomeBrain") |>
+    filter(Disorder == "Schizophrenia" | Disorder == "Control") |>
+    select(Cohort, Biological_Sex, Disorder, Age)
   
-  CMC_age_hist <- CMC_meta |>
-    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
-    ggplot(aes(x = age)) +
-    geom_histogram(fill = "blue4") +
+  median_age <- median(clean_meta$Age, na.rm = TRUE)
+  
+  disorder_median_values <- clean_meta %>%
+    group_by(Disorder) %>%
+    summarize(median_age = median(Age, na.rm = TRUE))
+  
+  sex_median_values <- clean_meta %>%
+    group_by(Biological_Sex) %>%
+    summarize(median_age = median(Age, na.rm = TRUE))
+  
+  age_hist <- clean_meta |>
+    ggplot(aes(x = Age)) +
+    geom_histogram(fill = "#948dd1") +
+    geom_vline(xintercept = median_age, linetype = "dashed", color = "navy", size = 1) +
     labs(x = "Age at death (years)",
-         y = "Number of patients",
-         title = "CMC") +
+         y = "Number of patients") +
+    annotate("text", x = 15, y = 10, label = paste("Median =", median_age, "years"), 
+             color = "black", size = 5, hjust = 0) +
     theme_minimal() +
     theme(
       panel.border = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.line = element_line(colour = "black"))
+      axis.line = element_line(colour = "black")) +
+    scale_x_continuous(breaks= c(10, 20, 30, 40, 50, 60, 70, 80, 90))
   
-  print(CMC_age_hist)
+  age_hist_disorder <- clean_meta |>
+    ggplot(aes(x = Age)) +
+    geom_histogram(aes(fill = Disorder, color = Disorder), alpha = 0.6) +
+    labs(x = "Age at death (years)",
+         y = "Number of patients") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      legend.position = "bottom") +
+    scale_x_continuous(breaks= c(10, 20, 30, 40, 50, 60, 70, 80, 90)) +
+    scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    geom_vline(data = disorder_median_values, aes(xintercept = median_age, color = Disorder), linetype = "dashed", size = 1) +
+    annotate("text", x = 30, y = 15, 
+             label = paste("Median:", round(disorder_median_values$median_age[1], 1), "years"), 
+             color = "black") +
+    annotate("text", x = 30, y = 14, 
+             label = paste("Median:", round(disorder_median_values$median_age[2], 1), "years"), 
+             color = "firebrick")
   
-}
+  age_hist_sex <- clean_meta |>
+    ggplot(aes(x = Age)) +
+    geom_histogram(aes(fill = Biological_Sex, color = Biological_Sex), alpha = 0.6) +
+    labs(x = "Age at death (years)",
+         y = "Number of patients",
+         fill = "Biological Sex",
+         color = "Biological Sex") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      legend.position = "bottom") +
+    scale_x_continuous(breaks= c(10, 20, 30, 40, 50, 60, 70, 80, 90)) +
+    scale_color_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
+    scale_fill_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
+    geom_vline(data = sex_median_values, aes(xintercept = median_age, color = Biological_Sex), linetype = "dashed", size = 1) +
+    annotate("text", x = 30, y = 15, 
+             label = paste("Median:", round(sex_median_values$median_age[1], 1), "years"), 
+             color = "seagreen") +
+    annotate("text", x = 30, y = 14, 
+             label = paste("Median:", round(sex_median_values$median_age[2], 1), "years"), 
+             color = "hotpink3")
+  
+  control_quantiles <- quantile(clean_meta$Age[clean_meta$Disorder == "Control"], probs = seq(0, 1, 0.01), na.rm = TRUE)
+  schizophrenia_quantiles <- quantile(clean_meta$Age[clean_meta$Disorder == "Schizophrenia"], probs = seq(0, 1, 0.01), na.rm = TRUE)
+  
+  # Create a data frame for plotting
+  qq_data <- data.frame(
+    Control_Ages = control_quantiles,
+    Schizophrenia_Ages = schizophrenia_quantiles
+  )
+  
+  # Create the Q-Q plot
+  qq_plot <- ggplot(qq_data, aes(x = Control_Ages, y = Schizophrenia_Ages)) +
+    geom_point(color = "blue") +
+    geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+    labs(title = "Q-Q Plot: Controls vs Schizophrenia",
+         x = "Quantiles of Control Ages",
+         y = "Quantiles of Schizophrenia Ages") +
+    theme_minimal()
+  print(qq_plot)
 
 main()
