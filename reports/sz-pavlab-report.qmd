@@ -159,4 +159,18 @@ The difference in cell type abundance per condition was investigated in each coh
 
 ![Cell type abundance within conditions across cohorts.](../results/8-abundancecondition.png){#fig-abundancecelltype}
 
+UMAP was performed for each cohort, colored according to different characteristics. In @fig-celltypeumap, we can see that the cell types were assigned to different clusters. The cluster profile of the CMC and SZBDMulti-Seq cohort appear to be quite similar. The cell type assignment for the MultiomeBrain cohort does appear to be slightly different, most likely due to the fact it is the smallest cohort. @fig-disorderumap shows the UMAP assignment by disorder and @fig-sexumap by biological sex. It appears that both conditions/characteristics are evenly spread across cells.
+
+![Assignments of nuclei to cell types, separated by cohort.](../results/9.10-cell_type_umap.png){#fig-celltypeumap}
+
+![Assignments of nuclei to disease state, separated by cohort.](../results/9.11-disorder_umap.png){#fig-disorderumap}
+
+![Assignments of nuclei to biological sex, separated by cohort.](../results/9.12-sex_umap.png){#fig-sexumap}
+
+The 
+
+![Age distributions across cohorts, compared by disease state and biological sex.](../results/10-age_distributions.png){#fig-age_dist_plots}
+
+![Cell counts per patient across cohorts, compared by disease state and biological sex.](../results/11-cellcount_plots.png){#fig-cellcount_dist_plots}
+
 ## References

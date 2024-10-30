@@ -322,13 +322,14 @@ main <- function() {
     labs(x = "Age at death (years)",
          y = "Number of patients") +
     annotate("text", x = 15, y = 10, label = paste("Median =", median_age, "years"), 
-             color = "black", size = 5, hjust = 0) +
+             color = "black", hjust = 0) +
     theme_minimal() +
     theme(
       panel.border = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
-      axis.line = element_line(colour = "black")) +
+      axis.line = element_line(colour = "black"),
+      plot.margin = margin(10, 10, 10, 10)) +
     scale_x_continuous(breaks= c(10, 20, 30, 40, 50, 60, 70, 80, 90))
   
   age_hist_disorder <- clean_meta |>
@@ -342,15 +343,16 @@ main <- function() {
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"),
-      legend.position = "bottom") +
+      legend.position = "bottom",
+      plot.margin = margin(10, 10, 10, 10)) +
     scale_x_continuous(breaks= c(10, 20, 30, 40, 50, 60, 70, 80, 90)) +
     scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     geom_vline(data = disorder_median_values, aes(xintercept = median_age, color = Disorder), linetype = "dashed", size = 1) +
-    annotate("text", x = 30, y = 15, 
+    annotate("text", x = 40, y = 15, 
              label = paste("Median:", round(disorder_median_values$median_age[1], 1), "years"), 
              color = "black") +
-    annotate("text", x = 30, y = 14, 
+    annotate("text", x = 40, y = 12, 
              label = paste("Median:", round(disorder_median_values$median_age[2], 1), "years"), 
              color = "firebrick")
   
@@ -367,35 +369,183 @@ main <- function() {
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       axis.line = element_line(colour = "black"),
-      legend.position = "bottom") +
+      legend.position = "bottom",
+      plot.margin = margin(10, 10, 10, 10)) +
     scale_x_continuous(breaks= c(10, 20, 30, 40, 50, 60, 70, 80, 90)) +
     scale_color_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
     scale_fill_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
     geom_vline(data = sex_median_values, aes(xintercept = median_age, color = Biological_Sex), linetype = "dashed", size = 1) +
-    annotate("text", x = 30, y = 15, 
+    annotate("text", x = 40, y = 15, 
              label = paste("Median:", round(sex_median_values$median_age[1], 1), "years"), 
              color = "seagreen") +
-    annotate("text", x = 30, y = 14, 
+    annotate("text", x = 40, y = 12, 
              label = paste("Median:", round(sex_median_values$median_age[2], 1), "years"), 
              color = "hotpink3")
   
   control_quantiles <- quantile(clean_meta$Age[clean_meta$Disorder == "Control"], probs = seq(0, 1, 0.01), na.rm = TRUE)
   schizophrenia_quantiles <- quantile(clean_meta$Age[clean_meta$Disorder == "Schizophrenia"], probs = seq(0, 1, 0.01), na.rm = TRUE)
   
-  # Create a data frame for plotting
   qq_data <- data.frame(
     Control_Ages = control_quantiles,
     Schizophrenia_Ages = schizophrenia_quantiles
   )
-  
-  # Create the Q-Q plot
   qq_plot <- ggplot(qq_data, aes(x = Control_Ages, y = Schizophrenia_Ages)) +
-    geom_point(color = "blue") +
-    geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
-    labs(title = "Q-Q Plot: Controls vs Schizophrenia",
-         x = "Quantiles of Control Ages",
+    geom_point(color = "#948dd1", size = 2) +
+    geom_abline(slope = 1, intercept = 0, color = "navy", linetype = "dashed") +
+    labs(x = "Quantiles of Control Ages",
          y = "Quantiles of Schizophrenia Ages") +
-    theme_minimal()
-  print(qq_plot)
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      plot.margin = margin(10, 10, 10, 10))
+  
+  disorder_violin <- clean_meta |>
+    ggplot(aes(x = Disorder, y = Age)) +
+    geom_violin(aes(color = Disorder), trim = FALSE) +
+    geom_jitter(aes(color = Disorder), alpha = 0.6, width = 0.2) +
+    geom_boxplot(width = 0.1, aes(color = Disorder)) +
+    labs(x = NULL, y = "Age") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      legend.position = "none",
+      plot.margin = margin(10, 10, 10, 10)) +
+    scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
+  
+  sex_violin <- clean_meta |>
+    ggplot(aes(x = Biological_Sex, y = Age)) +
+    geom_violin(aes(color = Biological_Sex), trim = FALSE) +
+    geom_jitter(aes(color = Biological_Sex), alpha = 0.6, width = 0.2) +
+    geom_boxplot(width = 0.1, aes(color = Biological_Sex)) +
+    labs(x = NULL, y = "Age") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      legend.position = "none",
+      plot.margin = margin(10, 10, 10, 10)) +
+    scale_color_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen")) +
+    scale_fill_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen"))
+  
+  age_dist_combined_plot <- plot_grid(age_hist, qq_plot, age_hist_disorder, disorder_violin, age_hist_sex, sex_violin, ncol = 2, rel_heights = c(1, 1.2, 1))
+  
+  ggsave(file.path("results/10-age_distributions.png"), age_dist_combined_plot, dpi = 300, width = 10, height = 12)
+  
+  ### cell violin and qq plots
+  CMC_meta_count <- CMCcombined_meta |>
+    select(patientID, disorder, sex) |>
+    group_by(patientID, disorder, sex) |>
+    summarize(total_cells = n()) |>
+    mutate(cohort = "CMC")
+  
+  SZBD_meta_count <- SZBDcombined_meta |>
+    select(patientID, disorder, sex) |>
+    group_by(patientID, disorder, sex) |>
+    summarize(total_cells = n())|>
+    mutate(cohort = "SZBDMulti-Seq")
+  
+  MB_meta_count <- MBcombined_meta |>
+    select(patientID, disorder, sex) |>
+    group_by(patientID, disorder, sex) |>
+    summarize(total_cells = n())|>
+    mutate(cohort = "MultiomeBrain")
+  
+  meta_count <- rbind(CMC_meta_count, SZBD_meta_count, MB_meta_count)
+  
+  disorder_cellcount_violin <- meta_count |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = disorder, y = total_cells)) +
+    geom_violin(aes(color = disorder), trim = FALSE) +
+    geom_jitter(aes(color = disorder), alpha = 0.6, width = 0.2) +
+    geom_boxplot(width = 0.1, aes(color = disorder)) +
+    labs(x = NULL, y = "Number of cells per patient", color = "Disorder", fill = "Disorder") +
+    theme_minimal() +
+    theme(
+      panel.border = element_rect(color = "black", fill = NA),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      panel.spacing = unit(0, "lines"),
+      legend.position = "bottom",
+      plot.margin = margin(10, 10, 10, 10)) +
+    scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
+    facet_wrap(~cohort)
+  
+  sex_cellcount_violin <- meta_count |>
+    ggplot(aes(x = sex, y = total_cells)) +
+    geom_violin(aes(color = sex), trim = FALSE) +
+    geom_jitter(aes(color = sex), alpha = 0.6, width = 0.2) +
+    geom_boxplot(width = 0.1, aes(color = sex)) +
+    labs(x = NULL, y = "Number of cells per patient", color = "Biological Sex", fill = "Biological Sex") +
+    theme_minimal() +
+    theme(
+      panel.border = element_rect(color = "black", fill = NA),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      panel.spacing = unit(0, "lines"),
+      legend.position = "bottom",
+      plot.margin = margin(10, 10, 10, 10)) +
+    scale_color_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen")) +
+    scale_fill_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen")) +
+    facet_wrap(~cohort)
+  
+  control_cell_quantiles <- quantile(meta_count$total_cells[meta_count$disorder == "no"], probs = seq(0, 1, 0.01), na.rm = TRUE)
+  schizophrenia_cell_quantiles <- quantile(meta_count$total_cells[meta_count$disorder == "yes"], probs = seq(0, 1, 0.01), na.rm = TRUE)
+  
+  qq_data_cellcount <- data.frame(
+    Control_cell_counts = control_cell_quantiles,
+    Schizophrenia_cell_counts = schizophrenia_cell_quantiles
+  )
+  
+  qq_plot_disorder <- ggplot(qq_data_cellcount, aes(x = Control_cell_counts, y = Schizophrenia_cell_counts)) +
+    geom_point(color = "#948dd1", size = 2) +
+    geom_abline(slope = 1, intercept = 0, color = "navy", linetype = "dashed") +
+    labs(x = "Quantiles of Control Cell Counts",
+         y = "Quantiles of Schizophrenia Cell Counts") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      plot.margin = margin(10, 10, 10, 10))
+  
+  female_cell_quantiles <- quantile(meta_count$total_cells[meta_count$sex == "female"], probs = seq(0, 1, 0.01), na.rm = TRUE)
+  male_cell_quantiles <- quantile(meta_count$total_cells[meta_count$sex == "male"], probs = seq(0, 1, 0.01), na.rm = TRUE)
+  
+  qq_sex_cellcount <- data.frame(
+    female_cell_counts = female_cell_quantiles,
+    male_cell_counts = male_cell_quantiles
+  )
+  
+  qq_plot_sex <- ggplot(qq_sex_cellcount, aes(x = female_cell_counts, y = male_cell_counts)) +
+    geom_point(color = "#948dd1", size = 2) +
+    geom_abline(slope = 1, intercept = 0, color = "navy", linetype = "dashed") +
+    labs(x = "Quantiles of Female Cell Counts",
+         y = "Quantiles of Male Cell Counts") +
+    theme_minimal() +
+    theme(
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      plot.margin = margin(10, 10, 10, 10))
+  
+  cellcount_combined_plot <- plot_grid(disorder_cellcount_violin, qq_plot_disorder, sex_cellcount_violin, qq_plot_sex, ncol = 2, rel_heights = c(1, 1.2, 1))
+  print(cellcount_combined_plot)
+  
+  ggsave(file.path("results/11-cellcount_plots.png"), cellcount_combined_plot, dpi = 300, width = 12, height = 12)
+}
 
 main()

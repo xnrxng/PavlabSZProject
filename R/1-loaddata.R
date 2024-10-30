@@ -1,6 +1,6 @@
 # Author: Rui Xiang Yu
 # Date: 2024 September 11th
-# This script downloads the data.
+# This script downloads the data and wrangles it.
 # Usage: R/1-loaddata.R
 
 library(tidyverse)
@@ -25,7 +25,7 @@ main <- function() {
     mutate(brainRegion = "PFC",
            disorder = ifelse(disorder == "Schizophrenia", "yes", "no")) |>
     select(patientID, sex, age, disorder, brainRegion, study)
-  saveRDS(CMC_meta, "data/data_processed/CMC/CMC-patients.rds")
+  saveRDS(CMC_meta, "data/data_processed/CMC/CMC-patient.rds")
   
   SZBD_meta <- clean_metadata |>
     filter(Cohort == "SZBDMulti-Seq") |>
@@ -33,7 +33,7 @@ main <- function() {
     mutate(brainRegion = "PFC",
            disorder = ifelse(disorder == "Schizophrenia", "yes", "no")) |>
     select(patientID, sex, age, disorder, brainRegion, study)
-  saveRDS(SZBD_meta, "data/data_processed/SZBDMulti-Seq/SZBDMulti-Seq-patients.rds")
+  saveRDS(SZBD_meta, "data/data_processed/SZBDMulti-Seq/SZBDMulti-Seq-patient.rds")
   
   MB_meta <- clean_metadata |>
     filter(Cohort == "MultiomeBrain") |>
@@ -41,7 +41,7 @@ main <- function() {
     mutate(brainRegion = "PFC",
            disorder = ifelse(disorder == "Schizophrenia", "yes", "no")) |>
     select(patientID, sex, age, disorder, brainRegion, study)
-  saveRDS(MB_meta, "data/data_processed/MultiomeBrain/MultiomeBrain-patients.rds")
+  saveRDS(MB_meta, "data/data_processed/MultiomeBrain/MultiomeBrain-patient.rds")
   
   ### creation of lists of IDs
   CMC_list <- clean_metadata |>
