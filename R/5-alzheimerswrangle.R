@@ -36,9 +36,6 @@ main <- function() {
                             ifelse(filtered_meta$specimenID %in% ad_specimenIDs, "WT",
                                    ifelse(filtered_meta$specimenID %in% trem_specimenIDs, "R62H", "no")))
   
-  #filtered_meta <- select(filtered_meta, -specimenID)
-  #saveRDS(filtered_meta, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/ROSMAP-TREM-2020-patient.rds")
-  
   ### wrangle cell ID  
   cell_IDs <- readxl::read_excel("/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/0-source/meta/clusters_cellID.xlsx", sheet = 2) |>
     select(Barcodes, Sample, Label)
@@ -50,11 +47,11 @@ main <- function() {
   create_combined_matrix(all_specimenIDs)
   common_genes <- generate_genes(all_specimenIDs)
   
-  exc_file <- generate_bycelltype("Ex", common_genes, all_specimenIDs, filtered_meta, cell_IDs)
-  saveRDS(exc_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/Exc_ROSMAP-TREM2-2020.rds")
-  
   mic_file <- generate_bycelltype("Micro", common_genes, all_specimenIDs, filtered_meta, cell_IDs)
   saveRDS(mic_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/Mic_ROSMAP-TREM2-2020.rds")
+  
+  exc_file <- generate_bycelltype("Ex", common_genes, all_specimenIDs, filtered_meta, cell_IDs)
+  saveRDS(exc_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/Exc_ROSMAP-TREM2-2020.rds")
   
   oli_file <- generate_bycelltype("Oli", common_genes, all_specimenIDs, filtered_meta, cell_IDs)
   saveRDS(oli_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/Oli_ROSMAP-TREM2-2020.rds")
@@ -69,10 +66,14 @@ main <- function() {
   saveRDS(inh_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/Inh_ROSMAP-TREM2-2020.rds")
   
   end_file <- generate_bycelltype("Endo", common_genes, all_specimenIDs, filtered_meta, cell_IDs)
-  saveRDS(end_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/Endo_ROSMAP-TREM2-2020.rds")
+  saveRDS(end_file, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/raw/End_ROSMAP-TREM2-2020.rds")
   
   ### filter and cpmlog
   savefiltered()
+  
+  ### 
+  filtered_meta <- select(filtered_meta, -specimenID)
+  saveRDS(filtered_meta, "/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/ROSMAP-TREM2-2020-patient.rds")
 }
 
 ### helper functions
@@ -113,18 +114,25 @@ generate_bycelltype <- function(cell_type, common_genes, sample_list, metadata, 
   final_list <- list()
   meta_list <- list() 
   
+  valid_cell_IDs <- cell_IDs[cell_IDs$Label == cell_type, "Barcodes"] |>
+    na.omit() |>
+    pull()
+  
   for (sample in sample_list) {
     sample_file <- paste0("/cosmos/data/downloaded-data/AD-meta/ROSMAP-TREM2/data/1-filt/matrices/", sample, "combined_matrix.rds")
     sample_data <- readRDS(sample_file)
-    sample_data <- sample_data[rownames(sample_data) %in% common_genes, , drop = FALSE]
+    
+    standardized_data <- data.frame(matrix(NA, nrow = length(common_genes), ncol = ncol(sample_data)))
+    rownames(standardized_data) <- common_genes
+    colnames(standardized_data) <- colnames(sample_data)
+    present_genes <- rownames(sample_data)[rownames(sample_data) %in% common_genes]
+    standardized_data[present_genes, ] <- sample_data[present_genes, , drop = FALSE]
+    standardized_data <- standardized_data[, colnames(standardized_data) %in% valid_cell_IDs, drop = FALSE]
     
     individual_metadata <- metadata[metadata$specimenID == sample, ]
     
-    for (column in colnames(sample_data)){
-      if(column %in% cell_IDs$Barcodes) {
-        label <- cell_IDs$Label[cell_IDs$Barcodes == column]
-        if (!is.na(label) && label == cell_type) {
-          final_list[[column]] <- sample_data[, column]
+    for (column in colnames(standardized_data)){
+          final_list[[column]] <- standardized_data[, column]
           
           meta_list[[length(meta_list) + 1]] <- data.frame(
             cell_ID = column,
@@ -136,9 +144,7 @@ generate_bycelltype <- function(cell_type, common_genes, sample_list, metadata, 
             ADdiag3types = individual_metadata$ADdiag3types,
             stringsAsFactors = FALSE)
         }
-        else
-          {next}
-        }}}
+      }
   
   cell_metadata <- do.call(rbind, meta_list)
   rownames(cell_metadata) <- cell_metadata[, 1]

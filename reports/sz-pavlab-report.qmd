@@ -167,7 +167,21 @@ UMAP was performed for each cohort, colored according to different characteristi
 
 ![Assignments of nuclei to biological sex, separated by cohort.](../results/9.12-sex_umap.png){#fig-sexumap}
 
-The 
+The distribution of ages was looked at in @fig-age_dist_plots. 
+
+- Top left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts. Most individuals are between the ages of 60 and 90, and a peak is observed at 89 years. 
+- Top right: quantile-quantile (QQ) plot of the ages from Schizophrenia patients compared to those of the control. Since most points fall along the reference line, the age distributions between the two groups are quite similar. The deviation seen at the ends of the line suggests differences in the distribution tails, most likely by the presence of older individuals in the control group than in the diseased group.
+- Middle left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by disease. The Schizophrenia group has a lower median. We can also see that there are more older individuals from the control group. 
+- Middle right: violin plot of the age distributions for the control and Schizophrenia groups. The shape and spread shows that the density and distribution of both groups are quite similar, with differences in the median.
+- Bottom left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by sex.  The MALE group has a lower median. We can also see that there are more older individuals from the female group. 
+- Bottom right: violin plot of the age distributions for the female and male groups. The female group exhibits a broader and slightly higher age range than the male group.
+
+The distribution of number of cells per patient was looked at in @fig-cellcount_dist_plots. 
+
+- Top left: violin plot of the cell count distribution compared by condition. The CMC cohort's schizophrenia cell counts appear to be generally lower than the control group, with the control group having a broader range. The MultiomeBrain cohort has a narrow distribution in both groups, with the Schizophrenia group having a higher median and slightly wider spread. In the SZBDMulti-Seq cohort, the schizophrenia group has a broader distribution.
+- Top right: QQ-plot of the cell counts between control and Schizophrenia groups. It indicates that there are similar distributions at lower cell counts, but deviations at higher quantiles suggest that one condition often has larger cell counts per patient.
+- Bottom left: violin plot of the cell count distribution compared by sex. In the CMC cohort, the shape and spread of both groups appears to be quite similar. In the MultiomeBrain cohort, the female cohort has a higher median and broader spread than the male group. In the SZBDMulti-Seq group, the male group has a broader distribution.
+- Bottom right: QQ-plot of the cell counts between female and male groups. There are similar distributions at lower cell counts, but deviations in higher quantiles suggest that one group often has higher cell counts in the upper range.
 
 ![Age distributions across cohorts, compared by disease state and biological sex.](../results/10-age_distributions.png){#fig-age_dist_plots}
 
