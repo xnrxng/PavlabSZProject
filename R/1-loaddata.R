@@ -90,6 +90,22 @@ main <- function() {
   savefiltered("CMC")
   savefiltered("SZBDMulti-Seq")
   savefiltered("MultiomeBrain")
+  
+  ### create filtered V1
+  create_filteredV1(CMCfile = Mic_CMC_SZ, SZBDfile = `Mic_SZBDMulti-Seq_SZ`, MBfile = Mic_MultiomeBrain_SZ)
+  create_filteredV1(CMCfile = Opc_CMC_SZ, SZBDfile = `Opc_SZBDMulti-Seq_SZ`, MBfile = Opc_MultiomeBrain_SZ)
+  create_filteredV1(CMCfile = Ast_CMC_SZ, SZBDfile = `Ast_SZBDMulti-Seq_SZ`, MBfile = Ast_MultiomeBrain_SZ)
+  create_filteredV1(CMCfile = Oli_CMC_SZ, SZBDfile = `Oli_SZBDMulti-Seq_SZ`, MBfile = Oli_MultiomeBrain_SZ)
+  create_filteredV1(CMCfile = Inh_CMC_SZ, SZBDfile = `Inh_SZBDMulti-Seq_SZ`, MBfile = Inh_MultiomeBrain_SZ)
+  create_filteredV1(CMCfile = Exc_CMC_SZ, SZBDfile = `Exc_SZBDMulti-Seq_SZ`, MBfile = Exc_MultiomeBrain_SZ)
+  
+  ### create pseudobulk without cpm
+  create_pseudobulk("CMC")
+  create_pseudobulk("MultiomeBrain")
+  create_pseudobulk("SZBDMulti-Seq")
+  
+  ### cpm pseudobulk
+  
 }
 
 generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
@@ -159,7 +175,7 @@ generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
     return(short_name)
   }
   
-  output_path <- paste0("data/data_processed/", cohort, "/Raw/", capitalize_first_three(cell_type), "_", cohort, "_SZ.rds")
+  output_path <- paste0("data/data_processed/", cohort, "/0.Raw/", capitalize_first_three(cell_type), "_", cohort, "_SZ.rds")
   saveRDS(finalRDSfile, output_path)
   return(finalRDSfile)
 }
@@ -216,7 +232,7 @@ savefiltered <- function(cohort) {
   cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
   
   for (cell in cell_list) {
-    full_path <- paste0("data/data_processed/", cohort, "/Raw/", cell)
+    full_path <- paste0("data/data_processed/", cohort, "/0.Raw/", cell)
     unfiltered <- readRDS(full_path)
     expr_matrix <- unfiltered$expr
     metadata <- unfiltered$meta
@@ -240,15 +256,63 @@ savefiltered <- function(cohort) {
     
     filtered <- cleanCtmat(matrix_patientsplus20)
     filteredfile <- list(meta = filtered_meta, expr = filtered)
-    filtered_path <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell)
+    filtered_path <- paste0("data/data_processed/", cohort, "/Scrapped/Filtered/", cell)
     saveRDS(filteredfile, filtered_path)
     
     cpmlogged <- do_cpm_log(filtered, TRUE)
     cpmfile <- list(meta = filtered_meta, expr = cpmlogged)
-    cpm_path <- paste0("data/data_processed/", cohort, "/CPMLog/CPM_", cell)
+    cpm_path <- paste0("data/data_processed/", cohort, "/Scrapped/FilteredandCPMLog/", cell)
     saveRDS(cpmfile, cpm_path)
   }
   return(NULL)
+}
+
+create_filteredV1 <- function(CMCfile, SZBDfile, MBfile) {
+  CMC_filt <- CMCfile$expr[rowSums(CMCfile$expr != 0) >0, ]
+  SZBD_filt <- SZBDfile$expr[rowSums(SZBDfile$expr != 0) >0, ]
+  
+  CMC_genes <- rownames(CMC_filt)
+  SZBD_genes <- rownames(SZBD_filt)
+  
+  overlapped_genes <- intersect(CMC_genes, SZBD_genes)
+  
+  CMC_overlap <- CMC_filt[rownames(CMC_filt) %in% overlapped_genes, ]
+  SZBD_overlap <- SZBD_filt[rownames(SZBD_filt) %in% overlapped_genes, ]
+  
+  MB_missing_genes <- setdiff(overlapped_genes, rownames(MBfile$expr))
+  MB_zero <- Matrix(0, nrow = length(MB_missing_genes), ncol = ncol(MBfile$expr), dimnames = list(MB_missing_genes, colnames(MBfile$expr)))
+  MB_filt <- rbind(MBfile$expr, MB_zero)
+  MB_overlap <- MB_filt[rownames(MB_filt) %in% overlapped_genes,]
+  
+  CMC_clean <- cleancells(CMC_overlap)
+  SZBD_clean <- cleancells(SZBD_overlap)
+  MB_clean <- cleancells(MB_overlap)
+  
+  CMC_meta <- CMCfile$meta[rownames(CMCfile$meta) %in% colnames(CMC_clean), ]
+  SZBD_meta <- SZBDfile$meta[rownames(SZBDfile$meta) %in% colnames(SZBD_clean), ]
+  MB_meta <- MBfile$meta[rownames(MBfile$meta) %in% colnames(MB_clean), ]
+  
+  CMC_final <- list(meta = CMC_meta, expr = CMC_clean)
+  SZBD_final <- list(meta = SZBD_meta, expr = SZBD_clean)
+  MB_final <- list(meta = MB_meta, expr = MB_clean)
+  
+  CMCpath <- paste0("data/data_processed/CMC/FilteredV1/", deparse(substitute(CMCfile)), ".rds")
+  SZBDpath <- paste0("data/data_processed/SZBDMulti-Seq/FilteredV1/", deparse(substitute(SZBDfile)), ".rds")
+  MBpath <- paste0("data/data_processed/MultiomeBrain/FilteredV1/", deparse(substitute(MBfile)), ".rds")
+  
+  saveRDS(CMC_final, CMCpath)
+  saveRDS(SZBD_final, SZBDpath)
+  saveRDS(MB_final, MBpath)
+}
+
+cleancells <- function(ctmat, sampleThr = 0.05) {
+  
+  cellsNN <- data.frame(cell = colnames(ctmat), nGenes = colSums(ctmat > 0), check.names = FALSE) |>
+    mutate(perc = percent_rank(nGenes)) |>
+    filter(perc > sampleThr)
+  ctmat <- ctmat[, cellsNN$cell]
+  
+  return(ctmat)
 }
 
 main()

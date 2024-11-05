@@ -106,6 +106,10 @@ The age at death distribution of each condition per cohort was also examined. In
 
 ### Examining the Schizophrenia Cohorts
 
+The number of patients, split by disorder and colored by sex, can be seen in @fig-patientbarplot.
+
+![Bar plot of number of patients per cohort, split into disorder and colored by sex.](../results/12-patientbarplot.png){#fig-patientbarplot}
+
 The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort.
 
 ```{r}

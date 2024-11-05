@@ -375,6 +375,29 @@ final_plot_with_legend <- plot_grid(
   
 ggsave(file.path("results/4-agedistribution.png"), final_plot_with_legend, width = 12, 
        height = 8, units = "in", dpi = 300)
+
+patient_disorderbarplot <- clean_metadata |>
+  filter(Cohort == 'CMC' | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
+  filter(Disorder == "Control" | Disorder == "Schizophrenia") |>
+  group_by(Cohort, Disorder, Biological_Sex) |>
+  summarize(count = n()) |>
+  ggplot(aes(x = Disorder, y = count)) +
+  geom_bar(aes(fill = Biological_Sex), stat = "identity") +
+  facet_wrap(~ Cohort) +
+  scale_fill_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen")) +
+  labs(y = "Number of patients", fill = "Biological \n sex") +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    panel.spacing = unit(0, "lines"),
+    plot.margin = margin(10, 10, 10, 10)) +
+  scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60))
+  
+ggsave(file.path("results/12-patientbarplot.png"), patient_disorderbarplot, width = 12, 
+       height = 8, units = "in", dpi = 300)
 }
 
 main()
