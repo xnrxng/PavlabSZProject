@@ -98,14 +98,6 @@ main <- function() {
   create_filteredV1(CMCfile = Oli_CMC_SZ, SZBDfile = `Oli_SZBDMulti-Seq_SZ`, MBfile = Oli_MultiomeBrain_SZ)
   create_filteredV1(CMCfile = Inh_CMC_SZ, SZBDfile = `Inh_SZBDMulti-Seq_SZ`, MBfile = Inh_MultiomeBrain_SZ)
   create_filteredV1(CMCfile = Exc_CMC_SZ, SZBDfile = `Exc_SZBDMulti-Seq_SZ`, MBfile = Exc_MultiomeBrain_SZ)
-  
-  ### create pseudobulk without cpm
-  create_pseudobulk("CMC")
-  create_pseudobulk("MultiomeBrain")
-  create_pseudobulk("SZBDMulti-Seq")
-  
-  ### cpm pseudobulk
-  
 }
 
 generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
