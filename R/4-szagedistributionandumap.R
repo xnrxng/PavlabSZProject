@@ -15,22 +15,22 @@ main <- function() {
   ### CMC umap
   set.seed(11)
 
-  CMC_ast <- readRDS("data/data_processed/CMC/Filtered/Filt_Ast_CMC_SZ.rds")
+  CMC_ast <- readRDS("data/data_processed/CMC/FilteredV1/Ast_CMC_SZ.rds")
   CMC_ast$meta$cell_type <- "Ast"
 
-  CMC_exc <- readRDS("data/data_processed/CMC/Filtered/Filt_Exc_CMC_SZ.rds")
+  CMC_exc <- readRDS("data/data_processed/CMC/FilteredV1/Exc_CMC_SZ.rds")
   CMC_exc$meta$cell_type <- "Exc"
 
-  CMC_inh <- readRDS("data/data_processed/CMC/Filtered/Filt_Inh_CMC_SZ.rds")
+  CMC_inh <- readRDS("data/data_processed/CMC/FilteredV1/Inh_CMC_SZ.rds")
   CMC_inh$meta$cell_type <- "Inh"
 
-  CMC_mic <- readRDS("data/data_processed/CMC/Filtered/Filt_Mic_CMC_SZ.rds")
+  CMC_mic <- readRDS("data/data_processed/CMC/FilteredV1/Mic_CMC_SZ.rds")
   CMC_mic$meta$cell_type <- "Mic"
 
-  CMC_oli <- readRDS("data/data_processed/CMC/Filtered/Filt_Oli_CMC_SZ.rds")
+  CMC_oli <- readRDS("data/data_processed/CMC/FilteredV1/Oli_CMC_SZ.rds")
   CMC_oli$meta$cell_type <- "Oli"
 
-  CMC_opc <- readRDS("data/data_processed/CMC/Filtered/Filt_Opc_CMC_SZ.rds")
+  CMC_opc <- readRDS("data/data_processed/CMC/FilteredV1/Opc_CMC_SZ.rds")
   CMC_opc$meta$cell_type <- "Opc"
 
   CMCexpr_list <- list(CMC_ast$expr, CMC_opc$expr, CMC_exc$expr, CMC_inh$expr, CMC_mic$expr, CMC_oli$expr)
@@ -86,27 +86,34 @@ main <- function() {
     theme(legend.position = "none") +
     ggtitle("CMC")
   
-  ggsave(file.path("results/9.1-CMC_umap.png"), CMC_umapplot)
-  ggsave(file.path("results/9.2-CMC_umap_disorder.png"), CMC_disorderumapplot)
-  ggsave(file.path("results/9.3-CMC_umap_sex.png"), CMC_sexumapplot)
+  CMC_patientmapplot <- DimPlot(CMC_seurat, reduction = "umap", group.by = "patientID") +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("CMC")
+  
+  ggsave(file.path("results/9.1-CMC_umap.png"), CMC_umapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.2-CMC_umap_disorder.png"), CMC_disorderumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.3-CMC_umap_sex.png"), CMC_sexumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.13-CMC_umap_patient.png"), CMC_patientumapplot, width = 7, height = 6)
 
   ### SZBDMulti-Seq umap
-  SZBD_ast <- readRDS("data/data_processed/SZBDMulti-Seq/Filtered/Filt_Ast_SZBDMulti-Seq_SZ.rds")
+  SZBD_ast <- readRDS("data/data_processed/SZBDMulti-Seq/FilteredV1/Ast_SZBDMulti-Seq_SZ.rds")
   SZBD_ast$meta$cell_type <- "Ast"
 
-  SZBD_exc <- readRDS("data/data_processed/SZBDMulti-Seq/Filtered/Filt_Exc_SZBDMulti-Seq_SZ.rds")
+  SZBD_exc <- readRDS("data/data_processed/SZBDMulti-Seq/FilteredV1/Exc_SZBDMulti-Seq_SZ.rds")
   SZBD_exc$meta$cell_type <- "Exc"
 
-  SZBD_inh <- readRDS("data/data_processed/SZBDMulti-Seq/Filtered/Filt_Inh_SZBDMulti-Seq_SZ.rds")
+  SZBD_inh <- readRDS("data/data_processed/SZBDMulti-Seq/FilteredV1/Inh_SZBDMulti-Seq_SZ.rds")
   SZBD_inh$meta$cell_type <- "Inh"
 
-  SZBD_mic <- readRDS("data/data_processed/SZBDMulti-Seq/Filtered/Filt_Mic_SZBDMulti-Seq_SZ.rds")
+  SZBD_mic <- readRDS("data/data_processed/SZBDMulti-Seq/FilteredV1/Mic_SZBDMulti-Seq_SZ.rds")
   SZBD_mic$meta$cell_type <- "Mic"
 
-  SZBD_oli <- readRDS("data/data_processed/SZBDMulti-Seq/Filtered/Filt_Oli_SZBDMulti-Seq_SZ.rds")
+  SZBD_oli <- readRDS("data/data_processed/SZBDMulti-Seq/FilteredV1/Oli_SZBDMulti-Seq_SZ.rds")
   SZBD_oli$meta$cell_type <- "Oli"
 
-  SZBD_opc <- readRDS("data/data_processed/SZBDMulti-Seq/Filtered/Filt_Opc_SZBDMulti-Seq_SZ.rds")
+  SZBD_opc <- readRDS("data/data_processed/SZBDMulti-Seq/FilteredV1/Opc_SZBDMulti-Seq_SZ.rds")
   SZBD_opc$meta$cell_type <- "Opc"
 
   SZBDexpr_list <- list(SZBD_ast$expr, SZBD_opc$expr, SZBD_exc$expr, SZBD_inh$expr, SZBD_mic$expr, SZBD_oli$expr)
@@ -148,42 +155,50 @@ main <- function() {
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
-    ggtitle("SZBD")
+    ggtitle("SZBDMulti-Seq")
   
   SZBD_disorderumapplot <- DimPlot(SZBD_seurat, reduction = "umap", group.by = "disorder") +
     scale_color_manual(values = c("no" = "grey21", "yes" = "firebrick2")) +
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
-    ggtitle("SZBD")
+    ggtitle("SZBDMulti-Seq")
   
   SZBD_sexumapplot <- DimPlot(SZBD_seurat, reduction = "umap", group.by = "sex") +
     scale_color_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
-    ggtitle("SZBD")
-  ggsave(file.path("results/9.4-SZBD_umap.png"), SZBD_umapplot)
-  ggsave(file.path("results/9.5-SZBD_umap_disorder.png"), SZBD_disorderumapplot)
-  ggsave(file.path("results/9.6-SZBD_umap_sex.png"), SZBD_sexumapplot)
+    ggtitle("SZBDMulti-Seq")
+  
+  SZBD_patientumapplot <- DimPlot(SZBD_seurat, reduction = "umap", group.by = "patientID") +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("SZBDMulti-Seq")
+  
+  ggsave(file.path("results/9.4-SZBD_umap.png"), SZBD_umapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.5-SZBD_umap_disorder.png"), SZBD_disorderumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.6-SZBD_umap_sex.png"), SZBD_sexumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.14-SZBD_umap_patient.png"), SZBD_patientumapplot, width = 7, height = 6)
 
   ### MultiomeBrain umap
-  MB_ast <- readRDS("data/data_processed/MultiomeBrain/Filtered/Filt_Ast_MultiomeBrain_SZ.rds")
+  MB_ast <- readRDS("data/data_processed/MultiomeBrain/FilteredV1/Ast_MultiomeBrain_SZ.rds")
   MB_ast$meta$cell_type <- "Ast"
 
-  MB_exc <- readRDS("data/data_processed/MultiomeBrain/Filtered/Filt_Exc_MultiomeBrain_SZ.rds")
+  MB_exc <- readRDS("data/data_processed/MultiomeBrain/FilteredV1/Exc_MultiomeBrain_SZ.rds")
   MB_exc$meta$cell_type <- "Exc"
 
-  MB_inh <- readRDS("data/data_processed/MultiomeBrain/Filtered/Filt_Inh_MultiomeBrain_SZ.rds")
+  MB_inh <- readRDS("data/data_processed/MultiomeBrain/FilteredV1/Inh_MultiomeBrain_SZ.rds")
   MB_inh$meta$cell_type <- "Inh"
 
-  MB_mic <- readRDS("data/data_processed/MultiomeBrain/Filtered/Filt_Mic_MultiomeBrain_SZ.rds")
+  MB_mic <- readRDS("data/data_processed/MultiomeBrain/FilteredV1/Mic_MultiomeBrain_SZ.rds")
   MB_mic$meta$cell_type <- "Mic"
 
-  MB_oli <- readRDS("data/data_processed/MultiomeBrain/Filtered/Filt_Oli_MultiomeBrain_SZ.rds")
+  MB_oli <- readRDS("data/data_processed/MultiomeBrain/FilteredV1/Oli_MultiomeBrain_SZ.rds")
   MB_oli$meta$cell_type <- "Oli"
 
-  MB_opc <- readRDS("data/data_processed/MultiomeBrain/Filtered/Filt_Opc_MultiomeBrain_SZ.rds")
+  MB_opc <- readRDS("data/data_processed/MultiomeBrain/FilteredV1/Opc_MultiomeBrain_SZ.rds")
   MB_opc$meta$cell_type <- "Opc"
 
   MBexpr_list <- list(MB_ast$expr, MB_opc$expr, MB_exc$expr, MB_inh$expr, MB_mic$expr, MB_oli$expr)
@@ -224,25 +239,32 @@ main <- function() {
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
-    ggtitle("MB")
+    ggtitle("MultiomeBrain")
   
   MB_disorderumapplot <- DimPlot(MB_seurat, reduction = "umap", group.by = "disorder") +
     scale_color_manual(values = c("no" = "grey21", "yes" = "firebrick2")) +
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
-    ggtitle("MB")
+    ggtitle("MultiomeBrain")
   
   MB_sexumapplot <- DimPlot(MB_seurat, reduction = "umap", group.by = "sex") +
     scale_color_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
-    ggtitle("MB")
+    ggtitle("MultiomeBrain")
   
-  ggsave(file.path("results/9.7-MB_umap.png"), MB_umapplot)
-  ggsave(file.path("results/9.8-MB_umap_disorder.png"), MB_disorderumapplot)
-  ggsave(file.path("results/9.9-MB_umap_sex.png"), MB_sexumapplot)
+  MB_patientumapplot <- DimPlot(MB_seurat, reduction = "umap", group.by = "patientID") +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("MultiomeBrain")
+  
+  ggsave(file.path("results/9.7-MB_umap.png"), MB_umapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.8-MB_umap_disorder.png"), MB_disorderumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.9-MB_umap_sex.png"), MB_sexumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.15-MB_umap_patient.png"), MB_patientumapplot, width = 7, height = 6)
 
   ### combine umaps in one plot
   CMC_cellumap <- ggdraw() + draw_image("results/9.1-CMC_umap.png")

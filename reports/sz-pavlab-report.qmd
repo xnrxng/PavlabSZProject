@@ -124,8 +124,6 @@ The number of genes is quite similar across 3 cohorts. SZBDMulti-Seq has the hig
 
 From @Ruzicka, genes expressed in less than 0.1% cells and cells with fewer than 1000 identified genes were removed. If they had more than 10% unique molecular identifiers in mitochondrial genes or more than 50000 captured UMIs, these were also removed. They also determined outlier cells by checking their total UMI count, percentage of reads mapped to mitochondrial genes, low similarity with other cells, and exploration of 2D projection plots. These were also removed.
 
-From @ling2024concerted, donors with less than 1000 UMIS were excluded. For each cell type, matrices were scaled to 100000 UMIs per donor and filtered to the top expressing genes. Top expressing genes had at least 10 UMIs per 100000 for at least one donor.
-
 For our purposes, genes that are not expressed in at least 5% of cells will be filtered out. Cells must also be in the top 5th percentile in terms of the number of expressed genes. If the cell comes from a patient that had less than 20 cells for that specific cell type, these will be filtered out. The single cells will be CPM and log normalized. The cell types will be grouped into major types:
 
 -   Excitatory neurons: these include neurons that are L2/3 intratelencephalic, L4 IT intratelencephalic, L5 intratelencephalic, L6 intratelencephalic, L6 corticothalamic, L6 intratelencephalic Car3, L5 extratelencephalic, LE/6 near-projecting, and L6b intratelencephalic.

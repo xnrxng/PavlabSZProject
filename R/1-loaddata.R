@@ -7,6 +7,8 @@ library(tidyverse)
 library(data.table)
 library(Matrix)
 library(future.apply)
+library(readxl)
+library(biomaRt)
 
 main <- function() {
   raw_metadata <- data.table::fread("https://brainscope.gersteinlab.org/data/sample_metadata/PEC2_sample_metadata.txt")
@@ -98,8 +100,57 @@ main <- function() {
   create_filteredV1(CMCfile = Oli_CMC_SZ, SZBDfile = `Oli_SZBDMulti-Seq_SZ`, MBfile = Oli_MultiomeBrain_SZ)
   create_filteredV1(CMCfile = Inh_CMC_SZ, SZBDfile = `Inh_SZBDMulti-Seq_SZ`, MBfile = Inh_MultiomeBrain_SZ)
   create_filteredV1(CMCfile = Exc_CMC_SZ, SZBDfile = `Exc_SZBDMulti-Seq_SZ`, MBfile = Exc_MultiomeBrain_SZ)
+  
+  ### wrangle batiuk
+  batiuk_annotations <- readRDS("data/data_raw/Batiuk/annotations_final.RDS")
+  batiuk_matrices <- readRDS("data/data_raw/Batiuk/snRNA-seq_raw_countmatrices.RDS")
+  batiuk_meta <- read_excel("data/data_raw/Batiuk/sciadv.abn8367_tables_s1_to_s6.xlsx", sheet = 1)
+  
+  colnames(batiuk_meta) <- batiuk_meta[1, ]
+  batiuk_meta <- batiuk_meta[-1, ]
+  batiuk_meta_clean <- batiuk_meta |>
+    dplyr::select(Identifier, Diagnosis, Age, Gender) |>
+    rename(patientID = Identifier, disorder = Diagnosis, age = Age, sex = Gender) |>
+    mutate(brainRegion = "PFC", study = "Batiuk",
+           disorder = ifelse(disorder == "Scz", "yes", "no"),
+           sex = ifelse(sex == "F", "female", "male")) |>
+    filter(patientID != "MB8  (technical replicate of MB8-2)")
+  
+  saveRDS(batiuk_meta_clean, "data/data_processed/Batiuk/Batiuk-patient.rds")
+    
+  
+  exc_neurons <- c("L2_3_CUX2_FREM3", "L2_CUX2_LAMP5", "L5_6_THEMIS", "L5_6_FEZF2_TLE4", "L3_CUX2_PRSS12",
+                   "L4_RORB_SCHLAP1", "L4_5_FEZF2_LRRK1", "L5_FEZF2_ADRA1A")
+  
+  inh_neurons <- c("ID2_LAMP5", "VIP", "ID2_PAX6", "ID2_NCKAP5", "PVALB", "SST")
+  
+  batiuk_df <- data.frame(
+    cell_ID = names(batiuk_annotations$med),
+    cell_type = unname(batiuk_annotations$med)
+  )
+
+  batiuk_annotations_clean <- batiuk_df |>
+  mutate(cell_type = ifelse(cell_type %in% exc_neurons, "Exc", cell_type),
+         cell_type = ifelse(cell_type %in% inh_neurons, "Inh", cell_type))
+  
+  batiuk_matrices$MB8 <- NULL
+  
+  glia_rds_file <- batiuk_cell_types(celltype = "Glia", sample_list = batiuk_matrices, metadata = batiuk_meta_clean, cell_IDs = batiuk_annotations_clean)
+  exc_rds_file <- batiuk_cell_types(celltype = "Exc", sample_list = batiuk_matrices, metadata = batiuk_meta_clean, cell_IDs = batiuk_annotations_clean)
+  inh_rds_file <- batiuk_cell_types(celltype = "Inh", sample_list = batiuk_matrices, metadata = batiuk_meta_clean, cell_IDs = batiuk_annotations_clean)
+  
+  saveRDS(glia_rds_file, "data/data_processed/Batiuk/0.Raw/Gli_Batiuk_SZ.rds")
+  saveRDS(exc_rds_file, "data/data_processed/Batiuk/0.Raw/Exc_Batiuk_SZ.rds")
+  saveRDS(inh_rds_file, "data/data_processed/Batiuk/0.Raw/Inh_Batiuk_SZ.rds")
+  
+  filtered_exc_batiuk <- create_filtered_batiuk(CMCfile = Exc_CMC_SZ, SZBDfile = `Exc_SZBDMulti-Seq_SZ`, Batiukfile = Exc_Batiuk_SZ)
+  filtered_inh_batiuk <- create_filtered_batiuk(CMCfile = Inh_CMC_SZ, SZBDfile = `Inh_SZBDMulti-Seq_SZ`, Batiukfile = Inh_Batiuk_SZ)
+  
+  saveRDS(filtered_exc_batiuk, "data/data_processed/Batiuk/FilteredV1/Exc_Batiuk_SZ.rds")
+  saveRDS(filtered_inh_batiuk, "data/data_processed/Batiuk/FilteredV1/Inh_Batiuk_SZ.rds")
 }
 
+### helper functions
 generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
   final_list <- list()
   metadata <- list() 
@@ -292,6 +343,7 @@ create_filteredV1 <- function(CMCfile, SZBDfile, MBfile) {
   SZBDpath <- paste0("data/data_processed/SZBDMulti-Seq/FilteredV1/", deparse(substitute(SZBDfile)), ".rds")
   MBpath <- paste0("data/data_processed/MultiomeBrain/FilteredV1/", deparse(substitute(MBfile)), ".rds")
   
+  
   saveRDS(CMC_final, CMCpath)
   saveRDS(SZBD_final, SZBDpath)
   saveRDS(MB_final, MBpath)
@@ -305,6 +357,78 @@ cleancells <- function(ctmat, sampleThr = 0.05) {
   ctmat <- ctmat[, cellsNN$cell]
   
   return(ctmat)
+}
+
+batiuk_cell_types <- function(celltype, sample_list, metadata, cell_IDs) {
+  final_list <- list()
+  meta_list <- list() 
+  
+  all_genes <- rownames(sample_list$MB7)
+  
+  ensembl <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+  gene_annotations <- getBM(attributes = c("external_gene_name", "gene_biotype"),
+                            filters = "external_gene_name", values = rownames(sample_list$MB7), mart = ensembl)
+  unique_genes <- unique(gene_annotations$external_gene_name)
+  
+  keep_genes <- rownames(sample_list$MB7[unique_genes, ])
+  
+  patient_IDs <- metadata |> dplyr::select(patientID) |> pull()
+  valid_cell_IDs <- cell_IDs[cell_IDs$cell_type == celltype, "cell_ID"]
+  
+  for (patient in patient_IDs) {
+    sample <- sample_list[[patient]]
+    columns_to_keep <- intersect(colnames(sample), valid_cell_IDs)
+    sample_filtered <- sample[keep_genes, columns_to_keep]
+    
+    individual_metadata <- metadata[metadata$patientID == patient, ]
+    
+    for (column in colnames(sample_filtered)){
+      final_list[[column]] <- sample_filtered[, column]
+      
+      meta_list[[length(meta_list) + 1]] <- data.frame(
+        cell_ID = column,
+        cohort = "Batiuk",
+        patientID = individual_metadata$patientID,
+        sex = individual_metadata$sex,
+        age = individual_metadata$age,
+        disorder = individual_metadata$disorder,
+        stringsAsFactors = FALSE)
+    }
+  }
+  
+  cell_metadata <- do.call(rbind, meta_list)
+  rownames(cell_metadata) <- cell_metadata[, 1]
+  cell_metadata <- cell_metadata[, -1]
+  
+  final_dataframe <- as.data.frame(final_list, check.names = FALSE)
+  rownames(final_dataframe) <- keep_genes
+  final_matrix <- as.matrix(final_dataframe)
+  final_dgCmatrix <- as(final_matrix, "dgCMatrix") 
+  finalRDSfile <- list(meta = cell_metadata, expr = final_dgCmatrix)
+  return(finalRDSfile)
+}
+
+create_filtered_batiuk <- function(CMCfile, SZBDfile, Batiukfile) {
+  CMC_filt <- CMCfile$expr[rowSums(CMCfile$expr != 0) >0, ]
+  SZBD_filt <- SZBDfile$expr[rowSums(SZBDfile$expr != 0) >0, ]
+  
+  CMC_genes <- rownames(CMC_filt)
+  SZBD_genes <- rownames(SZBD_filt)
+  
+  overlapped_genes <- intersect(CMC_genes, SZBD_genes)
+  
+  missing_genes <- setdiff(overlapped_genes, rownames(Batiukfile$expr))
+  batiuk_zero <- Matrix(0, nrow = length(missing_genes), ncol = ncol(Batiukfile$expr), dimnames = list(missing_genes, colnames(Batiukfile$expr)))
+  batiuk_filt <- rbind(Batiukfile$expr, batiuk_zero)
+  batiuk_overlap <- batiuk_filt[rownames(batiuk_filt) %in% overlapped_genes,]
+  
+  batiuk_clean <- cleancells(batiuk_overlap)
+ 
+  batiuk_meta <- Batiukfile$meta[rownames(Batiukfile$meta) %in% colnames(batiuk_clean), ]
+  
+  batiuk_final <- list(meta = batiuk_meta, expr = batiuk_clean)
+  
+  return(batiuk_final)
 }
 
 main()

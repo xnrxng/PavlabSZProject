@@ -37,18 +37,18 @@ main <- function() {
   saveRDS(results, file.path("results/5-cells_genes.rds"))
   
   ### filtered cohort numbers
-  results_filtered <- data.frame(
-    Cohort = character(),
-    Genes = integer(),
-    Total_Cells = integer(),
-    stringsAsFactors = FALSE
-  )
-  
-  results_filtered <- process_cohort_filtered("CMC", results_filtered)
-  results_filtered <- process_cohort_filtered("SZBDMulti-Seq", results_filtered)
-  results_filtered <- process_cohort_filtered("MultiomeBrain", results_filtered)
-  
-  saveRDS(results_filtered, file.path("results/5.2-cells_genes.rds"))
+  # results_filtered <- data.frame(
+  #   Cohort = character(),
+  #   Genes = integer(),
+  #   Total_Cells = integer(),
+  #   stringsAsFactors = FALSE
+  # )
+  # 
+  # results_filtered <- process_cohort_filtered("CMC", results_filtered)
+  # results_filtered <- process_cohort_filtered("SZBDMulti-Seq", results_filtered)
+  # results_filtered <- process_cohort_filtered("MultiomeBrain", results_filtered)
+  # 
+  # saveRDS(results_filtered, file.path("results/5.2-cells_genes.rds"))
 
   ### cell type plot
   celltype_summary_CMC <- data.frame(
@@ -245,11 +245,9 @@ main <- function() {
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     facet_wrap(~ cohort, ncol =1, scales = "free_x")
   
-  print(depthplot_unscaled)
-  
   ggsave(file.path("results/7.2-depthdistribution_unscaled.png"), depthplot_unscaled, width = 8, height = 15)
   
-  ### sequencing depth plot for CPMlog samples
+  ### sequencing depth plot for CPM samples
   depth_df_CMC_CPM <- data.frame(
     patientID = character(),
     cell_type = character(),
@@ -306,8 +304,6 @@ main <- function() {
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     facet_wrap(~ cohort, ncol =1, scales = "free_x")
   
-  print(depthplot_cpm)
-  
   ggsave(file.path("results/7.3-depthdistribution_cpm.png"), depthplot_cpm, width = 8, height = 15)
   
   depthplot_cpm_unscaled <- combined_depthdf |>
@@ -331,8 +327,6 @@ main <- function() {
       strip.placement = "outside") +
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
     facet_wrap(~ cohort, ncol =1, scales = "free_x")
-  
-  print(depthplot_cpm_unscaled)
   
   ggsave(file.path("results/7.4-depthdistribution_cpm_unscaled.png"), depthplot_cpm_unscaled, width = 8, height = 15)
   
@@ -370,9 +364,7 @@ main <- function() {
     scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
   
   ggsave(file.path("results/8-abundancecondition.png"), abundance_plot, width = 8, height = 12)
-    
   }
-
 
 ### helper functions  
 process_cohort <- function(sample_list, cohort_name, results_df) {
@@ -399,38 +391,38 @@ process_cohort <- function(sample_list, cohort_name, results_df) {
   return(results_df)
 }
 
-process_cohort_filtered <- function(cohort, results_df) {
-  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-  microglia <- paste0("Mic_", cohort, "_SZ.rds")
-  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-  opc <- paste0("Opc_", cohort, "_SZ.rds")
-  
-  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
-  
-  total_cells <- 0
-  genes <- 0
-  for (i in seq_along(cell_list)) {
-    sample <- cell_list[i]
-    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", sample)
-    sample_data <- readRDS(sample_file)
-    total_cells <- total_cells + ncol(sample_data$expr)
-    
-    if (i == 1) {
-      genes <- nrow(sample_data$expr)
-    }
-  }
-  
-  results_df <- rbind(results_df, data.frame(
-    Cohort = cohort,
-    Genes = genes,
-    Total_Cells = total_cells,
-    stringsAsFactors = FALSE
-  ))
-  
-  return(results_df)
-}
+# process_cohort_filtered <- function(cohort, results_df) {
+#   astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+#   excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+#   inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+#   microglia <- paste0("Mic_", cohort, "_SZ.rds")
+#   oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+#   opc <- paste0("Opc_", cohort, "_SZ.rds")
+#   
+#   cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+#   
+#   total_cells <- 0
+#   genes <- 0
+#   for (i in seq_along(cell_list)) {
+#     sample <- cell_list[i]
+#     sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", sample)
+#     sample_data <- readRDS(sample_file)
+#     total_cells <- total_cells + ncol(sample_data$expr)
+#     
+#     if (i == 1) {
+#       genes <- nrow(sample_data$expr)
+#     }
+#   }
+#   
+#   results_df <- rbind(results_df, data.frame(
+#     Cohort = cohort,
+#     Genes = genes,
+#     Total_Cells = total_cells,
+#     stringsAsFactors = FALSE
+#   ))
+#   
+#   return(results_df)
+# }
 
 countcells_pertype <- function(cohort, results_df) {
   astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -445,7 +437,7 @@ countcells_pertype <- function(cohort, results_df) {
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
-    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell_type_file)
+    sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
     sample_data <- readRDS(sample_file)
     
     n_cells <- sample_data$meta |>
@@ -472,7 +464,7 @@ sum_columns <- function(cohort, results_df) {
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
-    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell_type_file)
+    sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
     sample_data <- readRDS(sample_file)
     
     expr_matrix <- sample_data$expr
@@ -505,7 +497,7 @@ sum_columns_cpm <- function(cohort, results_df) {
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
-    sample_file <- paste0("data/data_processed/", cohort, "/CPMLog/CPM_", cell_type_file)
+    sample_file <- paste0("data/data_processed/", cohort, "/SingleCell/CPM/", cell_type_file)
     sample_data <- readRDS(sample_file)
     
     expr_matrix <- sample_data$expr
@@ -538,7 +530,7 @@ abundance_conditions <- function(cohort, summary_df) {
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
-    sample_file <- paste0("data/data_processed/", cohort, "/Filtered/Filt_", cell_type_file)
+    sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
     sample_data <- readRDS(sample_file)
     
     metadata <- sample_data$meta

@@ -9,7 +9,9 @@ library(stringr)
 library(cowplot)
 
 main <- function() {
+  ### get total patients per cohort
   clean_metadata <- readRDS("data/data_processed/clean_metadata.rds")
+  batiuk_meta <- readRDS("data/data_processed/Batiuk/Batiuk-patient.rds")
   
   total_patients <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
@@ -21,8 +23,19 @@ main <- function() {
       Disorder_studied = ifelse(Disorder_studied == "", "None", Disorder_studied)
     )
   
-  saveRDS(total_patients, file.path("results/1-total_patients.rds"))
+  batiuk_total <- data.frame(
+    Cohort = "Batiuk",
+    Patients = length(batiuk_meta$patientID),
+    Mean_Age = mean(as.numeric(batiuk_meta$age)),
+    Disorder_studied = "Schizophrenia",
+    stringsAsFactors = FALSE
+  )
   
+  all_patients <- rbind(total_patients, batiuk_total)
+  
+  saveRDS(all_patients, file.path("results/1-total_patients.rds"))
+  
+  ### get number of patients per condition per cohort
   patientpercondition <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort, Disorder) |>
@@ -33,9 +46,9 @@ main <- function() {
       N_Female = sum(Biological_Sex == "female", na.rm = TRUE)
     )
   
-  
   saveRDS(patientpercondition, file.path("results/2-patients_per_condition.rds"))
   
+  ### get number of elderly patients in schizophrenia cohorts
   elderlypatients <- clean_metadata |>
     filter(Cohort == "CMC" | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
     group_by(Cohort, Disorder) |>
@@ -44,6 +57,7 @@ main <- function() {
   
   saveRDS(elderlypatients, file.path("results/3-elderlypatients.rds"))
   
+  ### make a plot of age distributions
   meanage_summary <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort, Disorder) |>

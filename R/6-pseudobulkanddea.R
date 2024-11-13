@@ -44,7 +44,48 @@ main <- function() {
     }
   }
 
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+    
+    for (cell in cell_list) {
+      full_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkRaw/", cell)
+      pseudobulk <- readRDS(full_path)
+      dea_res <- perform_DGE(pseudobulk)
+      
+      dea_path <- paste0("results/DEA/", cohort, "/TMMDEAresults_", cell)
+      saveRDS(dea_res$dge_results, dea_path)
+      
+      tmm_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkTMM/", cell)
+      saveRDS(dea_res$tmmfile, tmm_path)
+      }
+  }
   
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+    
+    for (cell in cell_list) {
+      pb_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkCPM/", cell)
+      pseudobulk <- readRDS(pb_path)
+      dea_res <- perform_DGE_on_CPM(pseudobulk)
+      
+      dea_path <- paste0("results/DEA/", cohort, "/CPMDEAresults_", cell)
+      saveRDS(dea_res$dge_results, dea_path)
+    }
+  }
   
 }
 
@@ -123,6 +164,29 @@ do_cpm_log <- function(mtx, log) {
   }
   
   return(cpm_result)
+}
+
+perform_DGE_on_CPM <- function(PB) {
+  # Check if all sample names in the expression matrix match group sample names
+  if (!all(colnames(PB$expr) %in% PB$meta$group_sample)) {
+    stop("Sample names in expression matrix do not match group sample names in meta data")
+  }
+  
+  design <- model.matrix(~ group, data = PB$meta)
+  y <- DGEList(counts = PB$expr, group = PB$meta$group)
+  y$samples$norm.factors <- 1
+ 
+  x <- estimateDisp(y, design, trend.method = "locfit", tagwise = TRUE, prior.df = NULL)   # Estimate dispersion
+  fit <- glmFit(x, design = design)   # Fit GLM (edgeR)
+  test <- glmLRT(fit)   # Likelihood ratio test
+  
+  # Extract results
+  res <- topTags(test, n = Inf) %>%
+    as.data.frame() %>%
+    rownames_to_column('gene') %>%
+    mutate(test = 'pseudobulk_edgeR')
+  
+  return(res)
 }
 
 main()
