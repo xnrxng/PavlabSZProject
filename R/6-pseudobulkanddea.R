@@ -11,7 +11,7 @@ library(edgeR)
 
 main <- function() {
   ### create pseudobulks and cpm them. also cpm filtered one
-  cohort_list <- c("CMC", "MultiomeBrain", "SZBDMulti-Seq")
+  cohort_list <- c("CMC", "MultiomeBrain", "SZBDMulti-Seq", "Batiuk")
   
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -20,11 +20,17 @@ main <- function() {
     microglia <- paste0("Mic_", cohort, "_SZ.rds")
     oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
     opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
     
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
     
     for (cell in cell_list) {
       full_path <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell)
+      
+      if (!file.exists(full_path)) {
+        message("File ", full_path, " does not exist. Skipping to next.")
+        next
+      }
       unfiltered <- readRDS(full_path)
       pseudobulked <- create_pseudo_bulk(unfiltered$expr, unfiltered$meta)
       final_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkRaw/", cell)

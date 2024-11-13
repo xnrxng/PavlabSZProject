@@ -46,7 +46,21 @@ main <- function() {
       N_Female = sum(Biological_Sex == "female", na.rm = TRUE)
     )
   
-  saveRDS(patientpercondition, file.path("results/2-patients_per_condition.rds"))
+  batiuk_per_condition <- batiuk_meta |>
+    group_by(disorder) |>
+    summarize(
+      Total = n(),
+      Mean_Age = round(mean(as.numeric(age, na.rm = TRUE))),
+      N_Male = sum(sex == "male", na.rm = TRUE),
+      N_Female = sum(sex == "female", na.rm = TRUE)
+    ) |>
+    rename(Disorder = disorder) |>
+    mutate(Cohort = "Batiuk",
+           Disorder = ifelse(Disorder == "yes", "Schizophrenia", "Control"))
+  
+  allpatients_per_condition <- rbind(patientpercondition, batiuk_per_condition)
+  
+  saveRDS(allpatients_per_condition, file.path("results/2-patients_per_condition.rds"))
   
   ### get number of elderly patients in schizophrenia cohorts
   elderlypatients <- clean_metadata |>
@@ -58,10 +72,8 @@ main <- function() {
   saveRDS(elderlypatients, file.path("results/3-elderlypatients.rds"))
   
   ### make a plot of age distributions
-  meanage_summary <- clean_metadata |>
-    mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
-    group_by(Cohort, Disorder) |>
-    summarize(Mean_Age = round(mean(Age)))
+  meanage_summary <- allpatients_per_condition |>
+    select(Cohort, Disorder, Mean_Age)
   
   x_limits <- c(0, 90)
   y_limits <- c(0, 0.2)  
@@ -83,7 +95,7 @@ color_palette <- c(
     geom_density(alpha = 0.3) +
     geom_vline(data = meanage_summary |> filter(Cohort == "CMC"), 
                aes(xintercept = Mean_Age, colour = Disorder),
-               linetype = "dashed", size = 1) +
+               linetype = "dashed", linewidth = 1) +
     labs(title = "CMC") +
     scale_color_manual(values = color_palette) +
     scale_fill_manual(values = color_palette) +
@@ -107,7 +119,7 @@ color_palette <- c(
     geom_density(alpha = 0.3) +
     geom_vline(data = meanage_summary |> filter(Cohort == "DevBrain"), 
                aes(xintercept = Mean_Age, colour = Disorder),
-               linetype = "dashed", size = 1) +
+               linetype = "dashed", linewidth = 1) +
     labs(title = "DevBrain") +
     scale_color_manual(values = color_palette) +
     scale_fill_manual(values = color_palette) +
@@ -131,7 +143,7 @@ Girgentiageplot <- clean_metadata |>
     geom_density(alpha = 0.3) +
     geom_vline(data = meanage_summary |> filter(Cohort == "Girgenti-snMultiome"), 
                aes(xintercept = Mean_Age, colour = Disorder),
-               linetype = "dashed", size = 1) +
+               linetype = "dashed", linewidth = 1) +
     labs(title = "Girgenti-snMultiome") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -155,7 +167,7 @@ ISOhubageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "IsoHuB"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "IsoHuB") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -179,7 +191,7 @@ LIBDageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "LIBD"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "LIBD") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -203,7 +215,7 @@ Maageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "Ma_et_al"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "Ma-Sestan") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -227,7 +239,7 @@ MBageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "MultiomeBrain"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "MultiomeBrain") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -251,7 +263,7 @@ PTSDageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "PTSDBrainomics"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "PTSDBrainomics") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -275,7 +287,7 @@ SZBDageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "SZBDMulti-Seq"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "SZBDMulti-Seq") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -299,7 +311,7 @@ UCLAageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "UCLA-ASD"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "UCLA-ASD") +
   scale_color_manual(values = color_palette) +
   scale_fill_manual(values = color_palette) +
@@ -323,7 +335,7 @@ Velageplot <- clean_metadata |>
   geom_density(alpha = 0.3) +
   geom_vline(data = meanage_summary |> filter(Cohort == "Velmeshev_et_al"), 
              aes(xintercept = Mean_Age, colour = Disorder),
-             linetype = "dashed", size = 1) +
+             linetype = "dashed", linewidth = 1) +
   labs(title = "Velmeshev_et_al") +
   scale_color_manual(values = color_palette, guide = "none") +
   scale_fill_manual(values = color_palette) +
@@ -340,9 +352,33 @@ Velageplot <- clean_metadata |>
     legend.position = "none"
   )
 
-plot_list <- list(CMCageplot, DevBrainageplot, Girgentiageplot, ISOhubageplot,
-                  LIBDageplot, Maageplot, MBageplot, PTSDageplot, SZBDageplot,
-                  UCLAageplot, Velageplot)
+Batiukageplot <- batiuk_meta |>
+  mutate(disorder = ifelse(disorder == "yes", "Schizophrenia", "Control"),
+         age = as.numeric(age)) |>
+  ggplot(aes(x = age, fill = disorder)) +
+  geom_density(alpha = 0.3) +
+  geom_vline(data = meanage_summary |> filter(Cohort == "Batiuk"), 
+             aes(xintercept = Mean_Age, colour = Disorder),
+             linetype = "dashed", linewidth = 1) +
+  labs(title = "Batiuk") +
+  scale_color_manual(values = color_palette, guide = "none") +
+  scale_fill_manual(values = color_palette) +
+  theme_bw(base_size = 10, base_line_size  = 1) +
+  xlim(x_limits) +
+  ylim(y_limits) +
+  theme(
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black"),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    legend.position = "none"
+  )
+
+plot_list <- list(CMCageplot, DevBrainageplot, Girgentiageplot, Batiukageplot, ISOhubageplot,
+                  LIBDageplot, SZBDageplot, Maageplot, PTSDageplot,
+                  MBageplot, UCLAageplot, Velageplot)
 
 combined_plots <- plot_grid(
   plotlist = plot_list, 
@@ -390,11 +426,23 @@ final_plot_with_legend <- plot_grid(
 ggsave(file.path("results/4-agedistribution.png"), final_plot_with_legend, width = 12, 
        height = 8, units = "in", dpi = 300)
 
-patient_disorderbarplot <- clean_metadata |>
+### 
+patientsexdisorder_data <- clean_metadata |>
   filter(Cohort == 'CMC' | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
   filter(Disorder == "Control" | Disorder == "Schizophrenia") |>
   group_by(Cohort, Disorder, Biological_Sex) |>
+  summarize(count = n())
+
+batiuksexdisorder_data <- batiuk_meta |>
+  group_by(disorder, sex) |>
   summarize(count = n()) |>
+  rename(Disorder = disorder, Biological_Sex = sex) |>
+  mutate(Cohort = "Batiuk",
+         Disorder = ifelse(Disorder == "yes", "Schizophrenia", "Control"))
+
+allpatientsexdisorder_data <- rbind(patientsexdisorder_data, batiuksexdisorder_data)
+
+patient_disorderbarplot <- allpatientsexdisorder_data |>
   ggplot(aes(x = Disorder, y = count)) +
   geom_bar(aes(fill = Biological_Sex), stat = "identity") +
   facet_wrap(~ Cohort) +
@@ -410,7 +458,7 @@ patient_disorderbarplot <- clean_metadata |>
     plot.margin = margin(10, 10, 10, 10)) +
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60))
   
-ggsave(file.path("results/12-patientbarplot.png"), patient_disorderbarplot, width = 12, 
+ggsave(file.path("results/12-patientbarplot.png"), patient_disorderbarplot, width = 8, 
        height = 8, units = "in", dpi = 300)
 }
 

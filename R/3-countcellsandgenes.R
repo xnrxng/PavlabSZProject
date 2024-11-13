@@ -33,23 +33,54 @@ main <- function() {
   results <- process_cohort(CMC_list, "CMC", results)
   results <- process_cohort(SZBD_list, "SZBDMulti-Seq", results)
   results <- process_cohort(MB_list, "MultiomeBrain", results)
+  
+  batiuk_results <- data.frame(
+    Cohort = "Batiuk",
+    Genes = 36501,
+    Total_Cells = 199675
+  )
 
+  results <- rbind(results, batiuk_results)
+  
   saveRDS(results, file.path("results/5-cells_genes.rds"))
   
-  ### filtered cohort numbers
-  # results_filtered <- data.frame(
-  #   Cohort = character(),
-  #   Genes = integer(),
-  #   Total_Cells = integer(),
-  #   stringsAsFactors = FALSE
-  # )
-  # 
-  # results_filtered <- process_cohort_filtered("CMC", results_filtered)
-  # results_filtered <- process_cohort_filtered("SZBDMulti-Seq", results_filtered)
-  # results_filtered <- process_cohort_filtered("MultiomeBrain", results_filtered)
-  # 
-  # saveRDS(results_filtered, file.path("results/5.2-cells_genes.rds"))
-
+  ### get summary of overlapped genes
+  overlap_df <- data.frame(
+    Cell_Type = character(),
+    Overlapped_Genes = integer(),
+    Total_Genes = integer(),
+    stringsAsFactors = FALSE
+  )
+  
+  overlap_df <- get_overlapped_genes("Exc", overlap_df)
+  overlap_df <- get_overlapped_genes("Inh", overlap_df)
+  overlap_df <- get_overlapped_genes("Mic", overlap_df)
+  overlap_df <- get_overlapped_genes("Opc", overlap_df)
+  overlap_df <- get_overlapped_genes("Oli", overlap_df)
+  overlap_df <- get_overlapped_genes("Ast", overlap_df)
+  overlap_df <- get_overlapped_genes("Gli", overlap_df)
+  
+  saveRDS(results, file.path("results/5.2-overlapped_genes.rds"))
+  
+  ### number of genes and cells per cell type per cohort
+  n_genes_cells <- data.frame(
+    Cohort = character(),
+    Cell_Type = character(),
+    N_genes = integer(),
+    N_cells = integer(),
+    stringsAsFactors = FALSE
+  )
+  
+  n_genes_cells <- get_genes_and_cells("Exc", n_genes_cells)
+  n_genes_cells <- get_genes_and_cells("Inh", n_genes_cells)
+  n_genes_cells <- get_genes_and_cells("Mic", n_genes_cells)
+  n_genes_cells <- get_genes_and_cells("Oli", n_genes_cells)
+  n_genes_cells <- get_genes_and_cells("Opc", n_genes_cells)
+  n_genes_cells <- get_genes_and_cells("Ast", n_genes_cells)
+  n_genes_cells <- get_genes_and_cells("Gli", n_genes_cells)
+  
+  saveRDS(n_genes_cells, file.path("results/5.3-n_genes_cells.rds"))
+  
   ### cell type plot
   celltype_summary_CMC <- data.frame(
     patientID = character(),
@@ -75,9 +106,18 @@ main <- function() {
     stringsAsFactors = FALSE
   )
   
+  celltype_summary_Batiuk <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
+  
   celltype_summary_CMC <- countcells_pertype("CMC", celltype_summary_CMC)
   celltype_summary_SZBD <- countcells_pertype("SZBDMulti-Seq", celltype_summary_SZBD)
   celltype_summary_MB <- countcells_pertype("MultiomeBrain", celltype_summary_MB)
+  celltype_summary_Batiuk <- countcells_pertype("Batiuk", celltype_summary_Batiuk)
 
   CMCcelltypeplot <- celltype_summary_CMC |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
@@ -144,8 +184,30 @@ main <- function() {
       panel.spacing = unit(1, "lines")) +
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
   
+  Batiukcelltypeplot <- celltype_summary_Batiuk |>
+    mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
+    ggplot(aes(x = cells, y = cell_type, color = disorder)) +
+    geom_point(position = position_jitter(width = 0.2, height = 0.1), size = 1, alpha = 0.8) +
+    labs(
+      x = "Number of Cells (Frequency)", 
+      y = "Cell Type",
+      title = "Batiuk") +
+    xlim(c(0, 12000)) +
+    theme_minimal() +
+    theme(
+      axis.title.x = element_blank(),
+      axis.title.y = element_blank(), 
+      panel.border = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(colour = "black"),
+      strip.background = element_blank(),
+      panel.spacing = unit(1, "lines"),
+      legend.position = "none") +
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
+  
   celltypecombined_plots <- plot_grid(
-    plotlist = list(CMCcelltypeplot, SZBDcelltypeplot, MBcelltypeplot+ theme(legend.position = "none")), ncol = 1, align = "hv")
+    plotlist = list(CMCcelltypeplot, SZBDcelltypeplot, Batiukcelltypeplot, MBcelltypeplot+ theme(legend.position = "none")), ncol = 2, align = "hv")
   
   disorderlegend <- get_legend(MBcelltypeplot+ labs(color = "Disorder") + theme(legend.box.margin = margin(0, 0, 0, 3),
                                              legend.key.size = unit(1, 'cm'),
@@ -163,7 +225,7 @@ main <- function() {
     rel_widths = c(0.85, 0.15)
   )
   
-  ggsave(file.path("results/6-celltypedistribution.png"), celltypefinal_plot_with_legend, width = 10, height = 12)
+  ggsave(file.path("results/6-celltypedistribution.png"), celltypefinal_plot_with_legend, width = 10, height = 9)
   
   ###sequencing depth plot
   depth_df_CMC <- data.frame(
@@ -193,10 +255,20 @@ main <- function() {
     stringsAsFactors = FALSE
   )
   
+  depth_df_Batiuk <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
+    stringsAsFactors = FALSE
+  )
+  
   depth_df_CMC <- sum_columns("CMC", depth_df_CMC)
   depth_df_SZBD <- sum_columns("SZBDMulti-Seq", depth_df_SZBD)
   depth_df_MB <- sum_columns("MultiomeBrain", depth_df_MB)
-  combined_depthdf <- rbind(depth_df_CMC, depth_df_SZBD, depth_df_MB)
+  depth_df_Batiuk <- sum_columns("Batiuk", depth_df_Batiuk)
+  combined_depthdf <- rbind(depth_df_CMC, depth_df_SZBD, depth_df_MB, depth_df_Batiuk)
   
   depthplot <- combined_depthdf |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
@@ -219,7 +291,7 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       strip.placement = "outside") +
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
-    facet_wrap(~ cohort, ncol =1, scales = "free_x")
+    facet_wrap(~ cohort, ncol = 1, scales = "free_x")
       
   ggsave(file.path("results/7-depthdistribution.png"), depthplot, width = 8, height = 15)
   
@@ -243,7 +315,7 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       strip.placement = "outside") +
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
-    facet_wrap(~ cohort, ncol =1, scales = "free_x")
+    facet_wrap(~ cohort, ncol =1 , scales = "free_x")
   
   ggsave(file.path("results/7.2-depthdistribution_unscaled.png"), depthplot_unscaled, width = 8, height = 15)
   
@@ -275,10 +347,20 @@ main <- function() {
     stringsAsFactors = FALSE
   )
   
+  depth_df_Batiuk_CPM <- data.frame(
+    patientID = character(),
+    cell_type = character(),
+    seq_depth = integer(),
+    disorder = character(),
+    cohort = character(),
+    stringsAsFactors = FALSE
+  )
+  
   depth_df_CMC_CPM <- sum_columns_cpm("CMC", depth_df_CMC_CPM)
   depth_df_SZBD_CPM <- sum_columns_cpm("SZBDMulti-Seq", depth_df_SZBD_CPM)
   depth_df_MB_CPM <- sum_columns_cpm("MultiomeBrain", depth_df_MB_CPM)
-  combined_depthdf_cpm <- rbind(depth_df_CMC_CPM, depth_df_SZBD_CPM, depth_df_MB_CPM)
+  depth_df_Batiuk_CPM <- sum_columns_cpm("Batiuk", depth_df_Batiuk_CPM)
+  combined_depthdf_cpm <- rbind(depth_df_CMC_CPM, depth_df_SZBD_CPM, depth_df_MB_CPM, depth_df_Batiuk_CPM)
   
   
   depthplot_cpm <- combined_depthdf |>
@@ -340,6 +422,7 @@ main <- function() {
   abundance_df <- abundance_conditions("CMC", abundance_df)
   abundance_df <- abundance_conditions("SZBDMulti-Seq", abundance_df)
   abundance_df <- abundance_conditions("MultiomeBrain", abundance_df)
+  abundance_df <- abundance_conditions("Batiuk", abundance_df)
 
   abundance_plot <- abundance_df |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
@@ -391,39 +474,6 @@ process_cohort <- function(sample_list, cohort_name, results_df) {
   return(results_df)
 }
 
-# process_cohort_filtered <- function(cohort, results_df) {
-#   astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-#   excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-#   inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-#   microglia <- paste0("Mic_", cohort, "_SZ.rds")
-#   oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-#   opc <- paste0("Opc_", cohort, "_SZ.rds")
-#   
-#   cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
-#   
-#   total_cells <- 0
-#   genes <- 0
-#   for (i in seq_along(cell_list)) {
-#     sample <- cell_list[i]
-#     sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", sample)
-#     sample_data <- readRDS(sample_file)
-#     total_cells <- total_cells + ncol(sample_data$expr)
-#     
-#     if (i == 1) {
-#       genes <- nrow(sample_data$expr)
-#     }
-#   }
-#   
-#   results_df <- rbind(results_df, data.frame(
-#     Cohort = cohort,
-#     Genes = genes,
-#     Total_Cells = total_cells,
-#     stringsAsFactors = FALSE
-#   ))
-#   
-#   return(results_df)
-# }
-
 countcells_pertype <- function(cohort, results_df) {
   astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
   excitatory <- paste0("Exc_", cohort, "_SZ.rds")
@@ -431,13 +481,20 @@ countcells_pertype <- function(cohort, results_df) {
   microglia <- paste0("Mic_", cohort, "_SZ.rds")
   oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
   opc <- paste0("Opc_", cohort, "_SZ.rds")
+  gli <- paste0("Gli_", cohort, "_SZ.rds")
   
-  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
 
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
     sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
+    
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
+    
     sample_data <- readRDS(sample_file)
     
     n_cells <- sample_data$meta |>
@@ -458,13 +515,18 @@ sum_columns <- function(cohort, results_df) {
   microglia <- paste0("Mic_", cohort, "_SZ.rds")
   oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
   opc <- paste0("Opc_", cohort, "_SZ.rds")
+  gli <- paste0("Gli_", cohort, "_SZ.rds")
   
-  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
   
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
     sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
     sample_data <- readRDS(sample_file)
     
     expr_matrix <- sample_data$expr
@@ -491,13 +553,19 @@ sum_columns_cpm <- function(cohort, results_df) {
   microglia <- paste0("Mic_", cohort, "_SZ.rds")
   oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
   opc <- paste0("Opc_", cohort, "_SZ.rds")
+  gli <- paste0("Gli_", cohort, "_SZ.rds")
   
-  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
   
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
     sample_file <- paste0("data/data_processed/", cohort, "/SingleCell/CPM/", cell_type_file)
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
+    
     sample_data <- readRDS(sample_file)
     
     expr_matrix <- sample_data$expr
@@ -524,13 +592,18 @@ abundance_conditions <- function(cohort, summary_df) {
   microglia <- paste0("Mic_", cohort, "_SZ.rds")
   oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
   opc <- paste0("Opc_", cohort, "_SZ.rds")
+  gli <- paste0("Gli_", cohort, "_SZ.rds")
   
-  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc)
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
   
   for (cell_type_file in cell_list) {
     cell_type <- strsplit(cell_type_file, "_")[[1]][1]
     
     sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
     sample_data <- readRDS(sample_file)
     
     metadata <- sample_data$meta
@@ -544,6 +617,65 @@ abundance_conditions <- function(cohort, summary_df) {
   }
   
   return(summary_df)
+}
+
+get_overlapped_genes <- function(cell_type, results_df) {
+
+  cohort_list <- c("CMC", "SZBDMulti-Seq", "MultiomeBrain", "Batiuk")
+  cohort_genes <- list()
+  
+  for (cohort in cohort_list) {
+    sample_file <- paste0("data/data_processed/", cohort, "/0.Raw/", cell_type, "_", cohort, "_SZ.rds")
+    
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
+    
+    sample_data <- readRDS(sample_file)
+    sample_expr <- sample_data$expr[rowSums(sample_data$expr != 0) >0, ]
+    genes <- rownames(sample_expr)
+    cohort_genes[[cohort]] <- genes
+  }
+  overlapped_genes <- Reduce(intersect, cohort_genes)
+  n_overlapped_genes <- length(overlapped_genes)
+  
+  all_genes <- unique(unlist(cohort_genes))
+  n_total_genes <- length(all_genes)
+  
+  raw_df <- data.frame(
+    Cell_Type = cell_type,
+    Overlapped_Genes = n_overlapped_genes,
+    Total_Genes = n_total_genes,
+    stringsAsFactors = FALSE
+  )
+  
+  results_df <- rbind(results_df, raw_df)
+  
+  return(results_df)
+}
+
+get_genes_and_cells <- function(cell_type, results_df) {
+  
+  cohort_list <- c("CMC", "SZBDMulti-Seq", "MultiomeBrain", "Batiuk")
+  
+  for (cohort in cohort_list) {
+    sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type, "_", cohort, "_SZ.rds")
+    
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
+    sample_data <- readRDS(sample_file)
+    raw_df <- data.frame(
+      Cohort = cohort,
+      Cell_Type = cell_type,
+      N_genes = nrow(sample_data$expr),
+      N_cells = ncol(sample_data$expr)
+    )
+    results_df <- rbind(results_df, raw_df)
+  }
+  return(results_df)
 }
 
 main()
