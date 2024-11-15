@@ -14,27 +14,26 @@ library(magick)
 main <- function() {
   ### CMC umap
   set.seed(11)
-
   CMC_ast <- readRDS("data/data_processed/CMC/FilteredV1/Ast_CMC_SZ.rds")
   CMC_ast$meta$cell_type <- "Ast"
-
+  
   CMC_exc <- readRDS("data/data_processed/CMC/FilteredV1/Exc_CMC_SZ.rds")
   CMC_exc$meta$cell_type <- "Exc"
-
+  
   CMC_inh <- readRDS("data/data_processed/CMC/FilteredV1/Inh_CMC_SZ.rds")
   CMC_inh$meta$cell_type <- "Inh"
-
+  
   CMC_mic <- readRDS("data/data_processed/CMC/FilteredV1/Mic_CMC_SZ.rds")
   CMC_mic$meta$cell_type <- "Mic"
-
+  
   CMC_oli <- readRDS("data/data_processed/CMC/FilteredV1/Oli_CMC_SZ.rds")
   CMC_oli$meta$cell_type <- "Oli"
-
+  
   CMC_opc <- readRDS("data/data_processed/CMC/FilteredV1/Opc_CMC_SZ.rds")
   CMC_opc$meta$cell_type <- "Opc"
-
+  
   CMCexpr_list <- list(CMC_ast$expr, CMC_opc$expr, CMC_exc$expr, CMC_inh$expr, CMC_mic$expr, CMC_oli$expr)
-
+  
   CMCall_genes <- Reduce(union, lapply(CMCexpr_list, rownames))
   CMCpad_genes <- function(expr, CMCall_genes) {
     CMCmissing_genes <- setdiff(CMCall_genes, rownames(expr))
@@ -43,7 +42,7 @@ main <- function() {
     CMCexpr_padded <- rbind(expr, CMCzero_mat)
     return(CMCexpr_padded[CMCall_genes, , drop = FALSE])
   }
-
+  
   CMCexpr_list_padded <- lapply(CMCexpr_list, CMCpad_genes, CMCall_genes = CMCall_genes)
   CMCcombined_expr <- do.call(cbind, CMCexpr_list_padded)
 
@@ -53,13 +52,10 @@ main <- function() {
   CMC_seurat <- CreateSeuratObject(counts = CMCcombined_expr, meta.data = CMCcombined_meta)
   CMC_seurat <- NormalizeData(CMC_seurat)
   CMC_seurat <- FindVariableFeatures(CMC_seurat, selection.method = "vst", nfeatures = 2000)
+  CMC_seurat <- ScaleData(CMC_seurat)
+  CMC_seurat <- RunPCA(CMC_seurat, features = VariableFeatures(object = CMC_seurat), npcs = 10)
+  CMC_seurat <- RunUMAP(CMC_seurat, dims = 1:10)
   
-  CMCall.genes <- rownames(CMC_seurat)
-  CMC_seurat <- ScaleData(CMC_seurat, features = CMCall.genes)
-  
-  CMC_seurat <- RunPCA(CMC_seurat, features = VariableFeatures(object = CMC_seurat))
-  
-  CMC_seurat <- RunUMAP(CMC_seurat, dims = 1:17)
   CMC_umapplot <- DimPlot(CMC_seurat, reduction = "umap", group.by = "cell_type") +
     scale_color_manual(values = c("Ast" = "turquoise",
                                  "Opc" = "coral",
@@ -136,14 +132,9 @@ main <- function() {
   SZBD_seurat <- CreateSeuratObject(counts = SZBDcombined_expr, meta.data = SZBDcombined_meta)
   SZBD_seurat <- NormalizeData(SZBD_seurat)
   SZBD_seurat <- FindVariableFeatures(SZBD_seurat, selection.method = "vst", nfeatures = 2000)
- 
-  SZBDall.genes <- rownames(SZBD_seurat)
-  SZBD_seurat <- ScaleData(SZBD_seurat, features = SZBDall.genes)
-  
-  SZBD_seurat <- RunPCA(SZBD_seurat, features = VariableFeatures(object = SZBD_seurat))
-  
-
-  SZBD_seurat <- RunUMAP(SZBD_seurat, dims = 1:17)
+  SZBD_seurat <- ScaleData(SZBD_seurat)
+  SZBD_seurat <- RunPCA(SZBD_seurat, features = VariableFeatures(object = SZBD_seurat), npcs = 10)
+  SZBD_seurat <- RunUMAP(SZBD_seurat, dims = 1:10)
   
   SZBD_umapplot <- DimPlot(SZBD_seurat, reduction = "umap", group.by = "cell_type") +
     scale_color_manual(values = c("Ast" = "turquoise",
@@ -221,13 +212,10 @@ main <- function() {
   MB_seurat <- CreateSeuratObject(counts = MBcombined_expr, meta.data = MBcombined_meta)
   MB_seurat <- NormalizeData(MB_seurat)
   MB_seurat <- FindVariableFeatures(MB_seurat, selection.method = "vst", nfeatures = 2000)
-
-  MBall.genes <- rownames(MB_seurat)
-  MB_seurat <- ScaleData(MB_seurat, features = MBall.genes)
+  MB_seurat <- ScaleData(MB_seurat)
   
-  MB_seurat <- RunPCA(MB_seurat, features = VariableFeatures(object = MB_seurat))
-
-  MB_seurat <- RunUMAP(MB_seurat, dims = 1:17)
+  MB_seurat <- RunPCA(MB_seurat, features = VariableFeatures(object = MB_seurat), npcs = 10)
+  MB_seurat <- RunUMAP(MB_seurat, dims = 1:10)
   
   MB_umapplot <- DimPlot(MB_seurat, reduction = "umap", group.by = "cell_type") +
     scale_color_manual(values = c("Ast" = "turquoise",
@@ -266,12 +254,82 @@ main <- function() {
   ggsave(file.path("results/9.9-MB_umap_sex.png"), MB_sexumapplot, width = 7, height = 6)
   ggsave(file.path("results/9.15-MB_umap_patient.png"), MB_patientumapplot, width = 7, height = 6)
 
+  ### Batiuk umap
+  Batiuk_gli <- readRDS("data/data_processed/Batiuk/FilteredV1/Gli_Batiuk_SZ.rds")
+  Batiuk_gli$meta$cell_type <- "Gli"
+  
+  Batiuk_exc <- readRDS("data/data_processed/Batiuk/FilteredV1/Exc_Batiuk_SZ.rds")
+  Batiuk_exc$meta$cell_type <- "Exc"
+  
+  Batiuk_inh <- readRDS("data/data_processed/Batiuk/FilteredV1/Inh_Batiuk_SZ.rds")
+  Batiuk_inh$meta$cell_type <- "Inh"
+  
+  Batiukexpr_list <- list(Batiuk_gli$expr, Batiuk_exc$expr, Batiuk_inh$expr)
+  
+  Batiukall_genes <- Reduce(union, lapply(Batiukexpr_list, rownames))
+  Batiukpad_genes <- function(expr, Batiukall_genes) {
+    Batiukmissing_genes <- setdiff(Batiukall_genes, rownames(expr))
+    Batiukzero_mat <- matrix(0, nrow = length(Batiukmissing_genes), ncol = ncol(expr))
+    rownames(Batiukzero_mat) <- Batiukmissing_genes
+    Batiukexpr_padded <- rbind(expr, Batiukzero_mat)
+    return(Batiukexpr_padded[Batiukall_genes, , drop = FALSE])
+  }
+  
+  Batiukexpr_list_padded <- lapply(Batiukexpr_list, Batiukpad_genes, Batiukall_genes = Batiukall_genes)
+  Batiukcombined_expr <- do.call(cbind, Batiukexpr_list_padded)
+  
+  Batiukmetadata_list <- list(Batiuk_gli$meta, Batiuk_exc$meta, Batiuk_inh$meta)
+  Batiukcombined_meta <- do.call(rbind, Batiukmetadata_list)
+  
+  Batiuk_seurat <- CreateSeuratObject(counts = Batiukcombined_expr, meta.data = Batiukcombined_meta)
+  Batiuk_seurat <- NormalizeData(Batiuk_seurat)
+  Batiuk_seurat <- FindVariableFeatures(Batiuk_seurat, selection.method = "vst", nfeatures = 2000)
+  Batiuk_seurat <- ScaleData(Batiuk_seurat)
+  
+  Batiuk_seurat <- RunPCA(Batiuk_seurat, features = VariableFeatures(object = Batiuk_seurat), npcs = 10)
+  Batiuk_seurat <- RunUMAP(Batiuk_seurat, dims = 1:10)
+  
+  Batiuk_umapplot <- DimPlot(Batiuk_seurat, reduction = "umap", group.by = "cell_type") +
+    scale_color_manual(values = c("Exc" = "pink2",
+                                  "Inh" = "olivedrab3",
+                                  "Gli" = "slategray2")) +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("Batiuk")
+  
+  Batiuk_disorderumapplot <- DimPlot(Batiuk_seurat, reduction = "umap", group.by = "disorder") +
+    scale_color_manual(values = c("no" = "grey21", "yes" = "firebrick2")) +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("Batiuk")
+  
+  Batiuk_sexumapplot <- DimPlot(Batiuk_seurat, reduction = "umap", group.by = "sex") +
+    scale_color_manual(values = c("male" = "hotpink1", "female" = "seagreen2")) +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("Batiuk")
+  
+  Batiuk_patientumapplot <- DimPlot(Batiuk_seurat, reduction = "umap", group.by = "patientID") +
+    xlab(NULL) +
+    ylab(NULL) +
+    theme(legend.position = "none") +
+    ggtitle("Batiuk")
+  
+  ggsave(file.path("results/9.16-Batiuk_umap.png"), Batiuk_umapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.17-Batiuk_umap_disorder.png"), Batiuk_disorderumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.18-Batiuk_umap_sex.png"), Batiuk_sexumapplot, width = 7, height = 6)
+  ggsave(file.path("results/9.19-Batiuk_umap_patient.png"), Batiuk_patientumapplot, width = 7, height = 6)
+  
   ### combine umaps in one plot
   CMC_cellumap <- ggdraw() + draw_image("results/9.1-CMC_umap.png")
   SZBD_cellumap <- ggdraw() + draw_image("results/9.4-SZBD_umap.png")
   MB_cellumap <- ggdraw() + draw_image("results/9.7-MB_umap.png")
+  Batiuk_cellumap <- ggdraw() + draw_image("results/9.16-Batiuk_umap.png")
   
-  celltype_dummy <- data.frame(x = 1:6, y = 1:6, cell_type = c("Ast", "Opc", "Oli", "Exc", "Inh", "Mic"))
+  celltype_dummy <- data.frame(x = 1:7, y = 1:7, cell_type = c("Ast", "Opc", "Oli", "Exc", "Inh", "Mic", "Gli"))
   celltype_dummyplot <- ggplot(celltype_dummy) +
     geom_point(aes(x = x, y = y, color = cell_type), size = 3) +
     labs(color = "Cell type") +
@@ -280,17 +338,19 @@ main <- function() {
                                   "Exc" = "pink2",
                                   "Inh" = "olivedrab3",
                                   "Mic" = "navy",
-                                  "Oli" = "yellow2")) +
+                                  "Oli" = "yellow2",
+                                  "Gli" = "slategray2")) +
     theme_minimal()
   
   celltypelegend <- get_legend(celltype_dummyplot)
-  cell_combined_plot <- plot_grid(CMC_cellumap, SZBD_cellumap, MB_cellumap, celltypelegend, ncol = 4)
+  cell_combined_plot <- plot_grid(CMC_cellumap, SZBD_cellumap, MB_cellumap, Batiuk_cellumap, celltypelegend, ncol = 2)
 
   ggsave(file.path("results/9.10-cell_type_umap.png"), cell_combined_plot, dpi = 300, width = 8, height = 6)
   
   CMC_disorderumap <- ggdraw() + draw_image("results/9.2-CMC_umap_disorder.png")
   SZBD_disorderumap <- ggdraw() + draw_image("results/9.5-SZBD_umap_disorder.png")
   MB_disorderumap <- ggdraw() + draw_image("results/9.8-MB_umap_disorder.png")
+  Batiuk_disorderumap <- ggdraw() + draw_image("results/9.17-Batiuk_umap_disorder.png")
   
   disorder_dummy <- data.frame(x = 1:2, y = 1:2, disorder = c("Schizophrenia", "Control"))
   disorder_dummyplot <- ggplot(disorder_dummy) +
@@ -300,13 +360,14 @@ main <- function() {
     theme_minimal()
   
   disorderlegend <- get_legend(disorder_dummyplot)
-  disorder_combined_plot <- plot_grid(CMC_disorderumap, SZBD_disorderumap, MB_disorderumap, disorderlegend, ncol = 4)
+  disorder_combined_plot <- plot_grid(CMC_disorderumap, SZBD_disorderumap, MB_disorderumap, Batiuk_disorderumap, disorderlegend, ncol = 2)
   
   ggsave(file.path("results/9.11-disorder_umap.png"), disorder_combined_plot, dpi = 300, width = 8, height = 6)
   
   CMC_sexumap <- ggdraw() + draw_image("results/9.3-CMC_umap_sex.png")
   SZBD_sexumap <- ggdraw() + draw_image("results/9.6-SZBD_umap_sex.png")
   MB_sexumap <- ggdraw() + draw_image("results/9.9-MB_umap_sex.png")
+  Batiuk_sexumap <- ggdraw() + draw_image("results/9.18-Batiuk_umap_sex.png")
   
   sex_dummy <- data.frame(x = 1:2, y = 1:2, sex = c("Male", "Female"))
   sex_dummyplot <- ggplot(sex_dummy) +
@@ -316,9 +377,18 @@ main <- function() {
     theme_minimal()
   
   sexlegend <- get_legend(sex_dummyplot)
-  sex_combined_plot <- plot_grid(CMC_sexumap, SZBD_sexumap, MB_sexumap, sexlegend, ncol = 4)
+  sex_combined_plot <- plot_grid(CMC_sexumap, SZBD_sexumap, MB_sexumap, Batiuk_sexumap, sexlegend, ncol = 2)
   
   ggsave(file.path("results/9.12-sex_umap.png"), sex_combined_plot, dpi = 300, width = 8, height = 6)
+  
+  CMC_patientumap <- ggdraw() + draw_image("results/9.3-CMC_umap_sex.png")
+  SZBD_patientumap <- ggdraw() + draw_image("results/9.14-SZBD_umap_patient.png")
+  MB_patientumap <- ggdraw() + draw_image("results/9.15-MB_umap_patient.png")
+  Batiuk_patientumap <- ggdraw() + draw_image("results/9.19-Batiuk_umap_patient.png")
+
+  patient_combined_plot <- plot_grid(CMC_patientumap, SZBD_patientumap, MB_patientumap, Batiuk_patientumap, ncol = 2)
+  
+  ggsave(file.path("results/9.20-patient_umap.png"), patient_combined_plot, dpi = 300, width = 8, height = 6)
   
   ### age distributions
   clean_meta <- readRDS("data/data_processed/clean_metadata.rds") |>
@@ -326,6 +396,15 @@ main <- function() {
     filter(Cohort == "CMC" | Cohort == "SZBDMulti-Seq" | Cohort == "MultiomeBrain") |>
     filter(Disorder == "Schizophrenia" | Disorder == "Control") |>
     select(Cohort, Biological_Sex, Disorder, Age)
+  
+  batiuk_meta <- readRDS("data/data_processed/Batiuk/Batiuk-patient.rds") |>
+    select(sex, age, disorder) |>
+    rename(Biological_Sex = sex, Age = age, Disorder = disorder) |>
+    mutate(Cohort = "Batiuk",
+           Disorder = ifelse(Disorder == "yes", "Schizophrenia", "Control"),
+           Age = as.numeric(Age))
+  
+  clean_meta <- rbind(clean_meta, batiuk_meta)
   
   median_age <- median(clean_meta$Age, na.rm = TRUE)
   
@@ -427,7 +506,7 @@ main <- function() {
   disorder_violin <- clean_meta |>
     ggplot(aes(x = Disorder, y = Age)) +
     geom_violin(aes(color = Disorder), trim = FALSE) +
-    geom_jitter(aes(color = Disorder), alpha = 0.6, width = 0.2) +
+    geom_jitter(aes(color = Cohort), alpha = 0.6, width = 0.2) +
     geom_boxplot(width = 0.1, aes(color = Disorder)) +
     labs(x = NULL, y = "Age") +
     theme_minimal() +
@@ -438,13 +517,15 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       legend.position = "none",
       plot.margin = margin(10, 10, 10, 10)) +
-    scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
-    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2"))
+    scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2", 
+                                  "CMC" = "orange", "SZBDMulti-Seq" = "powderblue", "Batiuk" = "purple3", "MultiomeBrain" = "navy")) +
+    scale_fill_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2", 
+                                  "CMC" = "orange", "SZBDMulti-Seq" = "powderblue", "Batiuk" = "purple3", "MultiomeBrain" = "navy"))
   
   sex_violin <- clean_meta |>
     ggplot(aes(x = Biological_Sex, y = Age)) +
     geom_violin(aes(color = Biological_Sex), trim = FALSE) +
-    geom_jitter(aes(color = Biological_Sex), alpha = 0.6, width = 0.2) +
+    geom_jitter(aes(color = Cohort), alpha = 0.6, width = 0.2) +
     geom_boxplot(width = 0.1, aes(color = Biological_Sex)) +
     labs(x = NULL, y = "Age") +
     theme_minimal() +
@@ -455,8 +536,10 @@ main <- function() {
       axis.line = element_line(colour = "black"),
       legend.position = "none",
       plot.margin = margin(10, 10, 10, 10)) +
-    scale_color_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen")) +
-    scale_fill_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen"))
+    scale_color_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen", 
+                                  "CMC" = "orange", "SZBDMulti-Seq" = "powderblue", "Batiuk" = "purple3", "MultiomeBrain" = "navy")) +
+    scale_fill_manual(values = c("male" = "hotpink1", "female" = "mediumseagreen", 
+                                 "CMC" = "orange", "SZBDMulti-Seq" = "powderblue", "Batiuk" = "purple3", "MultiomeBrain" = "navy"))
   
   age_dist_combined_plot <- plot_grid(age_hist, qq_plot, age_hist_disorder, disorder_violin, age_hist_sex, sex_violin, ncol = 2, rel_heights = c(1, 1.2, 1))
   
@@ -481,7 +564,13 @@ main <- function() {
     summarize(total_cells = n())|>
     mutate(cohort = "MultiomeBrain")
   
-  meta_count <- rbind(CMC_meta_count, SZBD_meta_count, MB_meta_count)
+  Batiuk_meta_count <- Batiukcombined_meta |>
+    select(patientID, disorder, sex) |>
+    group_by(patientID, disorder, sex) |>
+    summarize(total_cells = n())|>
+    mutate(cohort = "Batiuk")
+  
+  meta_count <- rbind(CMC_meta_count, SZBD_meta_count, MB_meta_count, Batiuk_meta_count)
   
   disorder_cellcount_violin <- meta_count |>
     mutate(disorder = recode(disorder, "yes" = "Schizophrenia", "no" = "Control")) |>
