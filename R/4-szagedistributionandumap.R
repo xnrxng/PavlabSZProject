@@ -53,6 +53,7 @@ main <- function() {
   CMC_seurat <- NormalizeData(CMC_seurat)
   CMC_seurat <- FindVariableFeatures(CMC_seurat, selection.method = "vst", nfeatures = 2000)
   CMC_seurat <- ScaleData(CMC_seurat)
+  CMC_seurat <- subset(CMC_seurat, downsample=350000)
   CMC_seurat <- RunPCA(CMC_seurat, features = VariableFeatures(object = CMC_seurat), npcs = 10)
   CMC_seurat <- RunUMAP(CMC_seurat, dims = 1:10)
   
@@ -82,7 +83,7 @@ main <- function() {
     theme(legend.position = "none") +
     ggtitle("CMC")
   
-  CMC_patientmapplot <- DimPlot(CMC_seurat, reduction = "umap", group.by = "patientID") +
+  CMC_patientumapplot <- DimPlot(CMC_seurat, reduction = "umap", group.by = "patientID") +
     xlab(NULL) +
     ylab(NULL) +
     theme(legend.position = "none") +
@@ -340,12 +341,15 @@ main <- function() {
                                   "Mic" = "navy",
                                   "Oli" = "yellow2",
                                   "Gli" = "slategray2")) +
-    theme_minimal()
+    theme_minimal()+
+    theme(legend.margin = margin(t = 0, r = 0, b = 0, l = 0))
+  
   
   celltypelegend <- get_legend(celltype_dummyplot)
-  cell_combined_plot <- plot_grid(CMC_cellumap, SZBD_cellumap, MB_cellumap, Batiuk_cellumap, celltypelegend, ncol = 2)
+  cell_combined_plot <- plot_grid(CMC_cellumap, SZBD_cellumap, MB_cellumap, Batiuk_cellumap, ncol = 2,  align = "v", axis = "tb")
+  cell_combined_plot_with_legend <- plot_grid(cell_combined_plot, celltypelegend, ncol = 2, rel_widths = c(4, 1))
 
-  ggsave(file.path("results/9.10-cell_type_umap.png"), cell_combined_plot, dpi = 300, width = 8, height = 6)
+  ggsave(file.path("results/9.10-cell_type_umap.png"), cell_combined_plot_with_legend, dpi = 300, width = 8, height = 6)
   
   CMC_disorderumap <- ggdraw() + draw_image("results/9.2-CMC_umap_disorder.png")
   SZBD_disorderumap <- ggdraw() + draw_image("results/9.5-SZBD_umap_disorder.png")
@@ -357,12 +361,14 @@ main <- function() {
     geom_point(aes(x = x, y = y, color = disorder), size = 3) +
     labs(color = "Disorder") +
     scale_color_manual(values = c("Control" = "grey21", "Schizophrenia" = "firebrick2")) +
-    theme_minimal()
+    theme_minimal()+
+    theme(legend.margin = margin(t = 0, r = 0, b = 0, l = 0))
   
   disorderlegend <- get_legend(disorder_dummyplot)
-  disorder_combined_plot <- plot_grid(CMC_disorderumap, SZBD_disorderumap, MB_disorderumap, Batiuk_disorderumap, disorderlegend, ncol = 2)
+  disorder_combined_plot <- plot_grid(CMC_disorderumap, SZBD_disorderumap, MB_disorderumap, Batiuk_disorderumap, ncol = 2, align = "v", axis = "tb")
+  disorder_combined_plot_with_legend <- plot_grid(disorder_combined_plot, disorderlegend, ncol = 2, rel_widths = c(4, 1))
   
-  ggsave(file.path("results/9.11-disorder_umap.png"), disorder_combined_plot, dpi = 300, width = 8, height = 6)
+  ggsave(file.path("results/9.11-disorder_umap.png"), disorder_combined_plot_with_legend, dpi = 300, width = 8, height = 6)
   
   CMC_sexumap <- ggdraw() + draw_image("results/9.3-CMC_umap_sex.png")
   SZBD_sexumap <- ggdraw() + draw_image("results/9.6-SZBD_umap_sex.png")
@@ -374,19 +380,21 @@ main <- function() {
     geom_point(aes(x = x, y = y, color = sex), size = 3) +
     labs(color = "Biological \n sex") +
     scale_color_manual(values = c("Male" = "hotpink1", "Female" = "seagreen2")) +
-    theme_minimal()
+    theme_minimal()+
+    theme(legend.margin = margin(t = 0, r = 0, b = 0, l = 0))
   
   sexlegend <- get_legend(sex_dummyplot)
-  sex_combined_plot <- plot_grid(CMC_sexumap, SZBD_sexumap, MB_sexumap, Batiuk_sexumap, sexlegend, ncol = 2)
+  sex_combined_plot <- plot_grid(CMC_sexumap, SZBD_sexumap, MB_sexumap, Batiuk_sexumap, ncol = 2, align = "v", axis = "tb")
+  sex_combined_plot_with_legend <- plot_grid(sex_combined_plot, sexlegend, ncol = 2, rel_widths = c(4, 1))
   
-  ggsave(file.path("results/9.12-sex_umap.png"), sex_combined_plot, dpi = 300, width = 8, height = 6)
+  ggsave(file.path("results/9.12-sex_umap.png"), sex_combined_plot_with_legend, dpi = 300, width = 8, height = 6)
   
-  CMC_patientumap <- ggdraw() + draw_image("results/9.3-CMC_umap_sex.png")
+  CMC_patientumap <- ggdraw() + draw_image("results/9.13-CMC_umap_patient.png")
   SZBD_patientumap <- ggdraw() + draw_image("results/9.14-SZBD_umap_patient.png")
   MB_patientumap <- ggdraw() + draw_image("results/9.15-MB_umap_patient.png")
   Batiuk_patientumap <- ggdraw() + draw_image("results/9.19-Batiuk_umap_patient.png")
 
-  patient_combined_plot <- plot_grid(CMC_patientumap, SZBD_patientumap, MB_patientumap, Batiuk_patientumap, ncol = 2)
+  patient_combined_plot <- plot_grid(CMC_patientumap, SZBD_patientumap, MB_patientumap, Batiuk_patientumap, ncol = 2, align = "v", axis = "tb")
   
   ggsave(file.path("results/9.20-patient_umap.png"), patient_combined_plot, dpi = 300, width = 8, height = 6)
   
