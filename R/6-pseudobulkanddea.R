@@ -8,6 +8,7 @@ library(data.table)
 library(Matrix)
 library(future.apply)
 library(edgeR)
+library(EnhancedVolcano)
 
 main <- function() {
   ### create pseudobulks and cpm them. also cpm filtered one
@@ -145,7 +146,32 @@ main <- function() {
   }
   
   ### DEA on CPMLog with other covariates
-  
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
+    
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+    
+    for (cell in cell_list) {
+      pb_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkCPMLog/", cell)
+      
+      if (!file.exists(pb_path)) {
+        message("File ", pb_path, " does not exist. Skipping to next.")
+        next
+      }
+      
+      pseudobulk <- readRDS(pb_path)
+      dea_res <- perform_DGE_with_covs(pseudobulk)
+      
+      dea_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/DEAresults_", cell)
+      saveRDS(dea_res, dea_path)
+    }
+  }
   
   
   ### create p-value hists
@@ -186,16 +212,31 @@ main <- function() {
     plot_list[[cell_type]] <- res_his
     }
     
+    cohort_title <- paste0(cohort, ": CPM")
+    
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
     title_plot <- ggdraw() + 
-      draw_label(cohort, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
     
-    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPM/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
     
-    final_path <- paste0("results/DEA/", cohort, "/CPM/pvalueplot_", cohort, ".png")
-    
-    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPM/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
   }
   
   for (cohort in cohort_list){
@@ -234,16 +275,31 @@ main <- function() {
       plot_list[[cell_type]] <- res_his
     }
     
+    cohort_title <- paste0(cohort, ": CPMLog")
+    
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
     title_plot <- ggdraw() + 
-      draw_label(cohort, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
     
-    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLog/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
     
-    final_path <- paste0("results/DEA/", cohort, "/CPMLog/pvalueplot_", cohort, ".png")
-    
-    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLog/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
   }
   
   for (cohort in cohort_list){
@@ -282,16 +338,94 @@ main <- function() {
       plot_list[[cell_type]] <- res_his
     }
     
+    cohort_title <- paste0(cohort, ": TMM")
+    
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
     title_plot <- ggdraw() + 
-      draw_label(cohort, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
     
-    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/TMM/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
     
-    final_path <- paste0("results/DEA/", cohort, "/TMM/pvalueplot_", cohort, ".png")
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/TMM/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
+  }
+  
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
     
-    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+    plot_list <- list()
+    
+    for (cell in cell_list) {
+      res_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/DEAresults_", cell)
+      
+      cell_type <- strsplit(cell, "_")[[1]][1]
+      
+      if (!file.exists(res_path)) {
+        message("File ", res_path, " does not exist. Skipping to next.")
+        next
+      }
+      results <- readRDS(res_path)
+      
+      res_his <- results |>
+        ggplot(aes(x = PValue)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = cell_type,
+          x = "P-value",
+          y = NULL
+        )
+      
+      plot_list[[cell_type]] <- res_his
+    }
+    
+    cohort_title <- paste0(cohort, ": CPMLog with Age and Sex")
+    
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+    
+    title_plot <- ggdraw() + 
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
+    
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/pvalueplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
   }
   
   ###create hists for logFC
@@ -331,16 +465,31 @@ main <- function() {
       plot_list[[cell_type]] <- res_his
     }
     
+    cohort_title <- paste0(cohort, ": CPM")
+    
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
     title_plot <- ggdraw() + 
-      draw_label(cohort, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
     
-    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPM/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
     
-    final_path <- paste0("results/DEA/", cohort, "/CPM/logFCplot_", cohort, ".png")
-    
-    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPM/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
   }
   
   for (cohort in cohort_list){
@@ -379,16 +528,31 @@ main <- function() {
       plot_list[[cell_type]] <- res_his
     }
     
+    cohort_title <- paste0(cohort, ": CPMLog")
+    
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
     title_plot <- ggdraw() + 
-      draw_label(cohort, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
     
-    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLog/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
     
-    final_path <- paste0("results/DEA/", cohort, "/CPMLog/logFCplot_", cohort, ".png")
-    
-    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLog/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
   }
   
   for (cohort in cohort_list){
@@ -427,17 +591,98 @@ main <- function() {
       plot_list[[cell_type]] <- res_his
     }
     
+    cohort_title <- paste0(cohort, ": TMM")
+    
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
     title_plot <- ggdraw() + 
-      draw_label(cohort, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
     
-    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/TMM/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
     
-    final_path <- paste0("results/DEA/", cohort, "/TMM/logFCplot_", cohort, ".png")
-    
-    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/TMM/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
   }
+  
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
+    
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+    plot_list <- list()
+    
+    for (cell in cell_list) {
+      res_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/DEAresults_", cell)
+      
+      cell_type <- strsplit(cell, "_")[[1]][1]
+      
+      if (!file.exists(res_path)) {
+        message("File ", res_path, " does not exist. Skipping to next.")
+        next
+      }
+      results <- readRDS(res_path)
+      
+      res_his <- results |>
+        ggplot(aes(x = logFC)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = cell_type,
+          x = "logFC",
+          y = NULL
+        )
+      
+      plot_list[[cell_type]] <- res_his
+    }
+    
+    cohort_title <- paste0(cohort, ": CPMLog with Age and Sex")
+    
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+    
+    title_plot <- ggdraw() + 
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
+    
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
+  }
+  
+  ### create enhanced volcano plots
+  
   
 }
 
@@ -547,6 +792,10 @@ perform_DGE_with_covs <- function(PB) {
   if (!all(colnames(PB$expr) %in% PB$meta$group_sample)) {
     stop("Sample names in expression matrix do not match group sample names in meta data")
   }
+  
+  PB$meta$age <- gsub("\\+", "", PB$meta$age)
+  PB$meta$age <- as.numeric(PB$meta$age)
+  PB$meta$sex <- as.factor(PB$meta$sex)
   
   design <- model.matrix(~ group + sex + age, data = PB$meta)
   y <- DGEList(counts = PB$expr, group = PB$meta$group)
