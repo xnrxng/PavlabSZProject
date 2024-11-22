@@ -469,7 +469,7 @@ main <- function() {
     plot_list <- list()
     
     for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/DEAresults_", cell)
+      res_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/DEAresults_", cell)
       
       cell_type <- strsplit(cell, "_")[[1]][1]
       
@@ -492,7 +492,7 @@ main <- function() {
       plot_list[[cell_type]] <- res_his
     }
     
-    cohort_title <- paste0(cohort, ": CPMLog with Age and Sex")
+    cohort_title <- paste0(cohort, ": TMM with Age and Sex")
     
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
     
@@ -503,7 +503,7 @@ main <- function() {
       
       all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
       
-      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/pvalueplot_", cohort, ".png")
+      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/pvalueplot_", cohort, ".png")
       
       cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
       
@@ -512,7 +512,7 @@ main <- function() {
     else{
       all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
       
-      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/pvalueplot_", cohort, ".png")
+      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/pvalueplot_", cohort, ".png")
       
       cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
       
@@ -772,6 +772,69 @@ main <- function() {
     }
   }
   
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
+    
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+    plot_list <- list()
+    
+    for (cell in cell_list) {
+      res_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/DEAresults_", cell)
+      
+      cell_type <- strsplit(cell, "_")[[1]][1]
+      
+      if (!file.exists(res_path)) {
+        message("File ", res_path, " does not exist. Skipping to next.")
+        next
+      }
+      results <- readRDS(res_path)
+      
+      res_his <- results |>
+        ggplot(aes(x = logFC)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = cell_type,
+          x = "logFC",
+          y = NULL
+        )
+      
+      plot_list[[cell_type]] <- res_his
+    }
+    
+    cohort_title <- paste0(cohort, ": TMM with Age and Sex")
+    
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+    
+    title_plot <- ggdraw() + 
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    
+    if (cohort == "Batiuk") {
+      
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
+    
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      
+      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/logFCplot_", cohort, ".png")
+      
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      
+    }
+  }
+  
   ### create enhanced volcano plots
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -970,7 +1033,7 @@ perform_DGE_with_covs_on_tmm <- function(PB) {
   PB$meta$sex <- as.factor(PB$meta$sex)
   
   ### make it return tmm normalized matrix
-  design <- model.matrix(~ group, data = PB$meta)
+  design <- model.matrix(~ group + sex + age, data = PB$meta)
   y <- DGEList(counts = PB$expr, group = PB$meta$group)
   y <- calcNormFactors(y, method = "TMM")  # Normalization
   x <- estimateDisp(y, design, trend.method = "locfit", tagwise = TRUE, prior.df = NULL)   # Estimate dispersion
