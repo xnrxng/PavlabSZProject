@@ -93,14 +93,6 @@ main <- function() {
   savefiltered("SZBDMulti-Seq")
   savefiltered("MultiomeBrain")
   
-  ### create filtered V1
-  create_filteredV1(CMCfile = Mic_CMC_SZ, SZBDfile = `Mic_SZBDMulti-Seq_SZ`, MBfile = Mic_MultiomeBrain_SZ)
-  create_filteredV1(CMCfile = Opc_CMC_SZ, SZBDfile = `Opc_SZBDMulti-Seq_SZ`, MBfile = Opc_MultiomeBrain_SZ)
-  create_filteredV1(CMCfile = Ast_CMC_SZ, SZBDfile = `Ast_SZBDMulti-Seq_SZ`, MBfile = Ast_MultiomeBrain_SZ)
-  create_filteredV1(CMCfile = Oli_CMC_SZ, SZBDfile = `Oli_SZBDMulti-Seq_SZ`, MBfile = Oli_MultiomeBrain_SZ)
-  create_filteredV1(CMCfile = Inh_CMC_SZ, SZBDfile = `Inh_SZBDMulti-Seq_SZ`, MBfile = Inh_MultiomeBrain_SZ)
-  create_filteredV1(CMCfile = Exc_CMC_SZ, SZBDfile = `Exc_SZBDMulti-Seq_SZ`, MBfile = Exc_MultiomeBrain_SZ)
-  
   ### wrangle batiuk
   batiuk_annotations <- readRDS("data/data_raw/Batiuk/annotations_final.RDS")
   batiuk_matrices <- readRDS("data/data_raw/Batiuk/snRNA-seq_raw_countmatrices.RDS")
@@ -143,11 +135,44 @@ main <- function() {
   saveRDS(exc_rds_file, "data/data_processed/Batiuk/0.Raw/Exc_Batiuk_SZ.rds")
   saveRDS(inh_rds_file, "data/data_processed/Batiuk/0.Raw/Inh_Batiuk_SZ.rds")
   
-  filtered_exc_batiuk <- create_filtered_batiuk(CMCfile = Exc_CMC_SZ, SZBDfile = `Exc_SZBDMulti-Seq_SZ`, Batiukfile = Exc_Batiuk_SZ)
-  filtered_inh_batiuk <- create_filtered_batiuk(CMCfile = Inh_CMC_SZ, SZBDfile = `Inh_SZBDMulti-Seq_SZ`, Batiukfile = Inh_Batiuk_SZ)
   
-  saveRDS(filtered_exc_batiuk, "data/data_processed/Batiuk/FilteredV1/Exc_Batiuk_SZ.rds")
-  saveRDS(filtered_inh_batiuk, "data/data_processed/Batiuk/FilteredV1/Inh_Batiuk_SZ.rds")
+  ### create filtered V1
+  ast_filt <- create_filteredV1("Ast")
+  saveRDS(ast_filt$cmc, "data/data_processed/CMC/FilteredV1/Ast_CMC_SZ.rds")
+  saveRDS(ast_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Ast_SZBDMulti-Seq_SZ.rds")
+  saveRDS(ast_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Ast_MultiomeBrain_SZ.rds")
+  
+  exc_filt <- create_filteredV1("Exc")
+  saveRDS(exc_filt$cmc, "data/data_processed/CMC/FilteredV1/Exc_CMC_SZ.rds")
+  saveRDS(exc_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Exc_SZBDMulti-Seq_SZ.rds")
+  saveRDS(exc_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Exc_MultiomeBrain_SZ.rds")
+  saveRDS(exc_filt$batiuk, "data/data_processed/Batiuk/FilteredV1/Exc_Batiuk_SZ.rds")
+  
+  inh_filt <- create_filteredV1("Inh")
+  saveRDS(inh_filt$cmc, "data/data_processed/CMC/FilteredV1/Inh_CMC_SZ.rds")
+  saveRDS(inh_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Inh_SZBDMulti-Seq_SZ.rds")
+  saveRDS(inh_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Inh_MultiomeBrain_SZ.rds")
+  saveRDS(inh_filt$batiuk, "data/data_processed/Batiuk/FilteredV1/Inh_Batiuk_SZ.rds")
+  
+  mic_filt <- create_filteredV1("Mic")
+  saveRDS(mic_filt$cmc, "data/data_processed/CMC/FilteredV1/Mic_CMC_SZ.rds")
+  saveRDS(mic_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Mic_SZBDMulti-Seq_SZ.rds")
+  saveRDS(mic_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Mic_MultiomeBrain_SZ.rds")
+  
+  opc_filt <- create_filteredV1("Opc")
+  saveRDS(opc_filt$cmc, "data/data_processed/CMC/FilteredV1/Opc_CMC_SZ.rds")
+  saveRDS(opc_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Opc_SZBDMulti-Seq_SZ.rds")
+  saveRDS(opc_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Opc_MultiomeBrain_SZ.rds")
+  
+  oli_filt <- create_filteredV1("Oli")
+  saveRDS(oli_filt$cmc, "data/data_processed/CMC/FilteredV1/Oli_CMC_SZ.rds")
+  saveRDS(oli_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Oli_SZBDMulti-Seq_SZ.rds")
+  saveRDS(oli_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Oli_MultiomeBrain_SZ.rds")
+  
+  gli_raw <- readRDS("data/data_processed/Batiuk/0.Raw/Gli_Batiuk_SZ.rds")
+  gli_raw$expr <- cleanCtmat(gli_raw$expr)
+  gli_raw$meta <- gli_raw$meta[rownames(gli_raw$meta) %in% colnames(gli_raw$expr), ]
+  saveRDS(gli_raw, "data/data_processed/Batiuk/FilteredV1/Gli_Batiuk_SZ.rds")
 }
 
 ### helper functions
@@ -237,7 +262,7 @@ generate_genes <- function(cohort, sample_list) {
   return(common_genes)
 }
 
-cleanCtmat <- function(ctmat, geneThr = 0.05, sampleThr = 0.05) {
+cleanCtmat <- function(ctmat, geneThr = 0.02, sampleThr = 0.05) {
   nCellsTot <- ncol(ctmat)
   nCellsThr <- geneThr * nCellsTot
   
@@ -310,55 +335,6 @@ savefiltered <- function(cohort) {
   return(NULL)
 }
 
-create_filteredV1 <- function(CMCfile, SZBDfile, MBfile) {
-  CMC_filt <- CMCfile$expr[rowSums(CMCfile$expr != 0) >0, ]
-  SZBD_filt <- SZBDfile$expr[rowSums(SZBDfile$expr != 0) >0, ]
-  
-  CMC_genes <- rownames(CMC_filt)
-  SZBD_genes <- rownames(SZBD_filt)
-  
-  overlapped_genes <- intersect(CMC_genes, SZBD_genes)
-  
-  CMC_overlap <- CMC_filt[rownames(CMC_filt) %in% overlapped_genes, ]
-  SZBD_overlap <- SZBD_filt[rownames(SZBD_filt) %in% overlapped_genes, ]
-  
-  MB_missing_genes <- setdiff(overlapped_genes, rownames(MBfile$expr))
-  MB_zero <- Matrix(0, nrow = length(MB_missing_genes), ncol = ncol(MBfile$expr), dimnames = list(MB_missing_genes, colnames(MBfile$expr)))
-  MB_filt <- rbind(MBfile$expr, MB_zero)
-  MB_overlap <- MB_filt[rownames(MB_filt) %in% overlapped_genes,]
-  
-  CMC_clean <- cleancells(CMC_overlap)
-  SZBD_clean <- cleancells(SZBD_overlap)
-  MB_clean <- cleancells(MB_overlap)
-  
-  CMC_meta <- CMCfile$meta[rownames(CMCfile$meta) %in% colnames(CMC_clean), ]
-  SZBD_meta <- SZBDfile$meta[rownames(SZBDfile$meta) %in% colnames(SZBD_clean), ]
-  MB_meta <- MBfile$meta[rownames(MBfile$meta) %in% colnames(MB_clean), ]
-  
-  CMC_final <- list(meta = CMC_meta, expr = CMC_clean)
-  SZBD_final <- list(meta = SZBD_meta, expr = SZBD_clean)
-  MB_final <- list(meta = MB_meta, expr = MB_clean)
-  
-  CMCpath <- paste0("data/data_processed/CMC/FilteredV1/", deparse(substitute(CMCfile)), ".rds")
-  SZBDpath <- paste0("data/data_processed/SZBDMulti-Seq/FilteredV1/", deparse(substitute(SZBDfile)), ".rds")
-  MBpath <- paste0("data/data_processed/MultiomeBrain/FilteredV1/", deparse(substitute(MBfile)), ".rds")
-  
-  
-  saveRDS(CMC_final, CMCpath)
-  saveRDS(SZBD_final, SZBDpath)
-  saveRDS(MB_final, MBpath)
-}
-
-cleancells <- function(ctmat, sampleThr = 0.05) {
-  
-  cellsNN <- data.frame(cell = colnames(ctmat), nGenes = colSums(ctmat > 0), check.names = FALSE) |>
-    mutate(perc = percent_rank(nGenes)) |>
-    filter(perc > sampleThr)
-  ctmat <- ctmat[, cellsNN$cell]
-  
-  return(ctmat)
-}
-
 batiuk_cell_types <- function(celltype, sample_list, metadata, cell_IDs) {
   final_list <- list()
   meta_list <- list() 
@@ -408,27 +384,68 @@ batiuk_cell_types <- function(celltype, sample_list, metadata, cell_IDs) {
   return(finalRDSfile)
 }
 
-create_filtered_batiuk <- function(CMCfile, SZBDfile, Batiukfile) {
-  CMC_filt <- CMCfile$expr[rowSums(CMCfile$expr != 0) >0, ]
-  SZBD_filt <- SZBDfile$expr[rowSums(SZBDfile$expr != 0) >0, ]
+create_filteredV1 <- function(cell_type) {
+  batiuk_path <- paste0("data/data_processed/Batiuk/0.Raw/", cell_type, "_Batiuk_SZ.rds")
+  cmc_path <- paste0("data/data_processed/CMC/0.Raw/", cell_type, "_CMC_SZ.rds")
+  szbd_path <- paste0("data/data_processed/SZBDMulti-Seq/0.Raw/", cell_type, "_SZBDMulti-Seq_SZ.rds")
+  mb_path <- paste0("data/data_processed/MultiomeBrain/0.Raw/", cell_type, "_MultiomeBrain_SZ.rds")
+
+  all_data <- list()
   
-  CMC_genes <- rownames(CMC_filt)
-  SZBD_genes <- rownames(SZBD_filt)
+  if (file.exists(batiuk_path)) {
+    batiuk <- readRDS(batiuk_path)
+    batiuk$expr <- cleanCtmat(batiuk$expr)
+    all_data$batiuk <- batiuk
+  } else {
+    message("File not found: ", batiuk_path)
+  }
   
-  overlapped_genes <- intersect(CMC_genes, SZBD_genes)
+  if (file.exists(cmc_path)) {
+    cmc <- readRDS(cmc_path)
+    cmc$expr <- cleanCtmat(cmc$expr)
+    all_data$cmc <- cmc
+  } else {
+    message("File not found: ", cmc_path)
+  }
   
-  missing_genes <- setdiff(overlapped_genes, rownames(Batiukfile$expr))
-  batiuk_zero <- Matrix(0, nrow = length(missing_genes), ncol = ncol(Batiukfile$expr), dimnames = list(missing_genes, colnames(Batiukfile$expr)))
-  batiuk_filt <- rbind(Batiukfile$expr, batiuk_zero)
-  batiuk_overlap <- batiuk_filt[rownames(batiuk_filt) %in% overlapped_genes,]
+  if (file.exists(szbd_path)) {
+    szbd <- readRDS(szbd_path)
+    szbd$expr <- cleanCtmat(szbd$expr)
+    all_data$szbd <- szbd
+  } else {
+    message("File not found: ", szbd_path)
+  }
   
-  batiuk_clean <- cleancells(batiuk_overlap)
- 
-  batiuk_meta <- Batiukfile$meta[rownames(Batiukfile$meta) %in% colnames(batiuk_clean), ]
+  if (file.exists(mb_path)) {
+    mb <- readRDS(mb_path)
+    mb$expr <- cleanCtmat(mb$expr)
+    all_data$mb <- mb
+  } else {
+    message("File not found: ", mb_path)
+  }
   
-  batiuk_final <- list(meta = batiuk_meta, expr = batiuk_clean)
+  all_genes <- c()
+  for (file in all_data){
+    genes <- rownames(file$expr)
+    all_genes <- c(all_genes, genes)
+  }
   
-  return(batiuk_final)
+  string_counts <- table(all_genes)
+  filtered_genes <- all_genes[all_genes %in% names(string_counts[string_counts >= 3])]
+  filtered_genes <- unique(filtered_genes)
+  
+  for (name in names(all_data)){
+    file <- all_data[[name]]
+    missing_genes <- setdiff(filtered_genes, rownames(file$expr))
+    zero_matrix <- Matrix(0, nrow = length(missing_genes), ncol = ncol(file$expr), dimnames = list(missing_genes, colnames(file$expr)))
+    filt <- rbind(file$expr, zero_matrix)
+    file$expr <- filt[rownames(filt) %in% filtered_genes,]
+    file$meta <- file$meta[rownames(file$meta) %in% colnames(file$expr), ]
+    
+    all_data[[name]] <- file
+  }
+  
+  return(all_data)
 }
 
 main()

@@ -60,7 +60,7 @@ main <- function() {
   overlap_df <- get_overlapped_genes("Ast", overlap_df)
   overlap_df <- get_overlapped_genes("Gli", overlap_df)
   
-  saveRDS(results, file.path("results/5.2-overlapped_genes.rds"))
+  saveRDS(overlap_df, file.path("results/5.2-overlapped_genes.rds"))
   
   ### number of genes and cells per cell type per cohort
   n_genes_cells <- data.frame(
@@ -501,7 +501,7 @@ countcells_pertype <- function(cohort, results_df) {
       group_by(patientID, disorder) |>
       summarize(cells = n()) |>
       mutate(cell_type = cell_type) |>
-      select(patientID, cells, disorder, cell_type)
+      dplyr::select(patientID, cells, disorder, cell_type)
     results_df <- bind_rows(results_df, n_cells)
   }
   
@@ -612,7 +612,7 @@ abundance_conditions <- function(cohort, summary_df) {
       group_by(disorder) |>
       summarize(cells = n()) |>
       mutate(cell_type = cell_type, cohort = cohort) |>
-      select(cells, disorder, cell_type, cohort)
+      dplyr::select(cells, disorder, cell_type, cohort)
     summary_df <- bind_rows(summary_df, cells_per_condition)
   }
   
