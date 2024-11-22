@@ -202,7 +202,45 @@ main <- function() {
     }
   }
   
-  ### create p-value hists
+  ### including on TMM single cell number as a covariate
+  celltype_summary_CMC <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  celltype_summary_SZBD <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  celltype_summary_MB <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  celltype_summary_Batiuk <- data.frame(
+    patientID = character(),
+    cells = integer(),
+    disorder = character(),
+    cell_type = character(),
+    stringsAsFactors = FALSE
+  )
+  
+  celltype_summary_CMC <- countcells_pertype("CMC", celltype_summary_CMC)
+  celltype_summary_SZBD <- countcells_pertype("SZBDMulti-Seq", celltype_summary_SZBD)
+  celltype_summary_MB <- countcells_pertype("MultiomeBrain", celltype_summary_MB)
+  celltype_summary_Batiuk <- countcells_pertype("Batiuk", celltype_summary_Batiuk)
+  
+  all_celltype <- rbind(celltype_summary_Batiuk, celltype_summary_CMC, celltype_summary_MB, celltype_summary_SZBD)
   
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -214,684 +252,31 @@ main <- function() {
     gli <- paste0("Gli_", cohort, "_SZ.rds")
     
     cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
     
     for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPM/DEAresults_", cell)
+      celltype <- strsplit(cell, "_")[[1]][1]
       
-      cell_type <- strsplit(cell, "_")[[1]][1]
+      pb_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkRaw/", cell)
       
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
+      if (!file.exists(pb_path)) {
+        message("File ", pb_path, " does not exist. Skipping to next.")
         next
       }
-    results <- readRDS(res_path)
-    
-    res_his <- results |>
-      ggplot(aes(x = PValue)) +
-      geom_histogram() +
-      theme_classic()+
-      labs(
-        title = cell_type,
-        x = "P-value",
-        y = NULL
-      )
-    
-    plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": CPM")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
       
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      pseudobulk <- readRDS(pb_path)
       
-      final_path <- paste0("results/DEA/", cohort, "/CPM/pvalueplot_", cohort, ".png")
+      filt_celltype <- filter(all_celltype, cell_type == celltype)
       
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      pseudobulk$meta <- merge(pseudobulk$meta, filt_celltype[, c("patientID", "cells")], 
+                               by = "patientID", all.x = TRUE)
       
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+      dea_res <- perform_DGE_with_cells(pseudobulk)
       
-      final_path <- paste0("results/DEA/", cohort, "/CPM/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
+      dea_path <- paste0("results/DEA/", cohort, "/TMMWithCells/DEAresults_", cell)
+      saveRDS(dea_res, dea_path)
     }
   }
   
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPMLog/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = PValue)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "P-value",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": CPMLog")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLog/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLog/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/TMM/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = PValue)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "P-value",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": TMM")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMM/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMM/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = PValue)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "P-value",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": CPMLog with Age and Sex")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = PValue)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "P-value",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": TMM with Age and Sex")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/pvalueplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  ###create hists for logFC
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPM/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = logFC)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "logFC",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": CPM")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPM/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPM/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPMLog/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = logFC)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "logFC",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": CPMLog")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLog/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLog/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/TMM/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = logFC)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "logFC",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": TMM")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMM/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMM/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = logFC)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "logFC",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": CPMLog with Age and Sex")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPMLogWithCovariates/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_his <- results |>
-        ggplot(aes(x = logFC)) +
-        geom_histogram() +
-        theme_classic()+
-        labs(
-          title = cell_type,
-          x = "logFC",
-          y = NULL
-        )
-      
-      plot_list[[cell_type]] <- res_his
-    }
-    
-    cohort_title <- paste0(cohort, ": TMM with Age and Sex")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/TMMWithCovariates/logFCplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
-  
-  ### create enhanced volcano plots
-  for (cohort in cohort_list){
-    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
-    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
-    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
-    microglia <- paste0("Mic_", cohort, "_SZ.rds")
-    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
-    opc <- paste0("Opc_", cohort, "_SZ.rds")
-    gli <- paste0("Gli_", cohort, "_SZ.rds")
-    
-    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
-    plot_list <- list()
-    
-    for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPM/DEAresults_", cell)
-      
-      cell_type <- strsplit(cell, "_")[[1]][1]
-      
-      if (!file.exists(res_path)) {
-        message("File ", res_path, " does not exist. Skipping to next.")
-        next
-      }
-      results <- readRDS(res_path)
-      
-      res_volcano <- EnhancedVolcano(results, lab = results$gene, 
-                      x = 'logFC', y = 'FDR', title = cell_type, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
-                      axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$FDR))+1))
-      
-      plot_list[[cell_type]] <- res_volcano
-    }
-    
-    cohort_title <- paste0(cohort, ": CPM")
-    
-    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
-    
-    title_plot <- ggdraw() + 
-      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
-    
-    if (cohort == "Batiuk") {
-      
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPM/volcanoplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-    
-    else{
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
-      
-      final_path <- paste0("results/DEA/", cohort, "/CPM/volcanoplot_", cohort, ".png")
-      
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-      
-    }
-  }
   
 }
 
@@ -1034,6 +419,68 @@ perform_DGE_with_covs_on_tmm <- function(PB) {
   
   ### make it return tmm normalized matrix
   design <- model.matrix(~ group + sex + age, data = PB$meta)
+  y <- DGEList(counts = PB$expr, group = PB$meta$group)
+  y <- calcNormFactors(y, method = "TMM")  # Normalization
+  x <- estimateDisp(y, design, trend.method = "locfit", tagwise = TRUE, prior.df = NULL)   # Estimate dispersion
+  fit <- glmFit(x, design = design)   # Fit GLM (edgeR)
+  test <- glmLRT(fit)   # Likelihood ratio test
+  
+  # Extract results
+  res <- topTags(test, n = Inf) %>%
+    as.data.frame() %>%
+    rownames_to_column('gene') %>%
+    mutate(test = 'pseudobulk_edgeR')
+  
+  return(res)
+}
+
+countcells_pertype <- function(cohort, results_df) {
+  astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+  excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+  inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+  microglia <- paste0("Mic_", cohort, "_SZ.rds")
+  oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+  opc <- paste0("Opc_", cohort, "_SZ.rds")
+  gli <- paste0("Gli_", cohort, "_SZ.rds")
+  
+  cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+  
+  for (cell_type_file in cell_list) {
+    cell_type <- strsplit(cell_type_file, "_")[[1]][1]
+    
+    sample_file <- paste0("data/data_processed/", cohort, "/FilteredV1/", cell_type_file)
+    
+    if (!file.exists(sample_file)) {
+      message("File ", sample_file, " does not exist. Skipping to next.")
+      next
+    }
+    
+    sample_data <- readRDS(sample_file)
+    
+    n_cells <- sample_data$meta |>
+      group_by(patientID, disorder) |>
+      summarize(cells = n()) |>
+      mutate(cell_type = cell_type) |>
+      dplyr::select(patientID, cells, disorder, cell_type)
+    results_df <- bind_rows(results_df, n_cells)
+  }
+  
+  return(results_df)
+}
+
+perform_DGE_with_cells <- function(PB) {
+  # Check if all sample names in the expression matrix match group sample names
+  if (!all(colnames(PB$expr) %in% PB$meta$group_sample)) {
+    stop("Sample names in expression matrix do not match group sample names in meta data")
+  }
+  
+  PB$meta$age <- gsub("\\+", "", PB$meta$age)
+  PB$meta$age <- as.numeric(PB$meta$age)
+  PB$meta$sex <- as.factor(PB$meta$sex)
+  PB$meta$cells <- as.numeric(PB$meta$cells)
+  
+  ### make it return tmm normalized matrix
+  design <- model.matrix(~ group + sex + age + cells, data = PB$meta)
   y <- DGEList(counts = PB$expr, group = PB$meta$group)
   y <- calcNormFactors(y, method = "TMM")  # Normalization
   x <- estimateDisp(y, design, trend.method = "locfit", tagwise = TRUE, prior.df = NULL)   # Estimate dispersion
