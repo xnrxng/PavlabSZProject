@@ -13,6 +13,7 @@ library(limma)
 
 main <- function(){
   ### create p-value hists
+  cohort_list <- c("Batiuk", "CMC", "SZBDMulti-Seq", "MultiomeBrain")
 
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -1151,6 +1152,10 @@ main <- function(){
 
 
   ### create enhanced volcano plots
+
+  method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex", "LimmaCPMLogAgeSexCell")
+
+  for (method in method_list){
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
     excitatory <- paste0("Exc_", cohort, "_SZ.rds")
@@ -1164,7 +1169,7 @@ main <- function(){
     plot_list <- list()
 
     for (cell in cell_list) {
-      res_path <- paste0("results/DEA/", cohort, "/CPM/DEAresults_", cell)
+      res_path <- paste0("results/DEA/", cohort, "/", method, "/DEAresults_", cell)
 
       cell_type <- strsplit(cell, "_")[[1]][1]
 
@@ -1174,14 +1179,24 @@ main <- function(){
       }
       results <- readRDS(res_path)
 
-      res_volcano <- EnhancedVolcano(results, lab = results$gene,
-                                     x = 'logFC', y = 'FDR', title = cell_type, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
-                                     axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$FDR))+1))
+      if(method == "LimmaCPMLog"){
+
+      res_volcano <- EnhancedVolcano(results, lab = rownames(results),
+                                     x = 'logFC', y = 'adj.P.Val', title = cell_type, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                     axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
 
       plot_list[[cell_type]] <- res_volcano
+      }
+      else{
+        res_volcano <- EnhancedVolcano(results, lab = rownames(results),
+                                       x = 'groupdisorderyes', y = 'adj.P.Val', title = cell_type, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                       axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
+
+        plot_list[[cell_type]] <- res_volcano
+      }
     }
 
-    cohort_title <- paste0(cohort, ": CPM")
+    cohort_title <- paste0(cohort, ": ", get_title(method))
 
     all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
 
@@ -1190,23 +1205,35 @@ main <- function(){
 
     if (cohort == "Batiuk") {
 
-      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
 
-      final_path <- paste0("results/DEA/", cohort, "/CPM/volcanoplot_", cohort, ".png")
-
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+      final_path <- paste0("results/DEA/", cohort, "/", method, "/volcanoplot_", cohort, ".png")
+      ggsave(all_plots_with_title, filename = final_path, width = 12)
 
     }
 
     else{
       all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
 
-      final_path <- paste0("results/DEA/", cohort, "/CPM/volcanoplot_", cohort, ".png")
-
-      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
-
+      final_path <- paste0("results/DEA/", cohort, "/", method, "/volcanoplot_", cohort, ".png")
+      ggsave(all_plots_with_title, filename = final_path, width = 12, height = 9)
     }
+  }}
+}
+
+get_title <- function(method){
+  if (method == "LimmaCPMLog"){
+    return("CPMLog (Limma)")
   }
+
+  if (method == "LimmaCPMLogAgeSex"){
+    return("CPMLog with Age and Sex (Limma)")
+  }
+
+  if (method == "LimmaCPMLogAgeSexCell"){
+    return("CPMLog with Age, Sex, and Cell Number (Limma)")
+  }
+
 
 }
 
