@@ -1445,7 +1445,7 @@ main <- function(){
       if(method == "LimmaCPMLog"){
 
         res_volcano <- EnhancedVolcano(results, lab = rownames(results),
-            x = 'logFC', y = 'adj.P.Val', title = excitatory, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+            x = 'logFC', y = 'adj.P.Val', title = excitatory, subtitle = NULL, FCcutoff = 1, pCutoff = 0.05, legendPosition = "none", caption = NULL,
             axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
 
         plot_list[[excitatory]] <- res_volcano
@@ -1453,7 +1453,7 @@ main <- function(){
 
         else{
           res_volcano <- EnhancedVolcano(results, lab = rownames(results),
-            x = 'groupdisorderyes', y = 'adj.P.Val', title = excitatory, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+            x = 'groupdisorderyes', y = 'adj.P.Val', title = excitatory, subtitle = NULL, FCcutoff = 1, pCutoff = 0.05, legendPosition = "none", caption = NULL,
             axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
           plot_list[[excitatory]] <- res_volcano
         }
@@ -1479,7 +1479,7 @@ main <- function(){
       if(method == "LimmaCPMLog"){
 
         res_volcano <- EnhancedVolcano(results, lab = rownames(results),
-                                       x = 'logFC', y = 'adj.P.Val', title = inhibitory, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                       x = 'logFC', y = 'adj.P.Val', title = inhibitory, subtitle = NULL, FCcutoff = 1, pCutoff = 0.05, legendPosition = "none", caption = NULL,
                                        axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
 
         plot_list[[inhibitory]] <- res_volcano
@@ -1487,7 +1487,7 @@ main <- function(){
 
       else{
         res_volcano <- EnhancedVolcano(results, lab = rownames(results),
-                                       x = 'groupdisorderyes', y = 'adj.P.Val', title = inhibitory, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                       x = 'groupdisorderyes', y = 'adj.P.Val', title = inhibitory, subtitle = NULL, FCcutoff = 1, pCutoff = 0.05, legendPosition = "none", caption = NULL,
                                        axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
         plot_list[[inhibitory]] <- res_volcano
       }

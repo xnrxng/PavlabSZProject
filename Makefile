@@ -7,6 +7,7 @@ all: load_data \
   countcells_genes \
   umaps \
   pseudobulk_dea \
+  dea_visualizations \
   reports\sz-pavlab-report.html \
   reports\sz-pavlab-report.pdf
 
@@ -25,6 +26,9 @@ umaps: R/4-szagedistributionandumap.R
 
 pseudobulk_dea: R/6-pseudobulkanddea.R
   Rscript R/6-pseudobulkanddea.R
+  
+dea_visualizations: R/7-deavisualizations.R
+  Rscript R/7-deavisualizations.R
 
 reports/sz-pavlab-report.html: results reports/sz-pavlab-report.qmd
 	quarto render reports/sz-pavlab-report.qmd --to html
@@ -37,5 +41,6 @@ clean: load_data \
   countcells_genes \
   umaps \
   pseudobulk_dea \
+  dea_visualizations \
   reports\sz-pavlab-report.html \
   reports\sz-pavlab-report.pdf

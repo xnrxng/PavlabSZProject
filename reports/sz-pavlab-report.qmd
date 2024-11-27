@@ -31,28 +31,33 @@ TBF
 
 ## Introduction
 
-TBF
+Schizophrenia  (SCZ) is a mental disorder that affects 0.3-0.7%. It has many symptoms, including delusions and hallucinations. Although many studies have come out studying the transcriptome of patients with this disorder, a clearer picture is needed. This project aims to uncover the transcriptome of Schizophrenia patients, which cell types are associated with this disorder, and review past methods from other papers.
 
 ## Methods
 
-TBF
+The following sub-segments cover the methods employed, as well as the results obtained.
 
 ### Preview of the Data
 
-The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). All the samples come from the prefrontal cortex (PFC). The metadata contains the information of the following 12 cohorts:
+The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). The raw metadata can be found [here](https://brainscope.gersteinlab.org/integrative_files.html) under the name of PEC2_sample_mapping.xlsx. 
 
-1.  CMC: used 10x Genomics Chip B with 10x Genomics protocol. Used Illumina Novaseq platform [@Ruzicka]
+An additional cohort, named Batiuk, was included in the study as well [@batiuk]. Its matrices and cell-type annotations can be found [here](https://zenodo.org/records/6921620). Its metadata can be found as a supplementary file in its paper.
+
+All the samples come from the prefrontal cortex (PFC). These are all the cohorts:
+
+1.  CMC [@Ruzicka, @cmc2]
 2.  DevBrain
 3.  Girgenti-multiome
 4.  IsoHuB
-5.  LIBD
+5.  LIBD [@huuki, @yap]
 6.  Ma_et_al [@MaSestan]
-7.  MultiomeBrain
-8.  PTSDBrainomics
-9.  SZBDMulti-Seq: used 10x Genomics Chip B. Libraries prepared with 10x Genomics Chromium Single Cell 3’ Reagent Kits v3 and MULTI-Seq protocols. Used Illumina NextSeq500, and an additional round with NovaSeq S2 [@Ruzicka]
+7.  MultiomeBrain [@multiomebrain]
+8.  PTSDBrainomics [@ptsdbrainomics]
+9.  SZBDMulti-Seq [@Ruzicka]
 10. ROSMAP
-11. UCLA-ASD
+11. UCLA-ASD [@ucla-asd1, @ucla-asd2]
 12. Velmeshev_et_al [@Velmeshev]
+13. Batiuk [@batiuk]
 
 However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata.
 
@@ -66,7 +71,7 @@ total_patients <- readRDS("../results/1-total_patients.rds")
 knitr::kable(total_patients)
 ```
 
-From @tbl-total-patients, we can see that the CMC cohort has the biggest number of patient samples with 100 samples, followed by SZBDMulti-seq with 72. Ma_et_al has the smallest size, with only 2 samples. CMC and SZBDMulti-seq also have the highest mean of age of death at 71 years and 65 years respectively. Velmeshev_et_al has the lowest one, at 18 years. A variety of diseases are studied in these cohorts, with some cohorts studying none. These diseases include schizophrenia, autism spectrum disorder (ASD), bipolar disorder, major depressive disorder (MDD), post-traumatic stress disorder (PTSD), and Williams Syndrome.
+From @tbl-total-patients, we can see that the CMC cohort has the biggest number of patient samples with 100 samples, followed by SZBDMulti-seq with 72. Ma_et_al has the smallest size, with only 2 samples. CMC has the highest mean in age, at 71 years old. SZBDMulti-Seq and Batiuk share the same mean age, at 65 years old. Velmeshev_et_al has the lowest one, at 18 years. A variety of diseases are studied in these cohorts, with some cohorts studying none. These diseases include schizophrenia, autism spectrum disorder (ASD), bipolar disorder, major depressive disorder (MDD), post-traumatic stress disorder (PTSD), and Williams Syndrome.
 
 ```{r}
 #| label: tbl-patientpercondition
@@ -91,24 +96,45 @@ knitr::kable(elderlypatients)
 The age at death distribution of each condition per cohort was also examined. In @fig-agedistribution, the dotted vertical lines are the mean of the age at death for each condition. From top to bottom and left to right:
 
 -   CMC: both conditions fall in the older range.
+-   DevBrain: control samples fall between the 25-50 range. ASD samples faill in the younger range, with an average of around 25 years. Williams Syndrome samples are also in the younger range, although their average is slightly higher than 25.
+-   Girgenti-snMultiome: there are only control samples. The average is around 50 years old.
+-   Batiuk: the age distribution of both groups appear similar, within the 50-75 age range. The average of the Schizophrenia group is slightly older.
 -   IsoHub: there are only control samples and most fall in the younger range.
+-   LIBD: there are only control samples and most of them fall in the 50 year range.
+-   SZBDMulti-Seq: both control and Schizophrenia samples have similar distributions ad averages of around 60 years. THe BPD samples' distribution is shifted slightly more towards the right, with an older average of around 60 years old.
+-   Ma-Sestan: there are only control samples. There is one sample that falls around 50 years old, and the other that falls around 60 years old.
+-   PTSDBrainomics: control and MDD samples fall in the 50 year range. PTSD samples are slightly younger in average, but their distribution is wide.
 -   MultiomeBrain: although most control samples fall between the 30-45 range, there are samples that are younger than 25 and older than 50. Schizophrenia samples fall around the 50 year age range, and BPD samples fall between the 30-45 range.
 -   UCLA-ASD: both control and ASD samples fall in the younger range, with an average of around 25 years.
--   DevBrain: control samples fall between the 25-50 range. ASD samples faill in the younger range, with an average of around 25 years. Williams Syndrome samples are also in the younger range, although their average is slightly higher than 25.
--   LIBD: there are only control samples and most of them fall in the 50 year range.
--   PTSDBrainomics: control and MDD samples fall in the 50 year range. PTSD samples are slightly younger in average, but their distribution is wide.
 -   Velmeshev_et_al: most ASD and control samples are under 25 years old.
--   Girgenti-snMultiome: there are only control samples. The average is around 50 years old.
--   Ma-Sestan: there are only control samples. There is one sample that falls around 50 years old, and the other that falls around 60 years old.
--   SZBDMulti-Seq: both control and Schizophrenia samples have similar distributions ad averages of around 60 years. THe BPD samples' distribution is shifted slightly more towards the right, with an older average of around 60 years old.
 
 ![Age distribution in each cohort.](../results/4-agedistribution.png){#fig-agedistribution}
 
 ### Examining the Schizophrenia Cohorts
 
-The number of patients, split by disorder and colored by sex, can be seen in @fig-patientbarplot.
+The number of patients, split by disorder and colored by sex, can be seen in @fig-patientbarplot. 
 
 ![Bar plot of number of patients per cohort, split into disorder and colored by sex.](../results/12-patientbarplot.png){#fig-patientbarplot}
+
+The distribution of ages was looked at in @fig-age_dist_plots. 
+
+- Top left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts. Most individuals are between the ages of 60 and 90, and a peak is observed at 89 years. 
+- Top right: quantile-quantile (QQ) plot of the ages from Schizophrenia patients compared to those of the control. Since most points fall along the reference line, the age distributions between the two groups are quite similar. The deviation seen at the ends of the line suggests differences in the distribution tails, most likely by the presence of older individuals in the control group than in the diseased group.
+- Middle left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by disease. The Schizophrenia group has a lower median. We can also see that there are more older individuals from the control group. 
+- Middle right: violin plot of the age distributions for the control and Schizophrenia groups. The shape and spread shows that the density and distribution of both groups are quite similar, with differences in the median.
+- Bottom left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by sex.  The MALE group has a lower median. We can also see that there are more older individuals from the female group. 
+- Bottom right: violin plot of the age distributions for the female and male groups. The female group exhibits a broader and slightly higher age range than the male group.
+
+The distribution of number of cells per patient was looked at in @fig-cellcount_dist_plots. 
+
+- Top left: violin plot of the cell count distribution compared by condition. The CMC cohort's schizophrenia cell counts appear to be generally lower than the control group, with the control group having a broader range. The MultiomeBrain cohort has a narrow distribution in both groups, with the Schizophrenia group having a higher median and slightly wider spread. In the SZBDMulti-Seq cohort, the schizophrenia group has a broader distribution.
+- Top right: QQ-plot of the cell counts between control and Schizophrenia groups. It indicates that there are similar distributions at lower cell counts, but deviations at higher quantiles suggest that one condition often has larger cell counts per patient.
+- Bottom left: violin plot of the cell count distribution compared by sex. In the CMC cohort, the shape and spread of both groups appears to be quite similar. In the MultiomeBrain cohort, the female cohort has a higher median and broader spread than the male group. In the SZBDMulti-Seq group, the male group has a broader distribution.
+- Bottom right: QQ-plot of the cell counts between female and male groups. There are similar distributions at lower cell counts, but deviations in higher quantiles suggest that one group often has higher cell counts in the upper range.
+
+![Age distributions across cohorts, compared by disease state and biological sex.](../results/10-age_distributions.png){#fig-age_dist_plots}
+
+![Cell counts per patient across cohorts, compared by disease state and biological sex.](../results/11-cellcount_plots.png){#fig-cellcount_dist_plots}
 
 The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort.
 
@@ -168,25 +194,5 @@ UMAP was performed for each cohort, colored according to different characteristi
 ![Assignments of nuclei to disease state, separated by cohort.](../results/9.11-disorder_umap.png){#fig-disorderumap}
 
 ![Assignments of nuclei to biological sex, separated by cohort.](../results/9.12-sex_umap.png){#fig-sexumap}
-
-The distribution of ages was looked at in @fig-age_dist_plots. 
-
-- Top left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts. Most individuals are between the ages of 60 and 90, and a peak is observed at 89 years. 
-- Top right: quantile-quantile (QQ) plot of the ages from Schizophrenia patients compared to those of the control. Since most points fall along the reference line, the age distributions between the two groups are quite similar. The deviation seen at the ends of the line suggests differences in the distribution tails, most likely by the presence of older individuals in the control group than in the diseased group.
-- Middle left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by disease. The Schizophrenia group has a lower median. We can also see that there are more older individuals from the control group. 
-- Middle right: violin plot of the age distributions for the control and Schizophrenia groups. The shape and spread shows that the density and distribution of both groups are quite similar, with differences in the median.
-- Bottom left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by sex.  The MALE group has a lower median. We can also see that there are more older individuals from the female group. 
-- Bottom right: violin plot of the age distributions for the female and male groups. The female group exhibits a broader and slightly higher age range than the male group.
-
-The distribution of number of cells per patient was looked at in @fig-cellcount_dist_plots. 
-
-- Top left: violin plot of the cell count distribution compared by condition. The CMC cohort's schizophrenia cell counts appear to be generally lower than the control group, with the control group having a broader range. The MultiomeBrain cohort has a narrow distribution in both groups, with the Schizophrenia group having a higher median and slightly wider spread. In the SZBDMulti-Seq cohort, the schizophrenia group has a broader distribution.
-- Top right: QQ-plot of the cell counts between control and Schizophrenia groups. It indicates that there are similar distributions at lower cell counts, but deviations at higher quantiles suggest that one condition often has larger cell counts per patient.
-- Bottom left: violin plot of the cell count distribution compared by sex. In the CMC cohort, the shape and spread of both groups appears to be quite similar. In the MultiomeBrain cohort, the female cohort has a higher median and broader spread than the male group. In the SZBDMulti-Seq group, the male group has a broader distribution.
-- Bottom right: QQ-plot of the cell counts between female and male groups. There are similar distributions at lower cell counts, but deviations in higher quantiles suggest that one group often has higher cell counts in the upper range.
-
-![Age distributions across cohorts, compared by disease state and biological sex.](../results/10-age_distributions.png){#fig-age_dist_plots}
-
-![Cell counts per patient across cohorts, compared by disease state and biological sex.](../results/11-cellcount_plots.png){#fig-cellcount_dist_plots}
 
 ## References
