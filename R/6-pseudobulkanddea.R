@@ -325,6 +325,55 @@ main <- function() {
     }
   }
 
+  ### pseudobulk batiuk subtypes
+  exc_neurons <- c("L2_3_CUX2_FREM3", "L2_CUX2_LAMP5", "L5_6_THEMIS", "L5_6_FEZF2_TLE4", "L3_CUX2_PRSS12",
+                   "L4_RORB_SCHLAP1", "L4_5_FEZF2_LRRK1", "L5_FEZF2_ADRA1A")
+
+  inh_neurons <- c("ID2_LAMP5", "VIP", "ID2_PAX6", "ID2_NCKAP5", "PVALB", "SST")
+
+  for (excitatory in exc_neurons){
+    initial_path <- paste0("data/data_processed/Batiuk/Excitatory/FilteredV1/", excitatory, "_Batiuk_SZ.rds")
+    list_file <- readRDS(initial_path)
+
+    pseudobulked <- create_pseudo_bulk(expr = list_file$expr, meta = list_file$meta)
+    pb_path <- paste0("data/data_processed/Batiuk/Excitatory/PseudobulkRaw/", excitatory, "_Batiuk_SZ.rds")
+    saveRDS(pseudobulked, pb_path)
+
+    pseudobulked$meta$age <- as.numeric(pseudobulked$meta$age)
+    pseudobulked$meta$sex <- as.factor(pseudobulked$meta$sex)
+
+    design = model.matrix(~ group, data = pseudobulked$meta)
+    regular <- limma_dge(design, pseudobulked)
+    reg_path <- paste0("results/DEA/Batiuk/LimmaCPMLog/DEAresults_", excitatory, "_Batiuk_SZ.rds")
+    saveRDS(regular, reg_path)
+
+    design_covs = model.matrix(~ group + age + sex, data = pseudobulked$meta)
+    withcovariates <- limma_dge(design_covs, pseudobulked)
+    cov_path <- paste0("results/DEA/Batiuk/LimmaCPMLogAgeSex/DEAresults_", excitatory, "_Batiuk_SZ.rds")
+    saveRDS(withcovariates, cov_path)
+  }
+
+  for (inhibitory in inh_neurons){
+    initial_path <- paste0("data/data_processed/Batiuk/Inhibitory/FilteredV1/", inhibitory, "_Batiuk_SZ.rds")
+    list_file <- readRDS(initial_path)
+
+    pseudobulked <- create_pseudo_bulk(expr = list_file$expr, meta = list_file$meta)
+    pb_path <- paste0("data/data_processed/Batiuk/Inhibitory/PseudobulkRaw/", inhibitory, "_Batiuk_SZ.rds")
+    saveRDS(pseudobulked, pb_path)
+
+    pseudobulked$meta$age <- as.numeric(pseudobulked$meta$age)
+    pseudobulked$meta$sex <- as.factor(pseudobulked$meta$sex)
+
+    design = model.matrix(~ group, data = pseudobulked$meta)
+    regular <- limma_dge(design, pseudobulked)
+    reg_path <- paste0("results/DEA/Batiuk/LimmaCPMLog/DEAresults_", inhibitory, "_Batiuk_SZ.rds")
+    saveRDS(regular, reg_path)
+
+    design_covs = model.matrix(~ group + age + sex, data = pseudobulked$meta)
+    withcovariates <- limma_dge(design_covs, pseudobulked)
+    cov_path <- paste0("results/DEA/Batiuk/LimmaCPMLogAgeSex/DEAresults_", inhibitory, "_Batiuk_SZ.rds")
+    saveRDS(withcovariates, cov_path)
+  }
 }
 
 ### helper functions
@@ -338,7 +387,7 @@ create_pseudo_bulk <- function(expr, meta) {
 
   mat_mm = as.matrix(mat_mm)
   #keep_genes <- rowSums(mat_mm > 0) > 0
-  #mat_mm <- mat_mm[keep_genes, ] %>% as.matrix() %>% as.data.frame()
+  #mat_mm <- mat_mm[keep_genes, ] |> as.matrix() |> as.data.frame()
   mat_mm <- mat_mm |> as.matrix() |> as.data.frame()
 
   # Clean up column names
@@ -350,12 +399,12 @@ create_pseudo_bulk <- function(expr, meta) {
   mat_mm <- mat_mm[, ]
 
   # Create the targets data frame
-  targets <- data.frame(group_sample = colnames(mat_mm)) %>%
+  targets <- data.frame(group_sample = colnames(mat_mm))|>
     mutate(group = gsub(".*\\:", "", group_sample),
            patientID = sub(".*patientID(.*)\\:.*", "\\1", group_sample))
 
-  targets <- targets %>%
-    left_join(meta %>% select(patientID, disorder, sex, age) %>% distinct(),
+  targets <- targets |>
+    left_join(meta |> dplyr::select(patientID, disorder, sex, age) |> distinct(),
               by = "patientID")
 
   # Adjust the group factor
@@ -383,9 +432,9 @@ perform_DGE <- function(PB) {
   test <- glmLRT(fit)   # Likelihood ratio test
 
   # Extract results
-  res <- topTags(test, n = Inf) %>%
-    as.data.frame() %>%
-    rownames_to_column('gene') %>%
+  res <- topTags(test, n = Inf) |>
+    as.data.frame() |>
+    rownames_to_column('gene') |>
     mutate(test = 'pseudobulk_edgeR')
 
   #save tmm matrix
@@ -420,9 +469,9 @@ perform_DGE_on_CPM <- function(PB) {
   test <- glmLRT(fit)   # Likelihood ratio test
 
   # Extract results
-  res <- topTags(test, n = Inf) %>%
-    as.data.frame() %>%
-    rownames_to_column('gene') %>%
+  res <- topTags(test, n = Inf) |>
+    as.data.frame() |>
+    rownames_to_column('gene') |>
     mutate(test = 'pseudobulk_edgeR')
 
   return(res)
@@ -446,9 +495,9 @@ perform_DGE_with_covs <- function(PB) {
   test <- glmLRT(fit)   # Likelihood ratio test
 
   # Extract results
-  res <- topTags(test, n = Inf) %>%
-    as.data.frame() %>%
-    rownames_to_column('gene') %>%
+  res <- topTags(test, n = Inf) |>
+    as.data.frame() |>
+    rownames_to_column('gene') |>
     mutate(test = 'pseudobulk_edgeR')
 
   return(res)
@@ -473,9 +522,9 @@ perform_DGE_with_covs_on_tmm <- function(PB) {
   test <- glmLRT(fit)   # Likelihood ratio test
 
   # Extract results
-  res <- topTags(test, n = Inf) %>%
-    as.data.frame() %>%
-    rownames_to_column('gene') %>%
+  res <- topTags(test, n = Inf) |>
+    as.data.frame() |>
+    rownames_to_column('gene') |>
     mutate(test = 'pseudobulk_edgeR')
 
   return(res)
@@ -535,9 +584,9 @@ perform_DGE_with_cells <- function(PB) {
   test <- glmLRT(fit)   # Likelihood ratio test
 
   # Extract results
-  res <- topTags(test, n = Inf) %>%
-    as.data.frame() %>%
-    rownames_to_column('gene') %>%
+  res <- topTags(test, n = Inf) |>
+    as.data.frame() |>
+    rownames_to_column('gene') |>
     mutate(test = 'pseudobulk_edgeR')
 
   return(res)
