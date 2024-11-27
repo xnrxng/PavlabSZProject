@@ -12,7 +12,7 @@ main <- function() {
   ### get total patients per cohort
   clean_metadata <- readRDS("data/data_processed/clean_metadata.rds")
   batiuk_meta <- readRDS("data/data_processed/Batiuk/Batiuk-patient.rds")
-  
+
   total_patients <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     group_by(Cohort) |>
@@ -22,7 +22,7 @@ main <- function() {
       Disorder_studied = paste(unique(Disorder[Disorder != "Control"]), collapse = ", "),
       Disorder_studied = ifelse(Disorder_studied == "", "None", Disorder_studied)
     )
-  
+
   batiuk_total <- data.frame(
     Cohort = "Batiuk",
     Patients = length(batiuk_meta$patientID),
@@ -30,11 +30,11 @@ main <- function() {
     Disorder_studied = "Schizophrenia",
     stringsAsFactors = FALSE
   )
-  
+
   all_patients <- rbind(total_patients, batiuk_total)
-  
+
   saveRDS(all_patients, file.path("results/1-total_patients.rds"))
-  
+
   ### get number of patients per condition per cohort
   patientpercondition <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
@@ -45,7 +45,7 @@ main <- function() {
       N_Male = sum(Biological_Sex == "male", na.rm = TRUE),
       N_Female = sum(Biological_Sex == "female", na.rm = TRUE)
     )
-  
+
   batiuk_per_condition <- batiuk_meta |>
     group_by(disorder) |>
     summarize(
@@ -57,27 +57,27 @@ main <- function() {
     rename(Disorder = disorder) |>
     mutate(Cohort = "Batiuk",
            Disorder = ifelse(Disorder == "yes", "Schizophrenia", "Control"))
-  
+
   allpatients_per_condition <- rbind(patientpercondition, batiuk_per_condition)
-  
+
   saveRDS(allpatients_per_condition, file.path("results/2-patients_per_condition.rds"))
-  
+
   ### get number of elderly patients in schizophrenia cohorts
   elderlypatients <- clean_metadata |>
     filter(Cohort == "CMC" | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
     group_by(Cohort, Disorder) |>
     filter(Age_death == "89+") |>
     summarize(Plus89_patients = n())
-  
+
   saveRDS(elderlypatients, file.path("results/3-elderlypatients.rds"))
-  
+
   ### make a plot of age distributions
   meanage_summary <- allpatients_per_condition |>
     select(Cohort, Disorder, Mean_Age)
-  
+
   x_limits <- c(0, 90)
-  y_limits <- c(0, 0.2)  
-  
+  y_limits <- c(0, 0.2)
+
 color_palette <- c(
     "Control" = "turquoise",
     "Schizophrenia" = "coral",
@@ -87,13 +87,13 @@ color_palette <- c(
     "PTSD" = "navy",
     "Williams Syndrome" = "red3"
   )
-  
+
   CMCageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     filter(Cohort == "CMC") |>
     ggplot(aes(x = Age, fill = Disorder)) +
     geom_density(alpha = 0.3) +
-    geom_vline(data = meanage_summary |> filter(Cohort == "CMC"), 
+    geom_vline(data = meanage_summary |> filter(Cohort == "CMC"),
                aes(xintercept = Mean_Age, colour = Disorder),
                linetype = "dashed", linewidth = 1) +
     labs(title = "CMC") +
@@ -111,13 +111,13 @@ color_palette <- c(
       axis.title.y = element_blank(),
       legend.position = "none"
     )
-  
+
   DevBrainageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     filter(Cohort == "DevBrain") |>
     ggplot(aes(x = Age, fill = Disorder)) +
     geom_density(alpha = 0.3) +
-    geom_vline(data = meanage_summary |> filter(Cohort == "DevBrain"), 
+    geom_vline(data = meanage_summary |> filter(Cohort == "DevBrain"),
                aes(xintercept = Mean_Age, colour = Disorder),
                linetype = "dashed", linewidth = 1) +
     labs(title = "DevBrain") +
@@ -135,13 +135,13 @@ color_palette <- c(
       axis.title.y = element_blank(),
       legend.position = "none"
     )
-  
+
 Girgentiageplot <- clean_metadata |>
     mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
     filter(Cohort == "Girgenti-snMultiome") |>
     ggplot(aes(x = Age, fill = Disorder)) +
     geom_density(alpha = 0.3) +
-    geom_vline(data = meanage_summary |> filter(Cohort == "Girgenti-snMultiome"), 
+    geom_vline(data = meanage_summary |> filter(Cohort == "Girgenti-snMultiome"),
                aes(xintercept = Mean_Age, colour = Disorder),
                linetype = "dashed", linewidth = 1) +
     labs(title = "Girgenti-snMultiome") +
@@ -165,7 +165,7 @@ ISOhubageplot <- clean_metadata |>
   filter(Cohort == "IsoHuB") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "IsoHuB"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "IsoHuB"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "IsoHuB") +
@@ -189,7 +189,7 @@ LIBDageplot <- clean_metadata |>
   filter(Cohort == "LIBD") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "LIBD"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "LIBD"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "LIBD") +
@@ -207,13 +207,13 @@ LIBDageplot <- clean_metadata |>
     axis.title.y = element_blank(),
     legend.position = "none"
   )
-  
+
 Maageplot <- clean_metadata |>
   mutate(Age = as.numeric(str_replace(Age_death, "\\+", ""))) |>
   filter(Cohort == "Ma_et_al") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "Ma_et_al"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "Ma_et_al"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "Ma-Sestan") +
@@ -237,7 +237,7 @@ MBageplot <- clean_metadata |>
   filter(Cohort == "MultiomeBrain") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "MultiomeBrain"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "MultiomeBrain"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "MultiomeBrain") +
@@ -261,7 +261,7 @@ PTSDageplot <- clean_metadata |>
   filter(Cohort == "PTSDBrainomics") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "PTSDBrainomics"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "PTSDBrainomics"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "PTSDBrainomics") +
@@ -285,7 +285,7 @@ SZBDageplot <- clean_metadata |>
   filter(Cohort == "SZBDMulti-Seq") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "SZBDMulti-Seq"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "SZBDMulti-Seq"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "SZBDMulti-Seq") +
@@ -309,7 +309,7 @@ UCLAageplot <- clean_metadata |>
   filter(Cohort == "UCLA-ASD") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "UCLA-ASD"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "UCLA-ASD"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "UCLA-ASD") +
@@ -333,7 +333,7 @@ Velageplot <- clean_metadata |>
   filter(Cohort == "Velmeshev_et_al") |>
   ggplot(aes(x = Age, fill = Disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "Velmeshev_et_al"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "Velmeshev_et_al"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "Velmeshev_et_al") +
@@ -357,7 +357,7 @@ Batiukageplot <- batiuk_meta |>
          age = as.numeric(age)) |>
   ggplot(aes(x = age, fill = disorder)) +
   geom_density(alpha = 0.3) +
-  geom_vline(data = meanage_summary |> filter(Cohort == "Batiuk"), 
+  geom_vline(data = meanage_summary |> filter(Cohort == "Batiuk"),
              aes(xintercept = Mean_Age, colour = Disorder),
              linetype = "dashed", linewidth = 1) +
   labs(title = "Batiuk") +
@@ -381,7 +381,7 @@ plot_list <- list(CMCageplot, DevBrainageplot, Girgentiageplot, Batiukageplot, I
                   MBageplot, UCLAageplot, Velageplot)
 
 combined_plots <- plot_grid(
-  plotlist = plot_list, 
+  plotlist = plot_list,
   ncol = 3,
   align = "hv"
 )
@@ -398,35 +398,35 @@ dummyplot <- clean_metadata |>
 
 legend <- get_legend(dummyplot)
 
-x_label_plot <- ggdraw() + 
+x_label_plot <- ggdraw() +
   draw_label("Age at Death (years)", x = 0.5, y = 0.5, size = 14)
 
-y_label_plot <- ggdraw() + 
+y_label_plot <- ggdraw() +
   draw_label("Density", x = 0.5, y = 0.5, angle = 90, size = 14)
 
 final_plot <- plot_grid(
   plot_grid(
     y_label_plot,
-    combined_plots, 
-    ncol = 2, 
+    combined_plots,
+    ncol = 2,
     rel_widths = c(0.1, 1)
   ),
   x_label_plot,
-  ncol = 1, 
+  ncol = 1,
   rel_heights = c(1, 0.1)
 )
 
 final_plot_with_legend <- plot_grid(
   final_plot,
   legend,
-  ncol = 2,  
+  ncol = 2,
   rel_widths = c(0.85, 0.15)
 )
-  
-ggsave(file.path("results/4-agedistribution.png"), final_plot_with_legend, width = 12, 
+
+ggsave(file.path("results/4-agedistribution.png"), final_plot_with_legend, width = 12,
        height = 8, units = "in", dpi = 300)
 
-### 
+###
 patientsexdisorder_data <- clean_metadata |>
   filter(Cohort == 'CMC' | Cohort == "MultiomeBrain" | Cohort == "SZBDMulti-Seq") |>
   filter(Disorder == "Control" | Disorder == "Schizophrenia") |>
@@ -457,8 +457,8 @@ patient_disorderbarplot <- allpatientsexdisorder_data |>
     panel.spacing = unit(0, "lines"),
     plot.margin = margin(10, 10, 10, 10)) +
   scale_y_continuous(breaks = c(0, 10, 20, 30, 40, 50, 60))
-  
-ggsave(file.path("results/12-patientbarplot.png"), patient_disorderbarplot, width = 8, 
+
+ggsave(file.path("results/12-patientbarplot.png"), patient_disorderbarplot, width = 8,
        height = 8, units = "in", dpi = 300)
 }
 

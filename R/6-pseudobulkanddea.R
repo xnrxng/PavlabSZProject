@@ -386,8 +386,8 @@ create_pseudo_bulk <- function(expr, meta) {
   mat_mm <- expr %*% mm
 
   mat_mm = as.matrix(mat_mm)
-  #keep_genes <- rowSums(mat_mm > 0) > 0
-  #mat_mm <- mat_mm[keep_genes, ] |> as.matrix() |> as.data.frame()
+  keep_genes <- rowSums(mat_mm > 0) > 0
+  mat_mm <- mat_mm[keep_genes, ] |> as.matrix() |> as.data.frame()
   mat_mm <- mat_mm |> as.matrix() |> as.data.frame()
 
   # Clean up column names

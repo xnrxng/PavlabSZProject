@@ -614,7 +614,7 @@ main <- function(){
         draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
         all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
         final_path <- paste0("results/DEA/Batiuk/", method, "/excitatorypvalueplot_Batiuk.png")
-        ggsave(all_plots_with_title, filename = final_path, width = 12)
+        ggsave(plot = all_plots_with_title, filename = final_path, width = 12)
   }
 
   for (method in method_list){
