@@ -31,7 +31,7 @@ TBF
 
 ## Introduction
 
-Schizophrenia  (SCZ) is a mental disorder that affects 0.3-0.7%. It has many symptoms, including delusions and hallucinations. Although many studies have come out studying the transcriptome of patients with this disorder, a clearer picture is needed. This project aims to uncover the transcriptome of Schizophrenia patients, which cell types are associated with this disorder, and review past methods from other papers.
+Schizophrenia (SCZ) is a mental disorder that affects 0.3-0.7%. It has many symptoms, including delusions and hallucinations. Although many studies have come out studying the transcriptome of patients with this disorder, a clearer picture is needed. This project aims to uncover the transcriptome of Schizophrenia patients, which cell types are associated with this disorder, and review past methods from other papers.
 
 ## Methods
 
@@ -39,7 +39,7 @@ The following sub-segments cover the methods employed, as well as the results ob
 
 ### Preview of the Data
 
-The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). The raw metadata can be found [here](https://brainscope.gersteinlab.org/integrative_files.html) under the name of PEC2_sample_mapping.xlsx. 
+The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). The raw metadata can be found [here](https://brainscope.gersteinlab.org/integrative_files.html) under the name of PEC2_sample_mapping.xlsx.
 
 An additional cohort, named Batiuk, was included in the study as well [@batiuk]. Its matrices and cell-type annotations can be found [here](https://zenodo.org/records/6921620). Its metadata can be found as a supplementary file in its paper.
 
@@ -51,7 +51,7 @@ All the samples come from the prefrontal cortex (PFC). These are all the cohorts
 4.  IsoHuB
 5.  LIBD [@huuki, @yap]
 6.  Ma_et_al [@MaSestan]
-7.  MultiomeBrain [@multiomebrain]
+7.  MultiomeBrain
 8.  PTSDBrainomics [@ptsdbrainomics]
 9.  SZBDMulti-Seq [@Ruzicka]
 10. ROSMAP
@@ -112,29 +112,33 @@ The age at death distribution of each condition per cohort was also examined. In
 
 ### Examining the Schizophrenia Cohorts
 
-The number of patients, split by disorder and colored by sex, can be seen in @fig-patientbarplot. 
+As the main interest of this project is Schizophrenia, only cohorts related to Schizophrenia were used in subsequent analysis.
+
+The number of patients, split by disorder and colored by sex, can be seen in @fig-patientbarplot.
 
 ![Bar plot of number of patients per cohort, split into disorder and colored by sex.](../results/12-patientbarplot.png){#fig-patientbarplot}
 
-The distribution of ages was looked at in @fig-age_dist_plots. 
+The distribution of ages was looked at in @fig-age_dist_plots.
 
-- Top left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts. Most individuals are between the ages of 60 and 90, and a peak is observed at 89 years. 
-- Top right: quantile-quantile (QQ) plot of the ages from Schizophrenia patients compared to those of the control. Since most points fall along the reference line, the age distributions between the two groups are quite similar. The deviation seen at the ends of the line suggests differences in the distribution tails, most likely by the presence of older individuals in the control group than in the diseased group.
-- Middle left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by disease. The Schizophrenia group has a lower median. We can also see that there are more older individuals from the control group. 
-- Middle right: violin plot of the age distributions for the control and Schizophrenia groups. The shape and spread shows that the density and distribution of both groups are quite similar, with differences in the median.
-- Bottom left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by sex.  The MALE group has a lower median. We can also see that there are more older individuals from the female group. 
-- Bottom right: violin plot of the age distributions for the female and male groups. The female group exhibits a broader and slightly higher age range than the male group.
+-   Top left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts. Most individuals are between the ages of 60 and 90, and a peak is observed at 89 years.
+-   Top right: quantile-quantile (QQ) plot of the ages from Schizophrenia patients compared to those of the control. Since most points fall along the reference line, the age distributions between the two groups are quite similar. The deviation seen at the ends of the line suggests differences in the distribution tails, most likely by the presence of older individuals in the control group than in the diseased group.
+-   Middle left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by disease. The Schizophrenia group has a lower median. We can also see that there are more older individuals from the control group.
+-   Middle right: violin plot of the age distributions for the control and Schizophrenia groups. The shape and spread shows that the density and distribution of both groups are quite similar.
+-   Bottom left: histogram of the ages of all patients corresponding to the Schizophrenia cohorts, colored by sex. The male group has a lower median. We can also see that there are more older individuals from the female group.
+-   Bottom right: violin plot of the age distributions for the female and male groups. The female group exhibits a slightly broader age range than the male group.
 
-The distribution of number of cells per patient was looked at in @fig-cellcount_dist_plots. 
+The distribution of number of cells per patient was looked at in @fig-cellcount_dist_plots.
 
-- Top left: violin plot of the cell count distribution compared by condition. The CMC cohort's schizophrenia cell counts appear to be generally lower than the control group, with the control group having a broader range. The MultiomeBrain cohort has a narrow distribution in both groups, with the Schizophrenia group having a higher median and slightly wider spread. In the SZBDMulti-Seq cohort, the schizophrenia group has a broader distribution.
-- Top right: QQ-plot of the cell counts between control and Schizophrenia groups. It indicates that there are similar distributions at lower cell counts, but deviations at higher quantiles suggest that one condition often has larger cell counts per patient.
-- Bottom left: violin plot of the cell count distribution compared by sex. In the CMC cohort, the shape and spread of both groups appears to be quite similar. In the MultiomeBrain cohort, the female cohort has a higher median and broader spread than the male group. In the SZBDMulti-Seq group, the male group has a broader distribution.
-- Bottom right: QQ-plot of the cell counts between female and male groups. There are similar distributions at lower cell counts, but deviations in higher quantiles suggest that one group often has higher cell counts in the upper range.
+-   Top left: violin plot of the cell count distribution compared by condition. In the Batiuk cohort, it appears that control samples have higher cell counts. The CMC cohort's schizophrenia cell counts appear to be generally lower than the control group, with the control group having a broader range. The MultiomeBrain cohort has a narrow distribution in both groups, with the Schizophrenia group having a higher median and slightly wider spread. In the SZBDMulti-Seq cohort, the schizophrenia group has a broader distribution.
+-   Top right: QQ-plot of the cell counts between control and Schizophrenia groups. It indicates that there are similar distributions at lower cell counts, but deviations at higher quantiles suggest that one condition often has larger cell counts per patient.
+-   Bottom left: violin plot of the cell count distribution compared by sex. The Batiuk cohort's female group appears to have higher cell counts. In the CMC cohort, the shape and spread of both groups appears to be quite similar. In the MultiomeBrain cohort, the female cohort has a higher median and broader spread than the male group. In the SZBDMulti-Seq group, the male group has a broader distribution.
+-   Bottom right: QQ-plot of the cell counts between female and male groups. There are similar distributions at lower cell counts, but deviations in higher quantiles suggest that one group often has higher cell counts in the upper range.
 
 ![Age distributions across cohorts, compared by disease state and biological sex.](../results/10-age_distributions.png){#fig-age_dist_plots}
 
 ![Cell counts per patient across cohorts, compared by disease state and biological sex.](../results/11-cellcount_plots.png){#fig-cellcount_dist_plots}
+
+### Filtering
 
 The number of genes and single cells per each Schizophrenia cohort was also looked at in @tbl-genescells. The number of genes is per sample, whereas the number of cells is the total number for all samples in a cohort.
 
@@ -146,11 +150,13 @@ cells_genes <- readRDS("../results/5-cells_genes.rds")
 knitr::kable(cells_genes)
 ```
 
-The number of genes is quite similar across 3 cohorts. SZBDMulti-Seq has the highest number of total cells, at 603281. MultiomeBrain has the lowest number of total cells, at 134666.
+The number of genes is quite similar across the four cohorts. SZBDMulti-Seq has the highest number of total cells, at 603281. MultiomeBrain has the lowest number of total cells, at 134666.
 
-From @Ruzicka, genes expressed in less than 0.1% cells and cells with fewer than 1000 identified genes were removed. If they had more than 10% unique molecular identifiers in mitochondrial genes or more than 50000 captured UMIs, these were also removed. They also determined outlier cells by checking their total UMI count, percentage of reads mapped to mitochondrial genes, low similarity with other cells, and exploration of 2D projection plots. These were also removed.
+From @Ruzicka (worked with the CMC and SZBDMulti-Seq cohorts), genes expressed in less than 0.1% cells and cells with fewer than 1000 identified genes were removed. If they had more than 10% unique molecular identifiers in mitochondrial genes or more than 50000 captured UMIs, these were also removed. They also determined outlier cells by checking their total UMI count, percentage of reads mapped to mitochondrial genes, low similarity with other cells, and exploration of 2D projection plots. These were also removed.
 
-For our purposes, genes that are not expressed in at least 5% of cells will be filtered out. Cells must also be in the top 5th percentile in terms of the number of expressed genes. If the cell comes from a patient that had less than 20 cells for that specific cell type, these will be filtered out. The single cells will be CPM and log normalized. The cell types will be grouped into major types:
+From @batiuk (worked with the Batiuk cohort), scrublet scores were determined for each dataset, and only cells with the score below 0.3 were considered for downstream analysis. Subtype-sample combinations with less than 10 cells were filtered out.
+
+For our purposes, each matrix was first wrangled into six major cell types:
 
 -   Excitatory neurons: these include neurons that are L2/3 intratelencephalic, L4 IT intratelencephalic, L5 intratelencephalic, L6 intratelencephalic, L6 corticothalamic, L6 intratelencephalic Car3, L5 extratelencephalic, LE/6 near-projecting, and L6b intratelencephalic.
 -   Inhibitory neurons: these chandelier cells and neurons that express somatostatin, somatostatin and chondrolectin, parvalbumin, paired box 6, lysosomal-associated membrane protein 5 and LIM homeobox protein 6, lysosomal-associated membrane protein 5, synuclein gamma, and vasoactive intestinal polypeptide.
@@ -159,21 +165,35 @@ For our purposes, genes that are not expressed in at least 5% of cells will be f
 -   OLigodendrocyte progenitor cells
 -   Oligodendrocytes
 
-In @tbl-genescellsfiltered, we can see that the number of genes still remains quite similar across three cohorts after filtering. Approximately 23000 genes were removed from each cohort. Not that many cells were removed from the CMC cohort. A moderate amount was removed from the SZBDMulti-Seq cohort, and a substantial amount (almost half) was removed from the MultiomeBrain cohort.
+Within each cell type, genes that are not expressed in at least 2% of cells were filtered out. Cells that were in the top 5th percentile in terms of the number of expressed genes were kept. After that, genes that were expressed in at least 3 out of the 4 cohorts within a cell type were kept. The artifacts shown hereafter have been generated using filtered data.
+
+In @tbl-genescellsfiltered, we can see the number of genes that appear in all 4 cohorts for each cell type. Astrocytes have the highest number at 27011, and inhibitory neurons have the lowest number at 18533. The second column shows the total number of unique genes for each cell type across cohorts. Excitatory neurons have the highest number at 41487, while glial cells have the lowest number at 21223.
 
 ```{r}
 #| label: tbl-genescellsfiltered
-#| tbl-cap: Number of genes and total number of cells per each Schizophrenia cohort after filtering.
+#| tbl-cap: Number of genes that overlap and are unique for each cell type.
 
-cells_genes_filtered <- readRDS("../results/5.2-cells_genes.rds")
+cells_genes_filtered <- readRDS("../results/5.2-overlapped_genes.rds")
 knitr::kable(cells_genes_filtered)
 ```
+
+@tbl-ngenescells shows the number of genes and cells that were in each cell type and cohort. Note that the number of genes is the same for each cell type due to the previous filtering. Microglia have the lowest number of genes at 6838 and excitatory neurons have the highest number at 14010. Microglia from the MultiomeBrain have the lowest number of cells at 2750 and excitatory neurons from the SZBDMulti-Seq cohort have the largest number at 233710.
+
+```{r}
+#| label: tbl-ngenescells
+#| tbl-cap: Number of genes and cells found in each cohort and cell type.
+
+cells_genes_filtered <- readRDS("../results/5.3-n_genes_cells.rds")
+knitr::kable(cells_genes_filtered)
+```
+
+### Quality checks
 
 The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that excitatory neurons have the highest frequency, especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes. Microglia and oligodendrocyte progenitor cells have the lowest frequencies.
 
 The sequencing depth of each cell was investigated, grouped by cell type. @fig-1depthdistribution shows the sequencing depth distribution with all the x-axis at the same scale. @fig-2depthdistribution shows the sequencing depth distribution with all the x-axis unscaled. @fig-3depthdistribution shows the sequencing depth distribution after the matrices had been CPMLog normalized, with all the x-axis at the same scale. @fig-4depthdistribution shows the sequencing depth distrbution after CPMLog normalization, but with the x-axis unscaled. Across all three cohorts, excitatory neurons have the highest sequencing depth, especially in the MultiomeBrain cohort. Microglia have the lowest sequencing depth in all cohorts.
 
-The difference in cell type abundance per condition was investigated in each cohort in @fig-abundancecelltype. It appears that control samples have a slightly higher number of cells than disease samples. In CMC's microglia, MultiomeBrain's astrocytes and oligodendroctes, SZBDMulti-Seq's astrocytes and OPCs, the disease samples have a slighly higher number of cells. In accordance with what has been seen so far, excitatory neurons have the highest frequency while microglia have the lowest.
+The difference in cell type abundance per condition was investigated in each cohort in @fig-abundancecelltype. It appears that control samples have a slightly higher number of cells than disease samples. In CMC's microglia, MultiomeBrain's astrocytes and oligodendroctes, SZBDMulti-Seq's astrocytes and microglia, the disease samples have a slighly higher number of cells. In accordance with what has been seen so far, excitatory neurons have the highest frequency while microglia have the lowest.
 
 ![Cells per cell-type per patient in each cohort.](../results/6-celltypedistribution.png){#fig-celltypedistribution}
 
@@ -187,12 +207,126 @@ The difference in cell type abundance per condition was investigated in each coh
 
 ![Cell type abundance within conditions across cohorts.](../results/8-abundancecondition.png){#fig-abundancecelltype}
 
-UMAP was performed for each cohort, colored according to different characteristics. In @fig-celltypeumap, we can see that the cell types were assigned to different clusters. The cluster profile of the CMC and SZBDMulti-Seq cohort appear to be quite similar. The cell type assignment for the MultiomeBrain cohort does appear to be slightly different, most likely due to the fact it is the smallest cohort. @fig-disorderumap shows the UMAP assignment by disorder and @fig-sexumap by biological sex. It appears that both conditions/characteristics are evenly spread across cells.
+UMAP was performed for each cohort, colored according to different characteristics. In @fig-celltypeumap, we can see that the cell types were assigned to different clusters. @fig-disorderumap shows the UMAP assignment by disorder and @fig-sexumap by biological sex. It appears that both conditions/characteristics are evenly spread across cells. @fig-patientumap shows the clusters colored by patient. It appears it is evenly spread as well. The cell type assignment for the MultiomeBrain cohort does appear to be slightly different, most likely due to the fact it is the smallest cohort. It does appear that there is one patient that might be affecting the clusters in the MultiomeBrain cohort.
 
 ![Assignments of nuclei to cell types, separated by cohort.](../results/9.10-cell_type_umap.png){#fig-celltypeumap}
 
 ![Assignments of nuclei to disease state, separated by cohort.](../results/9.11-disorder_umap.png){#fig-disorderumap}
 
 ![Assignments of nuclei to biological sex, separated by cohort.](../results/9.12-sex_umap.png){#fig-sexumap}
+
+![Assignments of nuclei to patients, separated by cohort.](../results/9.20-patient_umap.png){#fig-patientumap}
+
+### Differential expression analysis
+
+To perform DEA, matrices were pseudobulked. Different methods and approaches were used.
+
+#### Counts per million
+
+A counts per million normalization was applied. The DEA method use was from the edgeR package. No covariates were added.
+
+@fig-cmclogfccpm, @fig-batiuklogfccpm, @fig-mblogfccpm, and @fig-szbdlogfccpm show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after CPM normalization.](../results/DEA/CMC/CPM/logFCplot_CMC.png){#fig-cmclogfccpm}
+
+![Log fold-change histograms of the Batiuk cohort after CPM normalization.](../results/DEA/Batiuk/CPM/logFCplot_Batiuk.png){#fig-batiuklogfccpm}
+
+![Log fold-change histograms of the MultiomeBrain cohort after CPM normalization.](../results/DEA/MultiomeBrain/CPM/logFCplot_MultiomeBrain.png){#fig-mblogfccpm}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after CPM normalization.](../results/DEA/SZBDMulti-Seq/CPM/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfccpm}
+
+@fig-cmcpvalcpm, @fig-batiukpvalcpm, @fig-mbpvalcpm, and @fig-szbdpvalcpm show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only that might have differential expression. 
+
+![P-value histograms of the CMC cohort after CPM normalization.](../results/DEA/CMC/CPM/pvalueplot_CMC.png){#fig-cmcpvalcpm}
+
+![P-value histograms of the Batiuk cohort after CPM normalization.](../results/DEA/Batiuk/CPM/pvalueplot_Batiuk.png){#fig-batiukpvalcpm}
+
+![P-value histograms of the MultiomeBrain cohort after CPM normalization.](../results/DEA/MultiomeBrain/CPM/pvalueplot_MultiomeBrain.png){#fig-mbpvalcpm}
+
+![P-value histograms of the SZBDMulti-Seq cohort after CPM normalization.](../results/DEA/SZBDMulti-Seq/CPM/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalcpm}
+
+@fig-cmcvolcpm, @fig-batiukvolcpm, @fig-mbvolcpm, and @fig-szbdvolcpm show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. Only the 4 following groups had differentially expressed genes, although few: inhibitory neurons of the CMC cohort, astroctyes of the SZBDMulti-Seq cohort, microglia of the SZBDMulti-Seq cohort, and oligodendrocytes of the SZBDMulti-Seq cohort.
+
+Overall, the lack of differential expression seen made us stay away from this method.
+
+![Volcano plots of the CMC cohort after CPM normalization.](../results/DEA/CMC/CPM/volcanoplot_CMC.png){#fig-cmcvolcpm}
+
+![Volcano plots of the Batiuk cohort after CPM normalization.](../results/DEA/Batiuk/CPM/volcanoplot_Batiuk.png){#fig-batiukvolcpm}
+
+![Volcano plots of the MultiomeBrain cohort after CPM normalization.](../results/DEA/MultiomeBrain/CPM/volcanoplot_MultiomeBrain.png){#fig-mbvolcpm}
+
+![Volcano plots of the SZBDMulti-Seq cohort after CPM normalization.](../results/DEA/SZBDMulti-Seq/CPM/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolcpm}
+
+#### Counts per million with log
+
+A counts per million normalization was applied, along with a log transformation. The DEA method use was from the edgeR package. No covariates were added.
+
+@fig-cmclogfcCPMLog, @fig-batiuklogfcCPMLog, @fig-mblogfcCPMLog, and @fig-szbdlogfcCPMLog show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/CPMLog/logFCplot_CMC.png){#fig-cmclogfcCPMLog}
+
+![Log fold-change histograms of the Batiuk cohort after CPMLog normalization.](../results/DEA/Batiuk/CPMLog/logFCplot_Batiuk.png){#fig-batiuklogfcCPMLog}
+
+![Log fold-change histograms of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/CPMLog/logFCplot_MultiomeBrain.png){#fig-mblogfcCPMLog}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/CPMLog/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcCPMLog}
+
+@fig-cmcpvalCPMLog, @fig-batiukpvalCPMLog, @fig-mbpvalCPMLog, and @fig-szbdpvalCPMLog show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. Compared to the CPM only method, it appears that the log transformation is skewing the histgrams to the right.
+
+![P-value histograms of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/CPMLog/pvalueplot_CMC.png){#fig-cmcpvalCPMLog}
+
+![P-value histograms of the Batiuk cohort after CPMLog normalization.](../results/DEA/Batiuk/CPMLog/pvalueplot_Batiuk.png){#fig-batiukpvalCPMLog}
+
+![P-value histograms of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/CPMLog/pvalueplot_MultiomeBrain.png){#fig-mbpvalCPMLog}
+
+![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/CPMLog/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalCPMLog}
+
+@fig-cmcvolCPMLog, @fig-batiukvolCPMLog, @fig-mbvolCPMLog, and @fig-szbdvolCPMLog show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. No differentially expressed genes were detected.
+
+Overall, the lack of differential expression seen made us stay away from this method.
+
+![Volcano plots of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/CPMLog/volcanoplot_CMC.png){#fig-cmcvolCPMLog}
+
+![Volcano plots of the Batiuk cohort after CPMLog normalization.](../results/DEA/Batiuk/CPMLog/volcanoplot_Batiuk.png){#fig-batiukvolCPMLog}
+
+![Volcano plots of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/CPMLog/volcanoplot_MultiomeBrain.png){#fig-mbvolCPMLog}
+
+![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/CPMLog/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolCPMLog}
+
+#### Counts per million with log with age and sex
+
+A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the edgeR package. Apart from the disorder group, age and sex were added as covariates.
+
+@fig-cmclogfcCPMLogWithCovariates, @fig-batiuklogfcCPMLogWithCovariates, @fig-mblogfcCPMLogWithCovariates, and @fig-szbdlogfcCPMLogWithCovariates show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/CPMLogWithCovariates/logFCplot_CMC.png){#fig-cmclogfcCPMLogWithCovariates}
+
+![Log fold-change histograms of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/CPMLogWithCovariates/logFCplot_Batiuk.png){#fig-batiuklogfcCPMLogWithCovariates}
+
+![Log fold-change histograms of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/CPMLogWithCovariates/logFCplot_MultiomeBrain.png){#fig-mblogfcCPMLogWithCovariates}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/CPMLogWithCovariates/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcCPMLogWithCovariates}
+
+@fig-cmcpvalCPMLogWithCovariates, @fig-batiukpvalCPMLogWithCovariates, @fig-mbpvalCPMLogWithCovariates, and @fig-szbdpvalCPMLogWithCovariates show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression.
+
+![P-value histograms of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/CPMLogWithCovariates/pvalueplot_CMC.png){#fig-cmcpvalCPMLogWithCovariates}
+
+![P-value histograms of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/CPMLogWithCovariates/pvalueplot_Batiuk.png){#fig-batiukpvalCPMLogWithCovariates}
+
+![P-value histograms of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/CPMLogWithCovariates/pvalueplot_MultiomeBrain.png){#fig-mbpvalCPMLogWithCovariates}
+
+![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/CPMLogWithCovariates/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalCPMLogWithCovariates}
+
+@fig-cmcvolCPMLogWithCovariates, @fig-batiukvolCPMLogWithCovariates, @fig-mbvolCPMLogWithCovariates, and @fig-szbdvolCPMLogWithCovariates show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. No differentialy expressed genes were detected.
+
+Overall, the lack of differential expression seen made us stay away from this method.
+
+![Volcano plots of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/CPMLogWithCovariates/volcanoplot_CMC.png){#fig-cmcvolCPMLogWithCovariates}
+
+![Volcano plots of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/CPMLogWithCovariates/volcanoplot_Batiuk.png){#fig-batiukvolCPMLogWithCovariates}
+
+![Volcano plots of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/CPMLogWithCovariates/volcanoplot_MultiomeBrain.png){#fig-mbvolCPMLogWithCovariates}
+
+![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/CPMLogWithCovariates/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolCPMLogWithCovariates}
 
 ## References
