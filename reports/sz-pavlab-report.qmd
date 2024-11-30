@@ -177,7 +177,7 @@ cells_genes_filtered <- readRDS("../results/5.2-overlapped_genes.rds")
 knitr::kable(cells_genes_filtered)
 ```
 
-@tbl-ngenescells shows the number of genes and cells that were in each cell type and cohort. Note that the number of genes is the same for each cell type due to the previous filtering. Microglia have the lowest number of genes at 6838 and excitatory neurons have the highest number at 14010. Microglia from the MultiomeBrain have the lowest number of cells at 2750 and excitatory neurons from the SZBDMulti-Seq cohort have the largest number at 233710.
+@tbl-ngenescells shows the number of genes and cells that were in each cell type and cohort. Note that the number of genes is the same for each cell type due to the previous filtering. Microglia have the lowest number of genes at 6838 and excitatory neurons have the highest number at 14010. Microglia from the MultiomeBrain have the lowest number of cells at 2750 and excitatory neurons from the SZBDMulti-Seq cohort have the largest number at 233710. The total number of cells is 1076886.
 
 ```{r}
 #| label: tbl-ngenescells
@@ -221,7 +221,7 @@ UMAP was performed for each cohort, colored according to different characteristi
 
 To perform DEA, matrices were pseudobulked. Different methods and approaches were used.
 
-#### Counts per million
+#### Counts per million (edgeR)
 
 A counts per million normalization was applied. The DEA method use was from the edgeR package. No covariates were added.
 
@@ -257,7 +257,7 @@ Overall, the lack of differential expression seen made us stay away from this me
 
 ![Volcano plots of the SZBDMulti-Seq cohort after CPM normalization.](../results/DEA/SZBDMulti-Seq/CPM/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolcpm}
 
-#### Counts per million with log
+#### Counts per million and log (edgeR)
 
 A counts per million normalization was applied, along with a log transformation. The DEA method use was from the edgeR package. No covariates were added.
 
@@ -293,7 +293,7 @@ Overall, the lack of differential expression seen made us stay away from this me
 
 ![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/CPMLog/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolCPMLog}
 
-#### Counts per million with log with age and sex
+#### Counts per million and log with age and sex (edgeR)
 
 A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the edgeR package. Apart from the disorder group, age and sex were added as covariates.
 
@@ -328,5 +328,276 @@ Overall, the lack of differential expression seen made us stay away from this me
 ![Volcano plots of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/CPMLogWithCovariates/volcanoplot_MultiomeBrain.png){#fig-mbvolCPMLogWithCovariates}
 
 ![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/CPMLogWithCovariates/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolCPMLogWithCovariates}
+
+#### Trimmed Mean of M-values (edgeR)
+
+A trimmed mean of M-values normalization was applied. The DEA method use was from the edgeR package. No covariates were added.
+
+@fig-cmclogfcTMM, @fig-batiuklogfcTMM, @fig-mblogfcTMM, and @fig-szbdlogfcTMM show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after TMM normalization.](../results/DEA/CMC/TMM/logFCplot_CMC.png){#fig-cmclogfcTMM}
+
+![Log fold-change histograms of the Batiuk cohort after TMM normalization.](../results/DEA/Batiuk/TMM/logFCplot_Batiuk.png){#fig-batiuklogfcTMM}
+
+![Log fold-change histograms of the MultiomeBrain cohort after TMM normalization.](../results/DEA/MultiomeBrain/TMM/logFCplot_MultiomeBrain.png){#fig-mblogfcTMM}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after TMM normalization.](../results/DEA/SZBDMulti-Seq/TMM/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcTMM}
+
+@fig-cmcpvalTMM, @fig-batiukpvalTMM, @fig-mbpvalTMM, and @fig-szbdpvalTMM show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only that might have differential expression. 
+
+![P-value histograms of the CMC cohort after TMM normalization.](../results/DEA/CMC/TMM/pvalueplot_CMC.png){#fig-cmcpvalTMM}
+
+![P-value histograms of the Batiuk cohort after TMM normalization.](../results/DEA/Batiuk/TMM/pvalueplot_Batiuk.png){#fig-batiukpvalTMM}
+
+![P-value histograms of the MultiomeBrain cohort after TMM normalization.](../results/DEA/MultiomeBrain/TMM/pvalueplot_MultiomeBrain.png){#fig-mbpvalTMM}
+
+![P-value histograms of the SZBDMulti-Seq cohort after TMM normalization.](../results/DEA/SZBDMulti-Seq/TMM/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalTMM}
+
+@fig-cmcvolTMM, @fig-batiukvolTMM, @fig-mbvolTMM, and @fig-szbdvolTMM show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. Most groups had only 1-3 genes that were differentially expressed. The SZBDMulti-Seq's excitatory neurons was the only group to have a substantial number of DGEs.
+
+Overall, the lack of differential expression seen made us stay away from this method.
+
+![Volcano plots of the CMC cohort after TMM normalization.](../results/DEA/CMC/TMM/volcanoplot_CMC.png){#fig-cmcvolTMM}
+
+![Volcano plots of the Batiuk cohort after TMM normalization.](../results/DEA/Batiuk/TMM/volcanoplot_Batiuk.png){#fig-batiukvolTMM}
+
+![Volcano plots of the MultiomeBrain cohort after TMM normalization.](../results/DEA/MultiomeBrain/TMM/volcanoplot_MultiomeBrain.png){#fig-mbvolTMM}
+
+![Volcano plots of the SZBDMulti-Seq cohort after TMM normalization.](../results/DEA/SZBDMulti-Seq/TMM/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolTMM}
+
+#### Trimmed Mean of M-values with age and sex (edgeR)
+
+A trimmed mean of M-values normalization was applied. The DEA method use was from the edgeR package. Apart from the disorder group, age and sex were added as covariates.
+
+@fig-cmclogfcTMMWithCovariates, @fig-batiuklogfcTMMWithCovariates, @fig-mblogfcTMMWithCovariates, and @fig-szbdlogfcTMMWithCovariates show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after TMM normalization with age and sex.](../results/DEA/CMC/TMMWithCovariates/logFCplot_CMC.png){#fig-cmclogfcTMMWithCovariates}
+
+![Log fold-change histograms of the Batiuk cohort after TMM normalization with age and sex.](../results/DEA/Batiuk/TMMWithCovariates/logFCplot_Batiuk.png){#fig-batiuklogfcTMMWithCovariates}
+
+![Log fold-change histograms of the MultiomeBrain cohort after TMM normalization with age and sex.](../results/DEA/MultiomeBrain/TMMWithCovariates/logFCplot_MultiomeBrain.png){#fig-mblogfcTMMWithCovariates}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after TMM normalization with age and sex.](../results/DEA/SZBDMulti-Seq/TMMWithCovariates/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcTMMWithCovariates}
+
+@fig-cmcpvalTMMWithCovariates, @fig-batiukpvalTMMWithCovariates, @fig-mbpvalTMMWithCovariates, and @fig-szbdpvalTMMWithCovariates show the histograms of the raw p-values for each cohort. The SZBDMulti-Seq cohort is the only that might have differential expression. The CMC's neuronal groups as well.
+
+![P-value histograms of the CMC cohort after TMM normalization with age and sex.](../results/DEA/CMC/TMMWithCovariates/pvalueplot_CMC.png){#fig-cmcpvalTMMWithCovariates}
+
+![P-value histograms of the Batiuk cohort after TMM normalization with age and sex.](../results/DEA/Batiuk/TMMWithCovariates/pvalueplot_Batiuk.png){#fig-batiukpvalTMMWithCovariates}
+
+![P-value histograms of the MultiomeBrain cohort after TMM normalization with age and sex.](../results/DEA/MultiomeBrain/TMMWithCovariates/pvalueplot_MultiomeBrain.png){#fig-mbpvalTMMWithCovariates}
+
+![P-value histograms of the SZBDMulti-Seq cohort after TMM normalization with age and sex.](../results/DEA/SZBDMulti-Seq/TMMWithCovariates/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalTMMWithCovariates}
+
+@fig-cmcvolTMMWithCovariates, @fig-batiukvolTMMWithCovariates, @fig-mbvolTMMWithCovariates, and @fig-szbdvolTMMWithCovariates show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. No DGEs were detected.
+
+Overall, the lack of differential expression seen made us stay away from this method.
+
+![Volcano plots of the CMC cohort after TMM normalization with age and sex.](../results/DEA/CMC/TMMWithCovariates/volcanoplot_CMC.png){#fig-cmcvolTMMWithCovariates}
+
+![Volcano plots of the Batiuk cohort after TMM normalization with age and sex.](../results/DEA/Batiuk/TMMWithCovariates/volcanoplot_Batiuk.png){#fig-batiukvolTMMWithCovariates}
+
+![Volcano plots of the MultiomeBrain cohort after TMM normalization with age and sex.](../results/DEA/MultiomeBrain/TMMWithCovariates/volcanoplot_MultiomeBrain.png){#fig-mbvolTMMWithCovariates}
+
+![Volcano plots of the SZBDMulti-Seq cohort after TMM normalization with age and sex.](../results/DEA/SZBDMulti-Seq/TMMWithCovariates/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolTMMWithCovariates}
+
+#### Trimmed Mean of M-values with age, sex, and cell number (edgeR)
+
+A trimmed mean of M-values normalization was applied. The DEA method use was from the edgeR package. Apart from the disorder group, age, sex, and number of cells per patient per cell type were added as covariates.
+
+@fig-cmclogfcTMMWithCells, @fig-batiuklogfcTMMWithCells, @fig-mblogfcTMMWithCells, and @fig-szbdlogfcTMMWithCells show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after TMM normalization with age, sex, and cell number.](../results/DEA/CMC/TMMWithCells/logFCplot_CMC.png){#fig-cmclogfcTMMWithCells}
+
+![Log fold-change histograms of the Batiuk cohort after TMM normalization with age, sex, and cell number.](../results/DEA/Batiuk/TMMWithCells/logFCplot_Batiuk.png){#fig-batiuklogfcTMMWithCells}
+
+![Log fold-change histograms of the MultiomeBrain cohort after TMM normalization with age, sex, and cell number.](../results/DEA/MultiomeBrain/TMMWithCells/logFCplot_MultiomeBrain.png){#fig-mblogfcTMMWithCells}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after TMM normalization with age, sex, and cell number.](../results/DEA/SZBDMulti-Seq/TMMWithCells/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcTMMWithCells}
+
+@fig-cmcpvalTMMWithCells, @fig-batiukpvalTMMWithCells, @fig-mbpvalTMMWithCells, and @fig-szbdpvalTMMWithCells show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression.
+
+![P-value histograms of the CMC cohort after TMM normalization with age, sex, and cell number.](../results/DEA/CMC/TMMWithCells/pvalueplot_CMC.png){#fig-cmcpvalTMMWithCells}
+
+![P-value histograms of the Batiuk cohort after TMM normalization with age, sex, and cell number.](../results/DEA/Batiuk/TMMWithCells/pvalueplot_Batiuk.png){#fig-batiukpvalTMMWithCells}
+
+![P-value histograms of the MultiomeBrain cohort after TMM normalization with age, sex, and cell number.](../results/DEA/MultiomeBrain/TMMWithCells/pvalueplot_MultiomeBrain.png){#fig-mbpvalTMMWithCells}
+
+![P-value histograms of the SZBDMulti-Seq cohort after TMM normalization with age, sex, and cell number.](../results/DEA/SZBDMulti-Seq/TMMWithCells/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalTMMWithCells}
+
+@fig-cmcvolTMMWithCells, @fig-batiukvolTMMWithCells, @fig-mbvolTMMWithCells, and @fig-szbdvolTMMWithCells show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. No DGEs were detected.
+
+Overall, the lack of differential expression seen made us stay away from this method.
+
+![Volcano plots of the CMC cohort after TMM normalization with age, sex, and cell number.](../results/DEA/CMC/TMMWithCells/volcanoplot_CMC.png){#fig-cmcvolTMMWithCells}
+
+![Volcano plots of the Batiuk cohort after TMM normalization with age, sex, and cell number.](../results/DEA/Batiuk/TMMWithCells/volcanoplot_Batiuk.png){#fig-batiukvolTMMWithCells}
+
+![Volcano plots of the MultiomeBrain cohort after TMM normalization with age, sex, and cell number.](../results/DEA/MultiomeBrain/TMMWithCells/volcanoplot_MultiomeBrain.png){#fig-mbvolTMMWithCells}
+
+![Volcano plots of the SZBDMulti-Seq cohort after TMM normalization with age, sex, and cell number.](../results/DEA/SZBDMulti-Seq/TMMWithCells/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolTMMWithCells}
+
+#### Counts per million and log (limma)
+
+A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the limma package. No covariates were added.
+
+@fig-cmclogfcLimmaCPMLog, @fig-batiuklogfcLimmaCPMLog, @fig-mblogfcLimmaCPMLog, and @fig-szbdlogfcLimmaCPMLog show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/LimmaCPMLog/logFCplot_CMC.png){#fig-cmclogfcLimmaCPMLog}
+
+![Log fold-change histograms of the Batiuk cohort after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/logFCplot_Batiuk.png){#fig-batiuklogfcLimmaCPMLog}
+
+![Log fold-change histograms of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/LimmaCPMLog/logFCplot_MultiomeBrain.png){#fig-mblogfcLimmaCPMLog}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/LimmaCPMLog/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcLimmaCPMLog}
+
+@fig-cmcpvalLimmaCPMLog, @fig-batiukpvalLimmaCPMLog, @fig-mbpvalLimmaCPMLog, and @fig-szbdpvalLimmaCPMLog show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
+
+![P-value histograms of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/LimmaCPMLog/pvalueplot_CMC.png){#fig-cmcpvalLimmaCPMLog}
+
+![P-value histograms of the Batiuk cohort after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/pvalueplot_Batiuk.png){#fig-batiukpvalLimmaCPMLog}
+
+![P-value histograms of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/LimmaCPMLog/pvalueplot_MultiomeBrain.png){#fig-mbpvalLimmaCPMLog}
+
+![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/LimmaCPMLog/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalLimmaCPMLog}
+
+@fig-cmcvolLimmaCPMLog, @fig-batiukvolLimmaCPMLog, @fig-mbvolLimmaCPMLog, and @fig-szbdvolLimmaCPMLog show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. A single DGE was seen in the oligodendrocyte MultiomeBrain group, the microglia SZBDMulti-Seq, and the oligodendrocyte SZBDMulti-Seq group. Two DEGs were found in the excitatory neuron SZBDMulti-Seq group. 
+
+Overall, this method seemed much more promising.
+
+![Volcano plots of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/LimmaCPMLog/volcanoplot_CMC.png){#fig-cmcvolLimmaCPMLog}
+
+![Volcano plots of the Batiuk cohort after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/volcanoplot_Batiuk.png){#fig-batiukvolLimmaCPMLog}
+
+![Volcano plots of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/LimmaCPMLog/volcanoplot_MultiomeBrain.png){#fig-mbvolLimmaCPMLog}
+
+![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/LimmaCPMLog/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolLimmaCPMLog}
+
+#### Counts per million and log with age, sex, and cell number (limma)
+
+A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the limma package. Apart from the disorder group, age, sex, and number of cells per patient per cell type were added as covariates.
+
+@fig-cmclogfcLimmaCPMLogAgeSexCell, @fig-batiuklogfcLimmaCPMLogAgeSexCell, @fig-mblogfcLimmaCPMLogAgeSexCell, and @fig-szbdlogfcLimmaCPMLogAgeSexCell show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/CMC/LimmaCPMLogAgeSexCell/logFCplot_CMC.png){#fig-cmclogfcLimmaCPMLogAgeSexCell}
+
+![Log fold-change histograms of the Batiuk cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/Batiuk/LimmaCPMLogAgeSexCell/logFCplot_Batiuk.png){#fig-batiuklogfcLimmaCPMLogAgeSexCell}
+
+![Log fold-change histograms of the MultiomeBrain cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSexCell/logFCplot_MultiomeBrain.png){#fig-mblogfcLimmaCPMLogAgeSexCell}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSexCell/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcLimmaCPMLogAgeSexCell}
+
+@fig-cmcpvalLimmaCPMLogAgeSexCell, @fig-batiukpvalLimmaCPMLogAgeSexCell, @fig-mbpvalLimmaCPMLogAgeSexCell, and @fig-szbdpvalLimmaCPMLogAgeSexCell show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
+
+![P-value histograms of the CMC cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/CMC/LimmaCPMLogAgeSexCell/pvalueplot_CMC.png){#fig-cmcpvalLimmaCPMLogAgeSexCell}
+
+![P-value histograms of the Batiuk cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/Batiuk/LimmaCPMLogAgeSexCell/pvalueplot_Batiuk.png){#fig-batiukpvalLimmaCPMLogAgeSexCell}
+
+![P-value histograms of the MultiomeBrain cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSexCell/pvalueplot_MultiomeBrain.png){#fig-mbpvalLimmaCPMLogAgeSexCell}
+
+![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age, sex and cell number.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSexCell/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalLimmaCPMLogAgeSexCell}
+
+@fig-cmcvolLimmaCPMLogAgeSexCell, @fig-batiukvolLimmaCPMLogAgeSexCell, @fig-mbvolLimmaCPMLogAgeSexCell, and @fig-szbdvolLimmaCPMLogAgeSexCell show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. Although some group had few DEGs, the SZBDMulti-Seq cohort had a significant number of DEGs in each cell type.
+
+Overall, this method still seemed promising, but the addition of cell numbers as a covariate might have skewed the results.
+
+![Volcano plots of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/LimmaCPMLogAgeSexCell/volcanoplot_CMC.png){#fig-cmcvolLimmaCPMLogAgeSexCell}
+
+![Volcano plots of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/LimmaCPMLogAgeSexCell/volcanoplot_Batiuk.png){#fig-batiukvolLimmaCPMLogAgeSexCell}
+
+![Volcano plots of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSexCell/volcanoplot_MultiomeBrain.png){#fig-mbvolLimmaCPMLogAgeSexCell}
+
+![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSexCell/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolLimmaCPMLogAgeSexCell}
+
+#### Counts per million and log with age and sex (limma)
+
+A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the limma package. Apart from the disorder group, age and sex were added as covariates.
+
+@fig-cmclogfcLimmaCPMLogAgeSex, @fig-batiuklogfcLimmaCPMLogAgeSex, @fig-mblogfcLimmaCPMLogAgeSex, and @fig-szbdlogfcLimmaCPMLogAgeSex show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+
+![Log fold-change histograms of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/LimmaCPMLogAgeSex/logFCplot_CMC.png){#fig-cmclogfcLimmaCPMLogAgeSex}
+
+![Log fold-change histograms of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/logFCplot_Batiuk.png){#fig-batiuklogfcLimmaCPMLogAgeSex}
+
+![Log fold-change histograms of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/logFCplot_MultiomeBrain.png){#fig-mblogfcLimmaCPMLogAgeSex}
+
+![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcLimmaCPMLogAgeSex}
+
+@fig-cmcpvalLimmaCPMLogAgeSex, @fig-batiukpvalLimmaCPMLogAgeSex, @fig-mbpvalLimmaCPMLogAgeSex, and @fig-szbdpvalLimmaCPMLogAgeSex show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
+
+![P-value histograms of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/LimmaCPMLogAgeSex/pvalueplot_CMC.png){#fig-cmcpvalLimmaCPMLogAgeSex}
+
+![P-value histograms of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/pvalueplot_Batiuk.png){#fig-batiukpvalLimmaCPMLogAgeSex}
+
+![P-value histograms of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/pvalueplot_MultiomeBrain.png){#fig-mbpvalLimmaCPMLogAgeSex}
+
+![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalLimmaCPMLogAgeSex}
+
+@fig-cmcvolLimmaCPMLogAgeSex, @fig-batiukvolLimmaCPMLogAgeSex, @fig-mbvolLimmaCPMLogAgeSex, and @fig-szbdvolLimmaCPMLogAgeSex show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. Although some group had few DEGs, the SZBDMulti-Seq cohort had a significant number of DEGs in each cell type.
+
+Overall, this method still seemed more promising as opposed to the ones seen so far.
+
+![Volcano plots of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/LimmaCPMLogAgeSex/volcanoplot_CMC.png){#fig-cmcvolLimmaCPMLogAgeSex}
+
+![Volcano plots of the Batiuk cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/volcanoplot_Batiuk.png){#fig-batiukvolLimmaCPMLogAgeSex}
+
+![Volcano plots of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/volcanoplot_MultiomeBrain.png){#fig-mbvolLimmaCPMLogAgeSex}
+
+![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolLimmaCPMLogAgeSex}
+
+### DEA on Batiuk subtypes
+
+As there was a lack of DEGs detected (with the SZBDMulti-Seq cohort as an exception), the results from the @batiuk paper were replicated. As they performed DEA on neuronal subtypes, the same was done. Note that genes that were not expressed at all were removed.
+
+The first DEA method performed on the neuronal subtypes was a CPM normalization, followed by a log transformation. DEA was performed with the limma package. @fig-batiukexclogfc shows the log fold change histograms of the excitatory neuronal subtypes, all following a normal distribution and centered at 0. @fig-batiukexcpval shows the p-value histograms of the excitatory neuronal subtypes, although it does not appear to have much differential expression. And confirmed in @fig-batiukexcvol, no DEGs are detected. A logFC cutoff of 0.1 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the Batiuk's excitatory subtypes, after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/excitatorylogFCplot_Batiuk.png){#fig-batiukexclogfc}
+
+![P-value histograms of the Batiuk's excitatory subtypes, after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/excitatorypvalueplot_Batiuk.png){#fig-batiukexcpval}
+
+![Volcano plots of the Batiuk's excitatory subtypes, after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/excitatoryvolcanoplot_Batiuk.png){#fig-batiukexcvol}
+
+The same trend is seen in the inhibitory subtypes. @fig-batiukinhlogfc shows the log fold change histograms of the inhibitory neuronal subtypes, all following a normal distribution and centered at 0. @fig-batiukinhpval shows the p-value histograms of the inhibitory neuronal subtypes. In @fig-batiukinhvol, no DEGs are detected. A logFC cutoff of 0.1 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the Batiuk's inhibitory subtypes, after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/inhibitorylogFCplot_Batiuk.png){#fig-batiukinhlogfc}
+
+![P-value histograms of the Batiuk's inhibitory subtypes, after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/inhibitorypvalueplot_Batiuk.png){#fig-batiukinhpval}
+
+![Volcano plots of the Batiuk's inhibitory subtypes, after CPMLog normalization.](../results/DEA/Batiuk/LimmaCPMLog/inhibitoryvolcanoplot_Batiuk.png){#fig-batiukinhvol}
+
+The next DEA method was the same, with just the addition of age and sex as covariates. @fig-batiukexclogfcas shows the log fold change histograms of the excitatory neuronal subtypes, all following a normal distribution and centered at 0. @fig-batiukexcpvalas shows the p-value histograms of the excitatory neuronal subtypes. It appears that all subtypes have differential expression, with the exception of the L5_FEZF2_ADRA1A subtype. In @fig-batiukexcvolas, many DEGs were seen in all subtypes. A logFC cutoff of 0.1 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the Batiuk's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/excitatorylogFCplot_Batiuk.png){#fig-batiukexclogfcas}
+
+![P-value histograms of the Batiuk's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/excitatorypvalueplot_Batiuk.png){#fig-batiukexcpvalas}
+
+![Volcano plots of the Batiuk's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/excitatoryvolcanoplot_Batiuk.png){#fig-batiukexcvolas}
+
+@fig-batiukinhlogfcas shows the log fold change histograms of the inhibitory neuronal subtypes, all following a normal distribution and centered at 0. @fig-batiukinhpvalas shows the p-value histograms of the inhibitory neuronal subtypes. It appears that all subtypes have differential expression. In @fig-batiukinhvolas, many DEGs were seen in all subtypes. A logFC cutoff of 0.1 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the Batiuk's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/inhibitorylogFCplot_Batiuk.png){#fig-batiukinhlogfcas}
+
+![P-value histograms of the Batiuk's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/inhibitorypvalueplot_Batiuk.png){#fig-batiukinhpvalas}
+
+![Volcano plots of the Batiuk's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/Batiuk/LimmaCPMLogAgeSex/inhibitoryvolcanoplot_Batiuk.png){#fig-batiukinhvolas}
+
+However, when compared to the paper, it appears that none of these DEGs were found in @batiuk. Note that the authors did not provide a table with all DEGs and as such, the DEGs they discovered was based on the volcano plots they provided in the supplemenary files. This could have led to some genes being missed in the comparison of the results.
+
+### CMC & SZBDMulti-Seq MetaAnalysis
+
+To replicate the @Ruzicka results, a meta-analysis was performed. The DEA method used was CPMLog normalization with age and sex as covariates, with the limma package.
+
+@fig-logfcmetaruzi shows the logFC histograms of the metaanalysis, where they all follow a normal distribution and are centered at 0. @fig-pvalmetaruzi shows the p-value histograms of the metaanalysis, where it appears that all cell types have differential expression. This is confirmed in @fig-volmetaruzi, where we see a high number of DEGs in each cell type. A logFC cutoff of 0.1 and an FDR cutoff of 0.05 were set.
+
+
+![Log fold-change histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/logFCplot_ruzicka.png){#fig-logfcmetaruzi}
+
+![P-value histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/pvalplot_ruzicka.png){#fig-pvalmetaruzi}
+
+![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/volcanoplot_ruzicka.png){#fig-volmetaruzi}
+
+## Results
+
+
 
 ## References
