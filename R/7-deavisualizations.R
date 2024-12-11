@@ -646,6 +646,36 @@ main <- function(){
     cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
   }
 
+  cell_types <- c("Ast", "Exc", "Inh", "Mic", "Oli", "Opc")
+  for (method in method_list){
+    plot_list <- list()
+    for (celltype in cell_types){
+      res_path <- paste0("results/DEA/Ling/", method, "/DEAresults_", celltype, "_Ling_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = P.Value)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = celltype,
+          x = "P-value",
+          y = NULL
+        )
+
+      plot_list[[celltype]] <- res_his}
+
+    cohort_title <- paste0("Ling: ", get_title(method))
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/Ling/", method, "/pvalueplot_Ling.png")
+    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+  }
+
   ###create hists for logFC
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -1306,7 +1336,50 @@ main <- function(){
     cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
   }
 
+  cell_types <- c("Ast", "Exc", "Inh", "Mic", "Oli", "Opc")
+  for (method in method_list){
+    plot_list <- list()
+    for (celltype in cell_types){
+      res_path <- paste0("results/DEA/Ling/", method, "/DEAresults_", celltype, "_Ling_SZ.rds")
+      results <- readRDS(res_path)
 
+      if (method == "LimmaCPMLog"){
+
+        res_his <- results |>
+          ggplot(aes(x = logFC)) +
+          geom_histogram() +
+          theme_classic()+
+          labs(
+            title = celltype,
+            x = "logFC",
+            y = NULL
+          )
+      }
+
+      else{
+        res_his <- results |>
+          ggplot(aes(x = diagnosisyes)) +
+          geom_histogram() +
+          theme_classic()+
+          labs(
+            title = celltype,
+            x = "logFC",
+            y = NULL
+          )
+      }
+
+      plot_list[[celltype]] <- res_his}
+
+    cohort_title <- paste0("Ling: ", get_title(method))
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/Ling/", method, "/logFCplot_Ling.png")
+    cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+  }
   ### create enhanced volcano plots
 
   method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex", "LimmaCPMLogAgeSexCell")
@@ -1503,6 +1576,42 @@ main <- function(){
     final_path <- paste0("results/DEA/Batiuk/", method, "/inhibitoryvolcanoplot_Batiuk.png")
     ggsave(all_plots_with_title, filename = final_path, width = 12, height = 9)
   }
+
+
+  for (method in method_list){
+    plot_list <- list()
+    for (celltype in cell_types){
+      res_path <- paste0("results/DEA/Ling/", method, "/DEAresults_", celltype, "_Ling_SZ.rds")
+      results <- readRDS(res_path)
+
+      if(method == "LimmaCPMLog"){
+
+        res_volcano <- EnhancedVolcano(results, lab = rownames(results),
+                                       x = 'logFC', y = 'adj.P.Val', title = celltype, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                       axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
+
+        plot_list[[celltype]] <- res_volcano
+      }
+
+      else{
+        res_volcano <- EnhancedVolcano(results, lab = rownames(results),
+                                       x = 'diagnosisyes', y = 'adj.P.Val', title = celltype, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                       axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
+        plot_list[[celltype]] <- res_volcano
+      }
+    }
+
+    cohort_title <- paste0("Ling: ", get_title(method))
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/Ling/", method, "/volcanoplot_Ling.png")
+    ggsave(all_plots_with_title, filename = final_path, width = 12, height = 9)
+  }
+
 }
 ### helper functions
 get_title <- function(method){

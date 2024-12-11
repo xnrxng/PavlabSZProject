@@ -374,6 +374,51 @@ main <- function() {
     cov_path <- paste0("results/DEA/Batiuk/LimmaCPMLogAgeSex/DEAresults_", inhibitory, "_Batiuk_SZ.rds")
     saveRDS(withcovariates, cov_path)
   }
+
+  ### ling
+  ling_meta <- read_csv("data/data_processed/Ling/all-patient-metaData.csv")
+
+  cell_types <- c("Ast", "Exc", "Inh", "Mic", "Oli", "Opc")
+
+  for (celltype in cell_types){
+    initial_path <- paste0("data/data_processed/Ling/PseudobulkRaw/", celltype, "_ling-2024_meta.csv")
+    cell_meta <- read_csv(initial_path)
+
+    merged_meta <- left_join(cell_meta, ling_meta, by = "patientID") |>
+      dplyr::select(patientID, sex, age, diagnosis)
+
+    final_path <- paste0("data/data_processed/Ling/PseudobulkRaw/", celltype, "_Ling_MetaFiltered.rds")
+    saveRDS(merged_meta, final_path)
+  }
+    for (celltype in cell_types){
+      meta_path <- paste0("data/data_processed/Ling/PseudobulkRaw/", celltype, "_Ling_MetaFiltered.rds")
+      cell_meta <- readRDS(meta_path) |> as.data.frame()
+      rownames(cell_meta) <- cell_meta$patientID
+      cell_meta$diagnosis <- as.factor(cell_meta$diagnosis)
+      cell_meta$diagnosis <- relevel(cell_meta$diagnosis, ref = "no")
+      cell_meta$age <- as.numeric(cell_meta$age)
+      cell_meta$sex <- as.factor(cell_meta$sex)
+
+      expr_path <- paste0("data/data_processed/Ling/PseudobulkRaw/", celltype, "_ling-2024_expr.csv")
+      cell_expr <- read_csv(expr_path) |> as.data.frame()
+      rownames(cell_expr) <- cell_expr$gene_names
+      cell_expr <- cell_expr[, -1]
+      cell_expr <- as.matrix(cell_expr)
+      cell_expr <- Matrix(cell_expr, sparse = TRUE)
+
+      PB <- list(expr = cell_expr, meta = cell_meta)
+
+      design <- model.matrix(~ diagnosis, data = PB$meta)
+      results <- limma_dge(design = design, PB = PB)
+      cpmlogpath <- paste0("results/DEA/Ling/LimmaCPMLog/DEAresults_", celltype, "_Ling_SZ.rds")
+      saveRDS(results, cpmlogpath)
+
+      designagesex <- model.matrix(~ diagnosis+age+sex, data = PB$meta)
+      resultsagesex <- limma_dge(design = designagesex, PB = PB)
+      agesexpath <- paste0("results/DEA/Ling/LimmaCPMLogAgeSex/DEAresults_", celltype, "_Ling_SZ.rds")
+      saveRDS(resultsagesex, agesexpath)
+    }
+
 }
 
 ### helper functions
