@@ -27,11 +27,11 @@ library(knitr)
 
 ## Summary
 
-TBF
+Through different methods of differential expression, while working with 5 cohorts, no consistently differentially expressed genes have been seen in Schizophrenia.
 
 ## Introduction
 
-Schizophrenia (SCZ) is a mental disorder that affects 0.3-0.7%. It has many symptoms, including delusions and hallucinations. Although many studies have come out studying the transcriptome of patients with this disorder, a clearer picture is needed. This project aims to uncover the transcriptome of Schizophrenia patients, which cell types are associated with this disorder, and review past methods from other papers.
+Schizophrenia (SCZ) is a mental disorder that affects 0.3-0.7%. It has many symptoms, including delusions and hallucinations. Many studies have come out studying the transcriptome of patients with this disorder. According to @merikangas2022genes, "Though there have been more than 300 studies of gene expression in schizophrenia over the past 15 years, none of the studies have yielded consistent evidence for specific genes that contribute to schizophrenia risk." This project aims to determine whether there are consistently differentially expressed genes associated with schizophrenia and if so, which cell types are involved.
 
 ## Methods
 
@@ -42,6 +42,8 @@ The following sub-segments cover the methods employed, as well as the results ob
 The data used is from the @388Brains set of cohorts, with its samples. The raw data of the annotated expression matrices can be found [here](https://brainscope.gersteinlab.org/output-sample-annotated-matrix.html). The raw metadata can be found [here](https://brainscope.gersteinlab.org/integrative_files.html) under the name of PEC2_sample_mapping.xlsx.
 
 An additional cohort, named Batiuk, was included in the study as well [@batiuk]. Its matrices and cell-type annotations can be found [here](https://zenodo.org/records/6921620). Its metadata can be found as a supplementary file in its paper.
+
+The last cohort used, named Ling, was included [@ling2024concerted]. No publicly accessible raw data is linked to this study.
 
 All the samples come from the prefrontal cortex (PFC). These are all the cohorts:
 
@@ -58,8 +60,11 @@ All the samples come from the prefrontal cortex (PFC). These are all the cohorts
 11. UCLA-ASD [@ucla-asd1, @ucla-asd2]
 12. Velmeshev_et_al [@Velmeshev]
 13. Batiuk [@batiuk]
+14. Ling [@ling2024concerted]
 
 However, because no annotated matrices were provided for the ROSMAP cohort, these were filtered out from the metadata.
+
+NOTE: since the Ling cohort's pseudobulks were directly given, the Ling cohort's initial exploratory analysis and quality checks were not checked. Only its DEA results (in sections "Counts per million and log (limma)" and "Counts per million and log with age and sex (limma)") are available.
 
 This is an overview of each cohort:
 
@@ -155,6 +160,8 @@ The number of genes is quite similar across the four cohorts. SZBDMulti-Seq has 
 From @Ruzicka (worked with the CMC and SZBDMulti-Seq cohorts), genes expressed in less than 0.1% cells and cells with fewer than 1000 identified genes were removed. If they had more than 10% unique molecular identifiers in mitochondrial genes or more than 50000 captured UMIs, these were also removed. They also determined outlier cells by checking their total UMI count, percentage of reads mapped to mitochondrial genes, low similarity with other cells, and exploration of 2D projection plots. These were also removed.
 
 From @batiuk (worked with the Batiuk cohort), scrublet scores were determined for each dataset, and only cells with the score below 0.3 were considered for downstream analysis. Subtype-sample combinations with less than 10 cells were filtered out.
+
+rom @ling2024concerted, donors with less than 1000 UMIS were excluded. For each cell type, matrices were scaled to 100000 UMIs per donor and filtered to the top expressing genes. Top expressing genes had at least 10 UMIs per 100000 for at least one donor.
 
 For our purposes, each matrix was first wrangled into six major cell types:
 
@@ -441,7 +448,7 @@ Overall, the lack of differential expression seen made us stay away from this me
 
 A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the limma package. No covariates were added.
 
-@fig-cmclogfcLimmaCPMLog, @fig-batiuklogfcLimmaCPMLog, @fig-mblogfcLimmaCPMLog, and @fig-szbdlogfcLimmaCPMLog show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+@fig-cmclogfcLimmaCPMLog, @fig-batiuklogfcLimmaCPMLog, @fig-mblogfcLimmaCPMLog, @fig-szbdlogfcLimmaCPMLog, and @fig-linglogfcLimmaCPMLog show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
 
 ![Log fold-change histograms of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/LimmaCPMLog/logFCplot_CMC.png){#fig-cmclogfcLimmaCPMLog}
 
@@ -451,7 +458,9 @@ A counts per million normalization was applied, followed by a log transformation
 
 ![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/LimmaCPMLog/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcLimmaCPMLog}
 
-@fig-cmcpvalLimmaCPMLog, @fig-batiukpvalLimmaCPMLog, @fig-mbpvalLimmaCPMLog, and @fig-szbdpvalLimmaCPMLog show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
+![Log fold-change histograms of the Ling cohort after CPMLog normalization.](../results/DEA/Ling/LimmaCPMLog/logFCplot_Ling.png){#fig-linglogfcLimmaCPMLog}
+
+@fig-cmcpvalLimmaCPMLog, @fig-batiukpvalLimmaCPMLog, @fig-mbpvalLimmaCPMLog, @fig-szbdpvalLimmaCPMLog, and @fig-lingpvalLimmaCPMLog show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
 
 ![P-value histograms of the CMC cohort after CPMLog normalization.](../results/DEA/CMC/LimmaCPMLog/pvalueplot_CMC.png){#fig-cmcpvalLimmaCPMLog}
 
@@ -461,7 +470,9 @@ A counts per million normalization was applied, followed by a log transformation
 
 ![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/LimmaCPMLog/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalLimmaCPMLog}
 
-@fig-cmcvolLimmaCPMLog, @fig-batiukvolLimmaCPMLog, @fig-mbvolLimmaCPMLog, and @fig-szbdvolLimmaCPMLog show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. A single DGE was seen in the oligodendrocyte MultiomeBrain group, the microglia SZBDMulti-Seq, and the oligodendrocyte SZBDMulti-Seq group. Two DEGs were found in the excitatory neuron SZBDMulti-Seq group. 
+![P-value histograms of the Ling cohort after CPMLog normalization.](../results/DEA/Ling/LimmaCPMLog/pvalueplot_Ling.png){#fig-lingpvalLimmaCPMLog}
+
+@fig-cmcvolLimmaCPMLog, @fig-batiukvolLimmaCPMLog, @fig-mbvolLimmaCPMLog, @fig-szbdvolLimmaCPMLog, and @fig-lingvolLimmaCPMLog show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. A single DGE was seen in the oligodendrocyte MultiomeBrain group, the microglia SZBDMulti-Seq, and the oligodendrocyte SZBDMulti-Seq group. Two DEGs were found in the excitatory neuron SZBDMulti-Seq group. 
 
 Overall, this method seemed much more promising.
 
@@ -472,6 +483,8 @@ Overall, this method seemed much more promising.
 ![Volcano plots of the MultiomeBrain cohort after CPMLog normalization.](../results/DEA/MultiomeBrain/LimmaCPMLog/volcanoplot_MultiomeBrain.png){#fig-mbvolLimmaCPMLog}
 
 ![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization.](../results/DEA/SZBDMulti-Seq/LimmaCPMLog/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolLimmaCPMLog}
+
+![Volcano plots of the Ling cohort after CPMLog normalization.](../results/DEA/Ling/LimmaCPMLog/volcanoplot_Ling.png){#fig-lingvolLimmaCPMLog}
 
 #### Counts per million and log with age, sex, and cell number (limma)
 
@@ -513,7 +526,7 @@ Overall, this method still seemed promising, but the addition of cell numbers as
 
 A counts per million normalization was applied, followed by a log transformation. The DEA method use was from the limma package. Apart from the disorder group, age and sex were added as covariates.
 
-@fig-cmclogfcLimmaCPMLogAgeSex, @fig-batiuklogfcLimmaCPMLogAgeSex, @fig-mblogfcLimmaCPMLogAgeSex, and @fig-szbdlogfcLimmaCPMLogAgeSex show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
+@fig-cmclogfcLimmaCPMLogAgeSex, @fig-batiuklogfcLimmaCPMLogAgeSex, @fig-mblogfcLimmaCPMLogAgeSex, @fig-szbdlogfcLimmaCPMLogAgeSex, and @fig-linglogfcLimmaCPMLogAgeSex show the histograms of the log fold-changes for each cohort. These follow a normal distribution, centered at 0.
 
 ![Log fold-change histograms of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/LimmaCPMLogAgeSex/logFCplot_CMC.png){#fig-cmclogfcLimmaCPMLogAgeSex}
 
@@ -523,7 +536,9 @@ A counts per million normalization was applied, followed by a log transformation
 
 ![Log fold-change histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/logFCplot_SZBDMulti-Seq.png){#fig-szbdlogfcLimmaCPMLogAgeSex}
 
-@fig-cmcpvalLimmaCPMLogAgeSex, @fig-batiukpvalLimmaCPMLogAgeSex, @fig-mbpvalLimmaCPMLogAgeSex, and @fig-szbdpvalLimmaCPMLogAgeSex show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
+![Log fold-change histograms of the Ling cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Ling/LimmaCPMLogAgeSex/logFCplot_Ling.png){#fig-linglogfcLimmaCPMLogAgeSex}
+
+@fig-cmcpvalLimmaCPMLogAgeSex, @fig-batiukpvalLimmaCPMLogAgeSex, @fig-mbpvalLimmaCPMLogAgeSex, @fig-szbdpvalLimmaCPMLogAgeSex, and @fig-lingpvalLimmaCPMLogAgeSex show the histograms of the raw p-values for each cohort. It appears that for all cohorts, there is no differential expression. The SZBDMulti-Seq cohort is the only one that might have DEGs.
 
 ![P-value histograms of the CMC cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/CMC/LimmaCPMLogAgeSex/pvalueplot_CMC.png){#fig-cmcpvalLimmaCPMLogAgeSex}
 
@@ -533,7 +548,9 @@ A counts per million normalization was applied, followed by a log transformation
 
 ![P-value histograms of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/pvalueplot_SZBDMulti-Seq.png){#fig-szbdpvalLimmaCPMLogAgeSex}
 
-@fig-cmcvolLimmaCPMLogAgeSex, @fig-batiukvolLimmaCPMLogAgeSex, @fig-mbvolLimmaCPMLogAgeSex, and @fig-szbdvolLimmaCPMLogAgeSex show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. Although some group had few DEGs, the SZBDMulti-Seq cohort had a significant number of DEGs in each cell type.
+![P-value histograms of the Ling cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Ling/LimmaCPMLogAgeSex/pvalueplot_Ling.png){#fig-lingpvalLimmaCPMLogAgeSex}
+
+@fig-cmcvolLimmaCPMLogAgeSex, @fig-batiukvolLimmaCPMLogAgeSex, @fig-mbvolLimmaCPMLogAgeSex, @fig-szbdvolLimmaCPMLogAgeSex, and @fig-lingvolLimmaCPMLogAgeSex show the volcano plots of each cohort. A FDR cutoff of 0.05 and a logFC cutoff of 0.5 was used. Although some group had few DEGs, the SZBDMulti-Seq cohort had a significant number of DEGs in each cell type.
 
 Overall, this method still seemed more promising as opposed to the ones seen so far.
 
@@ -544,6 +561,8 @@ Overall, this method still seemed more promising as opposed to the ones seen so 
 ![Volcano plots of the MultiomeBrain cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/volcanoplot_MultiomeBrain.png){#fig-mbvolLimmaCPMLogAgeSex}
 
 ![Volcano plots of the SZBDMulti-Seq cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/volcanoplot_SZBDMulti-Seq.png){#fig-szbdvolLimmaCPMLogAgeSex}
+
+![Volcano plots of the Ling cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Ling/LimmaCPMLogAgeSex/volcanoplot_Ling.png){#fig-lingvolLimmaCPMLogAgeSex}
 
 ### DEA on Batiuk subtypes
 
@@ -597,7 +616,6 @@ To replicate the @Ruzicka results, a meta-analysis was performed. The DEA method
 ![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/volcanoplot_ruzicka.png){#fig-volmetaruzi}
 
 ## Results
-
-
+Overall, differentially expressed genes were detected in the Batiuk subtypes, the Ruzicka metaanalysis, and in the SZBDMulti-Seq cohorts. However, due to lack of consistency in these genes, it is hard to determine whether these genes are biologically significant.
 
 ## References
