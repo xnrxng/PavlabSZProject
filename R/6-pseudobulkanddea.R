@@ -399,10 +399,15 @@ main <- function() {
       cell_meta$age <- as.numeric(cell_meta$age)
       cell_meta$sex <- as.factor(cell_meta$sex)
 
+      cell_type_path <- paste0("data/data_processed/CMC/FilteredV1/", celltype, "_CMC_SZ.rds")
+      cell_type_genes <- readRDS(cell_type_path)
+      cell_type_genes_CMC <- rownames(cell_type_genes$expr)
+
       expr_path <- paste0("data/data_processed/Ling/PseudobulkRaw/", celltype, "_ling-2024_expr.csv")
       cell_expr <- read_csv(expr_path) |> as.data.frame()
       rownames(cell_expr) <- cell_expr$gene_names
       cell_expr <- cell_expr[, -1]
+      cell_expr <- cell_expr[rownames(cell_expr) %in% cell_type_genes_CMC, ]
       cell_expr <- as.matrix(cell_expr)
       cell_expr <- Matrix(cell_expr, sparse = TRUE)
 
