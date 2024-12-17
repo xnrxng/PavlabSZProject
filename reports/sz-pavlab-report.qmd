@@ -194,6 +194,8 @@ cells_genes_filtered <- readRDS("../results/5.3-n_genes_cells.rds")
 knitr::kable(cells_genes_filtered)
 ```
 
+Based on the cell counts, patient 2677 from the MultiomeBrain cohort was deemed to be an outlier (extremely high number of excitatory neurons) and hence, was removed from the expression matrices.
+
 ### Quality checks
 
 The next thing that was looked into was the number of cells per cell-type per patient. In @fig-celltypedistribution, we can see that excitatory neurons have the highest frequency, especially by the SZBDMulti-Seq cohort. This is followed by oligodendrocytes. Microglia and oligodendrocyte progenitor cells have the lowest frequencies.
@@ -564,9 +566,11 @@ Overall, this method still seemed more promising as opposed to the ones seen so 
 
 ![Volcano plots of the Ling cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Ling/LimmaCPMLogAgeSex/volcanoplot_Ling.png){#fig-lingvolLimmaCPMLogAgeSex}
 
-### DEA on Batiuk subtypes
+### DEA on subtypes
 
-As there was a lack of DEGs detected (with the SZBDMulti-Seq cohort as an exception), the results from the @batiuk paper were replicated. As they performed DEA on neuronal subtypes, the same was done. Note that genes that were not expressed at all were removed.
+As there was a lack of DEGs detected (with the SZBDMulti-Seq cohort as an exception), DEA was performed on neuronal subtypes. Note that genes that were not expressed at all were removed.
+
+#### Batiuk subtypes
 
 The first DEA method performed on the neuronal subtypes was a CPM normalization, followed by a log transformation. DEA was performed with the limma package. @fig-batiukexclogfc shows the log fold change histograms of the excitatory neuronal subtypes, all following a normal distribution and centered at 0. @fig-batiukexcpval shows the p-value histograms of the excitatory neuronal subtypes, although it does not appear to have much differential expression. And confirmed in @fig-batiukexcvol, no DEGs are detected. A logFC cutoff of 0.1 and a FDR cutoff of 0.05 were set.
 
@@ -602,6 +606,9 @@ The next DEA method was the same, with just the addition of age and sex as covar
 
 However, when compared to the paper, it appears that none of these DEGs were found in @batiuk. Note that the authors did not provide a table with all DEGs and as such, the DEGs they discovered was based on the volcano plots they provided in the supplemenary files. This could have led to some genes being missed in the comparison of the results.
 
+#### CMC subtypes
+
+
 ### CMC & SZBDMulti-Seq MetaAnalysis
 
 To replicate the @Ruzicka results, a meta-analysis was performed. The DEA method used was CPMLog normalization with age and sex as covariates, with the limma package.
@@ -614,6 +621,8 @@ To replicate the @Ruzicka results, a meta-analysis was performed. The DEA method
 ![P-value histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/pvalplot_ruzicka.png){#fig-pvalmetaruzi}
 
 ![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/volcanoplot_ruzicka.png){#fig-volmetaruzi}
+
+4682 genes were marked as DEGs according to this threshold. The DEGs found in Ruzicka were 386. 196 of the DEGs found overlapped.
 
 ## Results
 Overall, differentially expressed genes were detected in the Batiuk subtypes, the Ruzicka metaanalysis, and in the SZBDMulti-Seq cohorts. However, due to lack of consistency in these genes, it is hard to determine whether these genes are biologically significant.

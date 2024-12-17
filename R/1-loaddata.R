@@ -87,6 +87,20 @@ main <- function() {
   generate_bycelltype("inhibitory", common_genes_SZBD, "SZBDMulti-Seq", SZBD_list)
   generate_bycelltype("inhibitory", common_genes_CMC, "CMC", CMC_list)
 
+  excitatory_cell_types <- c("L2/3 IT", "L4 IT", "L5 IT", "L6 IT", "L6 CT",
+                             "L6 IT Car3", "L5 ET", "L5/6 NP", "L6b")
+
+  inhibitory_cell_types <- c("Sst", "Sst Chodl", "Pvalb", "Chandelier", "Pax6",
+                             "Lamp5 Lhx6", "Lamp5", "Sncg", "Vip")
+
+  all_subtypes <-c(excitatory_cell_types, inhibitory_cell_types)
+
+  for (subtype in all_subtypes){
+    generate_by_subtype(subtype, "CMC", CMC_list)
+    generate_by_subtype(subtype, "SZBDMulti-Seq", SZBD_list)
+    generate_by_subtype(subtype, "MultiomeBrain", MB_list)
+  }
+
 
   ### filter each matrix as well as cpm log them
   savefiltered("CMC")
@@ -168,6 +182,16 @@ main <- function() {
   saveRDS(oli_filt$szbd, "data/data_processed/SZBDMulti-Seq/FilteredV1/Oli_SZBDMulti-Seq_SZ.rds")
   saveRDS(oli_filt$mb, "data/data_processed/MultiomeBrain/FilteredV1/Oli_MultiomeBrain_SZ.rds")
 
+
+  subtypes_safe <- gsub("[ /]", "_", all_subtypes)
+  for (subtype in subtypes_safe){
+    filt_mat <- create_filteredV1(subtype)
+    saveRDS(filt_mat$cmc, paste0("data/data_processed/CMC/FilteredV1/", subtype, "_CMC_SZ.rds"))
+    saveRDS(filt_mat$szbd, paste0("data/data_processed/SZBDMulti-Seq/FilteredV1/", subtype, "_SZBDMulti-Seq_SZ.rds"))
+    saveRDS(filt_mat$mb, paste0("data/data_processed/MultiomeBrain/FilteredV1/", subtype, "_MultiomeBrain_SZ.rds"))
+    gc()
+  }
+
   gli_raw <- readRDS("data/data_processed/Batiuk/0.Raw/Gli_Batiuk_SZ.rds")
   gli_raw$expr <- cleanCtmat(gli_raw$expr)
   gli_raw$meta <- gli_raw$meta[rownames(gli_raw$meta) %in% colnames(gli_raw$expr), ]
@@ -196,6 +220,25 @@ main <- function() {
 
     final_path <- paste0("data/data_processed/Batiuk/Inhibitory/FilteredV1/", inhibitory, "_Batiuk_SZ.rds")
     saveRDS(final_list, final_path)
+  }
+
+  ### remove 2677 multiomebrain
+  cell_types <- c("Exc", "Inh", "Mic", "Oli", "Opc", "Ast")
+
+  for (celltype in cell_types){
+    full_path <- paste0("data/data_processed/MultiomeBrain/FilteredV1/Scrapped/", celltype, "_MultiomeBrain_SZ.rds")
+
+    full_list <- readRDS(full_path)
+
+    new_meta <- full_list$meta |>
+      filter(patientID != "2677")
+
+    new_expr <- full_list$expr[, colnames(full_list$expr) %in% rownames(new_meta)]
+
+    new_list <- list(expr = new_expr, meta = new_meta)
+
+    final_path <- paste0("data/data_processed/MultiomeBrain/FilteredV1/", celltype, "_MultiomeBrain_SZ.rds")
+    saveRDS(new_list, final_path)
   }
 }
 
@@ -270,6 +313,65 @@ generate_bycelltype <- function(cell_type, common_genes, cohort, sample_list) {
   output_path <- paste0("data/data_processed/", cohort, "/0.Raw/", capitalize_first_three(cell_type), "_", cohort, "_SZ.rds")
   saveRDS(finalRDSfile, output_path)
   return(finalRDSfile)
+}
+
+generate_by_subtype <- function(cell_type, cohort, sample_list) {
+  final_list <- list()
+  metadata <- list()
+  safe_cell_type <- gsub("[ /]", "_", cell_type)
+
+  for (sample in sample_list) {
+    sample_file <- paste0("data/data_raw/", cohort, "/", sample, "-annotated_matrix.txt")
+    sample_data <- fread(sample_file, header = TRUE, sep = "\t", data.table = FALSE)
+    rownames(sample_data) <- sample_data[, 1]
+    sample_data <- sample_data[, -1]
+    colnames(sample_data) <- gsub("\\..*", "", colnames(sample_data))
+
+    individual_metadata <- clean_metadata[clean_metadata$Individual_ID == sample, ]
+
+    cell_counter <- 1
+
+    for (col_idx in seq_along(colnames(sample_data))){
+      column <- colnames(sample_data)[col_idx]
+
+      if (column == cell_type) {
+        new_column_name <- paste0(cohort, "_" , sample, "_", safe_cell_type, cell_counter)
+      } else {
+        next
+      }
+      cell_counter <- cell_counter + 1
+      final_list[[new_column_name]] <- sample_data[, col_idx]
+
+      metadata[[length(metadata) + 1]] <- data.frame(
+        cell_ID = new_column_name,
+        cohort = individual_metadata$Cohort,
+        patientID = individual_metadata$Individual_ID,
+        sex = individual_metadata$Biological_Sex,
+        age = individual_metadata$Age_death,
+        disorder = individual_metadata$Disorder,
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+  common_genes <- rownames(sample_data)
+
+  metadata <- do.call(rbind, metadata)
+  metadata <- metadata |>
+    mutate(disorder = ifelse(disorder == "Schizophrenia", "yes", "no"))
+  rownames(metadata) <- metadata[, 1]
+  metadata <- metadata[, -1]
+
+  final_dataframe <- as.data.frame(final_list, check.names = FALSE)
+  rownames(final_dataframe) <- common_genes
+  final_matrix <- as.matrix(final_dataframe)
+  final_dgCmatrix <- as(final_matrix, "dgCMatrix")
+  finalRDSfile <- list(meta = metadata, expr = final_dgCmatrix)
+
+
+  output_path <- paste0("data/data_processed/", cohort, "/0.Raw/", safe_cell_type, "_", cohort, "_SZ.rds")
+
+  saveRDS(finalRDSfile, output_path)
+  return(NULL)
 }
 
 generate_genes <- function(cohort, sample_list) {
@@ -409,6 +511,7 @@ batiuk_cell_types <- function(celltype, sample_list, metadata, cell_IDs) {
 }
 
 create_filteredV1 <- function(cell_type) {
+
   batiuk_path <- paste0("data/data_processed/Batiuk/0.Raw/", cell_type, "_Batiuk_SZ.rds")
   cmc_path <- paste0("data/data_processed/CMC/0.Raw/", cell_type, "_CMC_SZ.rds")
   szbd_path <- paste0("data/data_processed/SZBDMulti-Seq/0.Raw/", cell_type, "_SZBDMulti-Seq_SZ.rds")
@@ -455,7 +558,7 @@ create_filteredV1 <- function(cell_type) {
   }
 
   string_counts <- table(all_genes)
-  filtered_genes <- all_genes[all_genes %in% names(string_counts[string_counts >= 3])]
+  filtered_genes <- all_genes[all_genes %in% names(string_counts[string_counts >= 2])]
   filtered_genes <- unique(filtered_genes)
 
   for (name in names(all_data)){

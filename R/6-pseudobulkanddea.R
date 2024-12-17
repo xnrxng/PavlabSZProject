@@ -424,6 +424,40 @@ main <- function() {
       saveRDS(resultsagesex, agesexpath)
     }
 
+  ### subtypes
+  excitatory_cell_types <- c("L2/3 IT", "L4 IT", "L5 IT", "L6 IT", "L6 CT",
+                             "L6 IT Car3", "L5 ET", "L5/6 NP", "L6b")
+
+  inhibitory_cell_types <- c("Sst", "Sst Chodl", "Pvalb", "Chandelier", "Pax6",
+                             "Lamp5 Lhx6", "Lamp5", "Sncg", "Vip")
+
+  all_subtypes <-c(excitatory_cell_types, inhibitory_cell_types)
+  subtypes_safe <- gsub("[ /]", "_", all_subtypes)
+  for (cohort in cohort_list){
+    for (subtype in subtypes_safe){
+      full_path <- paste0("data/data_processed/", cohort, "/FilteredV1/", subtype, "_", cohort, "_SZ.rds")
+
+      if (!file.exists(full_path)) {
+        message("File ", full_path, " does not exist. Skipping to next.")
+        next
+      }
+      unfiltered <- readRDS(full_path)
+      pseudobulked <- create_pseudo_bulk(unfiltered$expr, unfiltered$meta)
+      final_path <- paste0("data/data_processed/", cohort, "/Pseudobulk/PseudobulkRaw/", subtype, "_", cohort, "_SZ.rds")
+      saveRDS(pseudobulked, final_path)
+
+      pseudobulked$meta$age <- gsub("\\+", "", pseudobulked$meta$age)
+      pseudobulked$meta$age <- as.numeric(pseudobulked$meta$age)
+      pseudobulked$meta$sex <- as.factor(pseudobulked$meta$sex)
+
+      design_agesex = model.matrix(~ group + age + sex, data = pseudobulked$meta)
+      dea_res_age_sex <- limma_dge(PB = pseudobulked, design = design_agesex)
+      dea_path_age_sex <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      saveRDS(dea_res_age_sex, dea_path_age_sex)
+    }
+
+  }
+
 }
 
 ### helper functions

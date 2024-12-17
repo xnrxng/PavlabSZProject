@@ -676,6 +676,75 @@ main <- function(){
     cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
   }
 
+  excitatory_cell_types <- c("L2/3 IT", "L4 IT", "L5 IT", "L6 IT", "L6 CT",
+                             "L6 IT Car3", "L5 ET", "L5/6 NP", "L6b")
+
+  inhibitory_cell_types <- c("Sst", "Sst Chodl", "Pvalb", "Chandelier", "Pax6",
+                             "Lamp5 Lhx6", "Lamp5", "Sncg", "Vip")
+
+  excitatory_safe <- gsub("[ /]", "_", excitatory_cell_types)
+  inhibitory_safe <- gsub("[ /]", "_", inhibitory_cell_types)
+
+  cohort_list <- c("CMC", "SZBDMulti-Seq", "MultiomeBrain")
+
+  plot_list <- list()
+  for (cohort in cohort_list){
+    for (subtype in excitatory_safe){
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = P.Value)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = subtype,
+          x = "P-value",
+          y = NULL
+        )
+
+      plot_list[[subtype]] <- res_his}
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age, Sex, and Cell number (Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/excitatory_pvalueplot_", cohort, ".png")
+    cowplot::save_plot(plot = all_plots_with_title, filename = final_path, base_height = 10)
+  }
+
+  plot_list <- list()
+  for (cohort in cohort_list){
+    for (subtype in inhibitory_safe){
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = P.Value)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = subtype,
+          x = "P-value",
+          y = NULL
+        )
+
+      plot_list[[subtype]] <- res_his}
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age, Sex, and Cell number (Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/inhibitory_pvalueplot_", cohort, ".png")
+    cowplot::save_plot(plot = all_plots_with_title, filename = final_path, base_height = 10)
+  }
+
   ###create hists for logFC
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -1380,6 +1449,68 @@ main <- function(){
     final_path <- paste0("results/DEA/Ling/", method, "/logFCplot_Ling.png")
     cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
   }
+
+
+  cohort_list <- c("CMC", "SZBDMulti-Seq", "MultiomeBrain")
+
+  plot_list <- list()
+  for (cohort in cohort_list){
+    for (subtype in excitatory_safe){
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = groupdisorderyes)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = subtype,
+          x = "logFC",
+          y = NULL
+        )
+
+      plot_list[[subtype]] <- res_his}
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age, Sex, and Cell number (Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/excitatory_logFCplot_", cohort, ".png")
+    cowplot::save_plot(plot = all_plots_with_title, filename = final_path, base_height = 10)
+  }
+
+  plot_list <- list()
+  for (cohort in cohort_list){
+    for (subtype in inhibitory_safe){
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = groupdisorderyes)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = subtype,
+          x = "logFC",
+          y = NULL
+        )
+
+      plot_list[[subtype]] <- res_his}
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age, Sex, and Cell number (Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/inhibitory_logFCplot_", cohort, ".png")
+    cowplot::save_plot(plot = all_plots_with_title, filename = final_path, base_height = 10)
+  }
+
   ### create enhanced volcano plots
 
   method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex", "LimmaCPMLogAgeSexCell")
@@ -1610,6 +1741,55 @@ main <- function(){
     all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
     final_path <- paste0("results/DEA/Ling/", method, "/volcanoplot_Ling.png")
     ggsave(all_plots_with_title, filename = final_path, width = 12, height = 9)
+  }
+
+
+  cohort_list <- c("CMC", "SZBDMulti-Seq", "MultiomeBrain")
+
+  plot_list <- list()
+  for (cohort in cohort_list){
+    for (subtype in excitatory_safe){
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_volcano <- EnhancedVolcano(results, lab = rownames(results),
+                                     x = 'groupdisorderyes', y = 'adj.P.Val', title = subtype, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                     axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
+
+      plot_list[[subtype]] <- res_volcano}
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age, Sex, and Cell number (Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/excitatory_volcanoplot_", cohort, ".png")
+    ggsave(all_plots_with_title, filename = final_path, width = 10, height = 12)
+  }
+
+  plot_list <- list()
+  for (cohort in cohort_list){
+    for (subtype in inhibitory_safe){
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/DEAresults_", subtype, "_", cohort, "_SZ.rds")
+      results <- readRDS(res_path)
+
+      res_volcano <- EnhancedVolcano(results, lab = rownames(results),
+                                     x = 'groupdisorderyes', y = 'adj.P.Val', title = subtype, subtitle = NULL, FCcutoff = 0.5, pCutoff = 0.05, legendPosition = "none", caption = NULL,
+                                     axisLabSize = 10, titleLabSize = 10, labSize = 3, pointSize = 1, ylim = c(0, max(-log10(results$adj.P.Val))+1))
+
+      plot_list[[subtype]] <- res_volcano}
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age, Sex, and Cell number (Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+    all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+    final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/inhibitory_volcanoplot_", cohort, ".png")
+    ggsave(all_plots_with_title, filename = final_path, width = 10, height = 12)
   }
 
 }
