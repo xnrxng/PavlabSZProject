@@ -566,6 +566,8 @@ Overall, this method still seemed more promising as opposed to the ones seen so 
 
 ![Volcano plots of the Ling cohort after CPMLog normalization, with covariates age and sex.](../results/DEA/Ling/LimmaCPMLogAgeSex/volcanoplot_Ling.png){#fig-lingvolLimmaCPMLogAgeSex}
 
+Note that the only cohort where DEGs were seen was in the SZBDMulti-Seq cohort. With the same thresholds, @Ruzicka found 3 DEGs in this cohort. We found 218 and they overlap.@Ruzicka also found 0 DEGs for the CMC cohort.
+
 ### DEA on subtypes
 
 As there was a lack of DEGs detected (with the SZBDMulti-Seq cohort as an exception), DEA was performed on neuronal subtypes. Note that genes that were not expressed at all were removed.
@@ -608,10 +610,67 @@ However, when compared to the paper, it appears that none of these DEGs were fou
 
 #### CMC subtypes
 
+The DEA method was a CPMLog normalization with age and sex as covariates, with the limma package. @fig-cmcexclogfc shows the log fold change histograms of the excitatory neuronal subtypes, all following a normal distribution and centered at 0. @fig-cmcexcpval shows the p-value histograms of the excitatory neuronal subtypes. It appears that all subtypes have differential expression, with the exception of the L6 IT Car3, L5/6 NP, and L6b subtypes. In @fig-cmcexcvol, some DEGs were seen. A logFC cutoff of 0.5 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the CMC's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/CMC/LimmaCPMLogAgeSex/excitatory_logFCplot_CMC.png){#fig-cmcexclogfc}
+
+![P-value histograms of the CMC's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/CMC/LimmaCPMLogAgeSex/excitatory_pvalueplot_CMC.png){#fig-cmcexcpval}
+
+![Volcano plots of the CMC's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/CMC/LimmaCPMLogAgeSex/excitatory_volcanoplot_CMC.png){#fig-cmcexcvol}
+
+@fig-cmcinhlogfc shows the log fold change histograms of the inhibitory neuronal subtypes, all following a normal distribution and centered at 0. @fig-cmcinhpval shows the p-value histograms of the inhibitory neuronal subtypes. It appears that only the Sncg subtype might have differential expression. In @fig-cmcinhvol, some DEGs were seen. A logFC cutoff of 0.5 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the CMC's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/CMC/LimmaCPMLogAgeSex/inhibitory_logFCplot_CMC.png){#fig-cmcinhlogfc}
+
+![P-value histograms of the CMC's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/CMC/LimmaCPMLogAgeSex/inhibitory_pvalueplot_CMC.png){#fig-cmcinhpval}
+
+![Volcano plots of the CMC's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/CMC/LimmaCPMLogAgeSex/inhibitory_volcanoplot_CMC.png){#fig-cmcinhvol}
+
+When compared to the paper, @Ruzicka found no DEGs for this cohort with the set thresholds. We found 90 DEGs.
+
+#### SZBDMulti-Seq subtypes
+
+The DEA method was a CPMLog normalization with age and sex as covariates, with the limma package. @fig-SZBDMulti-Seqexclogfc shows the log fold change histograms of the excitatory neuronal subtypes, all following a normal distribution and centered at 0. @fig-SZBDMulti-Seqexcpval shows the p-value histograms of the excitatory neuronal subtypes. It appears that all subtypes have differential expression. In @fig-SZBDMulti-Seqexcvol, many DEGs were seen. A logFC cutoff of 0.5 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the SZBDMulti-Seq's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/excitatory_logFCplot_SZBDMulti-Seq.png){#fig-SZBDMulti-Seqexclogfc}
+
+![P-value histograms of the SZBDMulti-Seq's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/excitatory_pvalueplot_SZBDMulti-Seq.png){#fig-SZBDMulti-Seqexcpval}
+
+![Volcano plots of the SZBDMulti-Seq's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/excitatory_volcanoplot_SZBDMulti-Seq.png){#fig-SZBDMulti-Seqexcvol}
+
+@fig-SZBDMulti-Seqinhlogfc shows the log fold change histograms of the inhibitory neuronal subtypes, all following a normal distribution and centered at 0. @fig-SZBDMulti-Seqinhpval shows the p-value histograms of the inhibitory neuronal subtypes. It appears that the Sst Chodl and the Pax6 subtypes might not have differential expression. In @fig-SZBDMulti-Seqinhvol, some DEGs were seen. A logFC cutoff of 0.5 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the SZBDMulti-Seq's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/inhibitory_logFCplot_SZBDMulti-Seq.png){#fig-SZBDMulti-Seqinhlogfc}
+
+![P-value histograms of the SZBDMulti-Seq's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/inhibitory_pvalueplot_SZBDMulti-Seq.png){#fig-SZBDMulti-Seqinhpval}
+
+![Volcano plots of the SZBDMulti-Seq's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/SZBDMulti-Seq/LimmaCPMLogAgeSex/inhibitory_volcanoplot_SZBDMulti-Seq.png){#fig-SZBDMulti-Seqinhvol}
+
+When compared to the paper, @Ruzicka found 3 DEGs for this cohort with the set thresholds. We found 461 DEGs. These 3 DEGs overlap with our results.
+
+#### MultiomeBrain subtypes
+
+The DEA method was a CPMLog normalization with age and sex as covariates, with the limma package. @fig-MultiomeBrainexclogfc shows the log fold change histograms of the excitatory neuronal subtypes, all following a normal distribution and centered at 0. @fig-MultiomeBrainexcpval shows the p-value histograms of the excitatory neuronal subtypes. In @fig-MultiomeBrainexcvol, many DEGs were seen. A logFC cutoff of 0.5 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the MultiomeBrain's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/excitatory_logFCplot_MultiomeBrain.png){#fig-MultiomeBrainexclogfc}
+
+![P-value histograms of the MultiomeBrain's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/excitatory_pvalueplot_MultiomeBrain.png){#fig-MultiomeBrainexcpval}
+
+![Volcano plots of the MultiomeBrain's excitatory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/excitatory_volcanoplot_MultiomeBrain.png){#fig-MultiomeBrainexcvol}
+
+@fig-MultiomeBraininhlogfc shows the log fold change histograms of the inhibitory neuronal subtypes, all following a normal distribution and centered at 0. @fig-MultiomeBraininhpval shows the p-value histograms of the inhibitory neuronal subtypes. In @fig-MultiomeBraininhvol, many DEGs were seen. A logFC cutoff of 0.5 and a FDR cutoff of 0.05 were set.
+
+![Log fold-change histograms of the MultiomeBrain's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/inhibitory_logFCplot_MultiomeBrain.png){#fig-MultiomeBraininhlogfc}
+
+![P-value histograms of the MultiomeBrain's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/inhibitory_pvalueplot_MultiomeBrain.png){#fig-MultiomeBraininhpval}
+
+![Volcano plots of the MultiomeBrain's inhibitory subtypes, after CPMLog normalization with age and sex covariates.](../results/DEA/MultiomeBrain/LimmaCPMLogAgeSex/inhibitory_volcanoplot_MultiomeBrain.png){#fig-MultiomeBraininhvol}
 
 ### CMC & SZBDMulti-Seq MetaAnalysis
 
 To replicate the @Ruzicka results, a meta-analysis was performed. The DEA method used was CPMLog normalization with age and sex as covariates, with the limma package.
+
+#### MetaAnalysis on the major cell types
 
 @fig-logfcmetaruzi shows the logFC histograms of the metaanalysis, where they all follow a normal distribution and are centered at 0. @fig-pvalmetaruzi shows the p-value histograms of the metaanalysis, where it appears that all cell types have differential expression. This is confirmed in @fig-volmetaruzi, where we see a high number of DEGs in each cell type. A logFC cutoff of 0.1 and an FDR cutoff of 0.05 were set.
 
@@ -620,11 +679,33 @@ To replicate the @Ruzicka results, a meta-analysis was performed. The DEA method
 
 ![P-value histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/pvalplot_ruzicka.png){#fig-pvalmetaruzi}
 
-![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/volcanoplot_ruzicka.png){#fig-volmetaruzi}
+![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaMetaanalysis/volcanoplot_ruzickaglobal.png){#fig-volmetaruzi}
 
-4682 genes were marked as DEGs according to this threshold. The DEGs found in Ruzicka were 386. 196 of the DEGs found overlapped.
+4697 genes were marked as DEGs according to this threshold. The DEGs found in Ruzicka were 386. 199 of the DEGs found overlapped.
+
+#### MetaAnalysis on the neuronal subtypes
+
+For the excitatory subtypes, @fig-logfcruzisubexc shows the logFC histograms of the metaanalysis, where they all follow a normal distribution and are centered at 0. @fig-pvalruzisubexc shows the p-value histograms of the metaanalysis, where it appears that all cell types have differential expression. This is confirmed in @fig-volruzisubexc, where we see a high number of DEGs in each cell type. A logFC cutoff of 0.1 and an FDR cutoff of 0.05 were set.
+
+
+![Log fold-change histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaSubtypes/excitatory_logFCplot_ruzicka.png){#fig-logfcruzisubexc}
+
+![P-value histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaSubtypes/excitatory_pvalplot_ruzicka.png){#fig-pvalruzisubexc}
+
+![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaSubtypes/excitatory_volcanoplot_ruzickaglobal.png){#fig-volruzisubexc}
+
+For the inhibitory subtypes, @fig-logfcruzisubinh shows the logFC histograms of the metaanalysis, where they all follow a normal distribution and are centered at 0. @fig-pvalruzisubinh shows the p-value histograms of the metaanalysis, where it appears that all cell types have differential expression. This is confirmed in @fig-volruzisubinh, where we see a high number of DEGs in each cell type. A logFC cutoff of 0.1 and an FDR cutoff of 0.05 were set.
+
+
+![Log fold-change histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaSubtypes/inhibitory_logFCplot_ruzicka.png){#fig-logfcruzisubinh}
+
+![P-value histograms of the Ruzicka meta-analysis.](../results/DEA/RuzickaSubtypes/inhibitory_pvalplot_ruzicka.png){#fig-pvalruzisubinh}
+
+![Volcano plots of the Ruzicka meta-analysis.](../results/DEA/RuzickaSubtypes/inhibitory_volcanoplot_ruzickaglobal.png){#fig-volruzisubinh}
+
+1197 genes were marked as DEGs according to this threshold. The DEGs found in Ruzicka were 386. 328 of the DEGs found overlapped.
 
 ## Results
-Overall, differentially expressed genes were detected in the Batiuk subtypes, the Ruzicka metaanalysis, and in the SZBDMulti-Seq cohorts. However, due to lack of consistency in these genes, it is hard to determine whether these genes are biologically significant.
+Overall, differentially expressed genes were detected in the subtypes, the Ruzicka metaanalysis, and in the SZBDMulti-Seq cohorts. However, due to lack of consistency in these genes, it is hard to determine whether these genes are biologically significant.
 
 ## References
