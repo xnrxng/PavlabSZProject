@@ -424,6 +424,326 @@ main <- function() {
       saveRDS(resultsagesex, agesexpath)
     }
 
+  ### nairuz microglia
+  all_meta <- fread("/cosmos/data/project-data/NW-rewiring/data/2.prcsd-slcGenes-cpm/intrsct-lessStringent/all-patient-metaData-updated.csv")
+  studies <- unique(all_meta$study)
+  studies <- studies[studies != "ROSMAP-microGlia"]
+
+  for (study in studies){
+    meta_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/Mic_", study, "_meta.csv")
+    cell_meta <- read_csv(meta_path) |> as.data.frame()  |> na.omit()
+    rownames(cell_meta) <- cell_meta$patientID
+    cell_meta$diagnosis <- as.factor(cell_meta$diagnosis)
+    cell_meta$diagnosis <- relevel(cell_meta$diagnosis, ref = "no")
+    #cell_meta$age <- as.numeric(cell_meta$age)
+    #cell_meta$sex <- as.factor(cell_meta$sex)
+
+    expr_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/Mic_", study, "_expr.csv")
+    cell_expr <- read_csv(expr_path) |> as.data.frame()
+    rownames(cell_expr) <- cell_expr[,1]
+    cell_expr <- cell_expr[, -1]
+    cell_expr <- as.matrix(cell_expr)
+    cell_expr <- Matrix(cell_expr, sparse = TRUE)
+
+    if (length(colnames(cell_expr)) > length(rownames(cell_meta))) {
+      cell_expr <- cell_expr[, colnames(cell_expr) %in% rownames(cell_meta)]
+    }
+
+    if (length(colnames(cell_expr)) < length(rownames(cell_meta))) {
+      cell_meta <- cell_meta[rownames(cell_meta) %in% colnames(cell_expr), ]
+    }
+
+    PB <- list(expr = cell_expr, meta = cell_meta)
+
+    design <- model.matrix(~ diagnosis, data = PB$meta)
+    results <- limma_dge(design = design, PB = PB)
+    micpath <- paste0("/space/scratch/rui_sz_project/PavlabSZProject/data/data_processed/nairuz-microglia/DEA/DEAres_Mic_", study, ".rds")
+    saveRDS(results, micpath)
+  }
+
+  all_res <- list()
+  for (study in studies){
+    micpath <- paste0("/space/scratch/rui_sz_project/PavlabSZProject/data/data_processed/nairuz-microglia/DEA/DEAres_Mic_", study, ".rds")
+    deares <- readRDS(micpath)
+    all_res[[study]] <- deares
+  }
+
+  saveRDS(all_res, "data/data_processed/nairuz-microglia/DEA/all_res.rds")
+
+  ### DGE for SCZ
+  all_meta <- fread("/cosmos/data/project-data/NW-rewiring/data/2.prcsd-slcGenes-cpm/intrsct-lessStringent/all-patient-metaData-updated.csv")
+  studies <- unique(all_meta$study)
+  studies <- studies[studies != "ROSMAP-microGlia"]
+  cell_types <- c("Ast", "Mic", "Opc", "Oli", "Exc", "Inh")
+
+  for (study in studies){
+    for (cell_type in cell_types){
+    meta_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_meta.csv")
+
+    if (!file.exists(meta_path)) {
+      message("Skipping: Meta file not found - ", meta_path)
+      next
+    }
+
+    cell_meta <- read_csv(meta_path) |> as.data.frame()  |> na.omit()
+    cell_meta <- cell_meta |> filter(disease == "CTL" | disease == "SCZ")
+    rownames(cell_meta) <- cell_meta$patientID
+    cell_meta$diagnosis <- as.factor(cell_meta$diagnosis)
+    cell_meta$diagnosis <- relevel(cell_meta$diagnosis, ref = "no")
+    #cell_meta$age <- as.numeric(cell_meta$age)
+    #cell_meta$sex <- as.factor(cell_meta$sex)
+
+    if (nlevels(cell_meta$diagnosis) == 1) next
+
+    expr_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_expr.csv")
+
+    if (!file.exists(expr_path)) {
+      message("Skipping: Expression file not found - ", expr_path)
+      next
+    }
+
+    cell_expr <- read_csv(expr_path) |> as.data.frame()
+    rownames(cell_expr) <- cell_expr[,1]
+    cell_expr <- cell_expr[, -1]
+    cell_expr <- as.matrix(cell_expr)
+    cell_expr <- Matrix(cell_expr, sparse = TRUE)
+
+    if (length(colnames(cell_expr)) > length(rownames(cell_meta))) {
+      cell_expr <- cell_expr[, colnames(cell_expr) %in% rownames(cell_meta)]
+    }
+
+    if (length(colnames(cell_expr)) < length(rownames(cell_meta))) {
+      cell_meta <- cell_meta[rownames(cell_meta) %in% colnames(cell_expr), ]
+    }
+
+    cell_meta <- cell_meta[colnames(cell_expr), , drop = FALSE]
+
+    PB <- list(expr = cell_expr, meta = cell_meta)
+
+    design <- model.matrix(~ diagnosis, data = PB$meta)
+    results <- limma_dge(design = design, PB = PB)
+    respath <- paste0("/space/scratch/rui_sz_project/PavlabSZProject/results/DEA/SCZ_18/", cell_type, "_", study, ".rds")
+    saveRDS(results, respath)
+    gc()
+  }}
+
+  all_res <- list()
+  for (study in studies){
+    for (cell_type in cell_types){
+    sczpath <- paste0("/space/scratch/rui_sz_project/PavlabSZProject/results/DEA/SCZ_18/", cell_type, "_", study, ".rds")
+
+    if (!file.exists(sczpath)) {
+      message("Skipping: File not found - ", sczpath)
+      next
+    }
+
+    deares <- readRDS(sczpath)
+    if (!is.list(all_res[[study]])) {
+      all_res[[study]] <- list()
+    }
+
+    all_res[[study]][[cell_type]] <- deares
+  }}
+
+  saveRDS(all_res, "results/DEA/SCZ_18/all_res.rds")
+
+  ### DGE for AD
+  all_meta <- fread("/cosmos/data/project-data/NW-rewiring/data/2.prcsd-slcGenes-cpm/intrsct-lessStringent/all-patient-metaData-updated.csv")
+  studies <- unique(all_meta$study)
+  studies <- studies[studies != "ROSMAP-microGlia"]
+  cell_types <- c("Ast", "Mic", "Opc", "Oli", "Exc", "Inh")
+
+  for (study in studies){
+    for (cell_type in cell_types){
+      meta_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_meta.csv")
+
+      if (!file.exists(meta_path)) {
+        message("Skipping: Meta file not found - ", meta_path)
+        next
+      }
+
+      cell_meta <- read_csv(meta_path) |> as.data.frame()  |> na.omit()
+      cell_meta <- cell_meta |> filter(disease == "CTL" | disease == "AD")
+      rownames(cell_meta) <- cell_meta$patientID
+      cell_meta$diagnosis <- as.factor(cell_meta$diagnosis)
+      cell_meta$diagnosis <- relevel(cell_meta$diagnosis, ref = "no")
+      #cell_meta$age <- as.numeric(cell_meta$age)
+      #cell_meta$sex <- as.factor(cell_meta$sex)
+
+      if (nlevels(cell_meta$diagnosis) == 1) next
+
+      expr_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_expr.csv")
+
+      if (!file.exists(expr_path)) {
+        message("Skipping: Expression file not found - ", expr_path)
+        next
+      }
+
+      cell_expr <- read_csv(expr_path) |> as.data.frame()
+      rownames(cell_expr) <- cell_expr[,1]
+      cell_expr <- cell_expr[, -1]
+      cell_expr <- as.matrix(cell_expr)
+      cell_expr <- Matrix(cell_expr, sparse = TRUE)
+
+      if (length(colnames(cell_expr)) > length(rownames(cell_meta))) {
+        cell_expr <- cell_expr[, colnames(cell_expr) %in% rownames(cell_meta)]
+      }
+
+      if (length(colnames(cell_expr)) < length(rownames(cell_meta))) {
+        cell_meta <- cell_meta[rownames(cell_meta) %in% colnames(cell_expr), ]
+      }
+
+      cell_meta <- cell_meta[colnames(cell_expr), , drop = FALSE]
+
+      PB <- list(expr = cell_expr, meta = cell_meta)
+
+      design <- model.matrix(~ diagnosis, data = PB$meta)
+      results <- limma_dge(design = design, PB = PB)
+      respath <- paste0("results/DEA/AD_18/", cell_type, "_", study, ".rds")
+      saveRDS(results, respath)
+      gc()
+    }}
+
+  all_res <- list()
+  for (study in studies){
+    for (cell_type in cell_types){
+      sczpath <- paste0("/space/scratch/rui_sz_project/PavlabSZProject/results/DEA/AD_18/", cell_type, "_", study, ".rds")
+
+      if (!file.exists(sczpath)) {
+        message("Skipping: File not found - ", sczpath)
+        next
+      }
+
+      deares <- readRDS(sczpath)
+      if (!is.list(all_res[[study]])) {
+        all_res[[study]] <- list()
+      }
+
+      all_res[[study]][[cell_type]] <- deares
+    }}
+
+  saveRDS(all_res, "results/DEA/AD_18/all_res.rds")
+
+  ### save as lists
+  all_meta <- fread("/cosmos/data/project-data/NW-rewiring/data/2.prcsd-slcGenes-cpm/intrsct-lessStringent/all-patient-metaData-updated.csv")
+  studies <- unique(all_meta$study)
+  studies <- studies[studies != "ROSMAP-microGlia"]
+  cell_types <- c("Ast", "Mic", "Opc", "Oli", "Exc", "Inh")
+
+  for (study in studies){
+    for (cell_type in cell_types){
+      meta_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_meta.csv")
+
+      if (!file.exists(meta_path)) {
+        message("Skipping: Meta file not found - ", meta_path)
+        next
+      }
+
+      cell_meta <- read_csv(meta_path) |> as.data.frame()  |> na.omit()
+      rownames(cell_meta) <- cell_meta$patientID
+      cell_meta$diagnosis <- as.factor(cell_meta$diagnosis)
+      cell_meta$disease <- as.factor(cell_meta$disease)
+      cell_meta$diagnosis <- relevel(cell_meta$disease, ref = "CTL")
+      #cell_meta$age <- as.numeric(cell_meta$age)
+      #cell_meta$sex <- as.factor(cell_meta$sex)
+
+      expr_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_expr.csv")
+
+      if (!file.exists(expr_path)) {
+        message("Skipping: Expression file not found - ", expr_path)
+        next
+      }
+
+      cell_expr <- read_csv(expr_path) |> as.data.frame()
+      rownames(cell_expr) <- cell_expr[,1]
+      cell_expr <- cell_expr[, -1]
+      cell_expr <- as.matrix(cell_expr)
+      cell_expr <- Matrix(cell_expr, sparse = TRUE)
+
+      if (length(colnames(cell_expr)) > length(rownames(cell_meta))) {
+        cell_expr <- cell_expr[, colnames(cell_expr) %in% rownames(cell_meta)]
+      }
+
+      if (length(colnames(cell_expr)) < length(rownames(cell_meta))) {
+        cell_meta <- cell_meta[rownames(cell_meta) %in% colnames(cell_expr), ]
+      }
+
+      cell_meta <- cell_meta[colnames(cell_expr), , drop = FALSE]
+
+      cpmed <- do_cpm_log(cell_expr)
+
+      PB <- list(expr = cpmed, meta = cell_meta)
+      cpmpath <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/cpm/", cell_type, "_", study, ".rds")
+      saveRDS(PB, cpmpath)
+      gc()
+
+      cpmloged <- do_cpm_log(cell_expr, log = TRUE)
+
+      PB_log <- list(expr = cpmloged, meta = cell_meta)
+      cpmlogpath <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/cpm-log/", cell_type, "_", study, ".rds")
+      saveRDS(PB_log, cpmlogpath)
+      gc()
+    }}
+
+### summmaries
+  all_meta <- fread("/cosmos/data/project-data/NW-rewiring/data/2.prcsd-slcGenes-cpm/intrsct-lessStringent/all-patient-metaData-updated.csv")
+  studies <- unique(all_meta$study)
+  studies <- studies[studies != "ROSMAP-microGlia"]
+  cell_types <- c("Ast", "Mic", "Opc", "Oli", "Exc", "Inh")
+
+  for (cell_type in cell_types){
+    summary <- data.frame()
+
+    for (study in studies){
+      meta_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_meta.csv")
+
+      if (!file.exists(meta_path)) {
+        message("Skipping: Meta file not found - ", meta_path)
+        next
+      }
+
+      cell_meta <- read_csv(meta_path) |> as.data.frame()  |> na.omit()
+      rownames(cell_meta) <- cell_meta$patientID
+      n_ad <- sum(cell_meta$disease == "AD")
+      n_ctl <- sum(cell_meta$disease == "CTL")
+
+      summary <- rbind(summary, data.frame(
+        N_AD = n_ad,
+        N_CTL = n_ctl,
+        study = study,
+        celltype = cell_type
+      ))
+    }
+    write_tsv(summary, paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/summaries/patient_AD_", cell_type, ".tsv"))
+  }
+
+  for (cell_type in cell_types){
+    summary <- data.frame()
+
+    for (study in studies){
+      expr_path <- paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/", cell_type, "_", study, "_expr.csv")
+
+      if (!file.exists(expr_path)) {
+        message("Skipping: Expression file not found - ", expr_path)
+        next
+      }
+
+      cell_expr <- read_csv(expr_path) |> as.data.frame()
+      rownames(cell_expr) <- cell_expr[,1]
+      cell_expr <- cell_expr[, -1]
+      cell_expr <- as.matrix(cell_expr)
+      cell_expr <- Matrix(cell_expr, sparse = TRUE)
+
+      summary <- rbind(summary, data.frame(
+        N_genes = nrow(cell_expr),
+        study = study,
+        celltype = cell_type
+      ))
+    }
+    write_tsv(summary, paste0("/cosmos/data/project-data/NW-rewiring/data/1.prcsd-clean/pseudobulk/summaries/n_genes_", cell_type, ".tsv"))
+  }
+
+
   ### subtypes
   excitatory_cell_types <- c("L2/3 IT", "L4 IT", "L5 IT", "L6 IT", "L6 CT",
                              "L6 IT Car3", "L5 ET", "L5/6 NP", "L6b")
@@ -683,5 +1003,15 @@ limma_dge <- function(design, PB){
   return(res)
 }
 
+do_cpm_log <- function(mtx, log = FALSE) {
+  colsums <- Matrix::colSums(mtx)
+  cpm_result <- Matrix::t(Matrix::t(mtx) / colsums * 1e6)
+
+  if (log) {
+    cpm_result <- base::log1p(cpm_result)
+  }
+
+  return(cpm_result)
+}
 
 main()

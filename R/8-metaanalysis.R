@@ -467,6 +467,7 @@ mine_not_in_ruzicka <- degs[!(degs %in% ruzicka_degs)]
 saveRDS(ruzickadegs_in_mine, "results/DEA/RuzickaSubtypes/ruzickadegs_in_mine.rds")
 saveRDS(ruzicka_not_in_mine, "results/DEA/RuzickaSubtypes/ruzickadegs_not_in_mine.rds")
 saveRDS(mine_not_in_ruzicka, "results/DEA/RuzickaSubtypes/mine_not_in_ruzicka.rds")
+
 }
 
 ### helper function
