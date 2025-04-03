@@ -13,7 +13,7 @@ library(limma)
 
 main <- function(){
   ### create p-value hists
-  cohort_list <- c("Batiuk", "CMC", "SZBDMulti-Seq", "MultiomeBrain")
+  cohort_list <- c("Batiuk", "CMC", "SZBDMulti-Seq", "MultiomeBrain", "Ling")
 
   for (cohort in cohort_list){
     astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
@@ -513,6 +513,69 @@ main <- function(){
       all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
 
       final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSex/pvalueplot_", cohort, ".png")
+
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+
+    }
+  }
+
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
+
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+    plot_list <- list()
+
+    for (cell in cell_list) {
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAge/DEAresults_", cell)
+
+      cell_type <- strsplit(cell, "_")[[1]][1]
+
+      if (!file.exists(res_path)) {
+        message("File ", res_path, " does not exist. Skipping to next.")
+        next
+      }
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = P.Value)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = cell_type,
+          x = "P-value",
+          y = NULL
+        )
+
+      plot_list[[cell_type]] <- res_his
+    }
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age(Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+
+    if (cohort == "Batiuk") {
+
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+
+      final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAge/pvalueplot_", cohort, ".png")
+
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+
+    }
+
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+
+      final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAge/pvalueplot_", cohort, ".png")
 
       cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
 
@@ -1263,6 +1326,69 @@ main <- function(){
     plot_list <- list()
 
     for (cell in cell_list) {
+      res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAge/DEAresults_", cell)
+
+      cell_type <- strsplit(cell, "_")[[1]][1]
+
+      if (!file.exists(res_path)) {
+        message("File ", res_path, " does not exist. Skipping to next.")
+        next
+      }
+      results <- readRDS(res_path)
+
+      res_his <- results |>
+        ggplot(aes(x = groupdisorderyes)) +
+        geom_histogram() +
+        theme_classic()+
+        labs(
+          title = cell_type,
+          x = "logFC",
+          y = NULL
+        )
+
+      plot_list[[cell_type]] <- res_his
+    }
+
+    cohort_title <- paste0(cohort, ": CPMLog with Age(Limma)")
+
+    all_plots <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv")
+
+    title_plot <- ggdraw() +
+      draw_label(cohort_title, x = 0.5, y = 0.5, size = 12, hjust = 0.5)
+
+    if (cohort == "Batiuk") {
+
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(1, 1))
+
+      final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAge/logFCplot_", cohort, ".png")
+
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+
+    }
+
+    else{
+      all_plots_with_title <- plot_grid(title_plot, all_plots, ncol = 1, rel_heights = c(0.1, 1))
+
+      final_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAge/logFCplot_", cohort, ".png")
+
+      cowplot::save_plot(plot = all_plots_with_title, filename = final_path)
+
+    }
+  }
+
+  for (cohort in cohort_list){
+    astrocyte <- paste0("Ast_", cohort, "_SZ.rds")
+    excitatory <- paste0("Exc_", cohort, "_SZ.rds")
+    inhibitory <- paste0("Inh_", cohort, "_SZ.rds")
+    microglia <- paste0("Mic_", cohort, "_SZ.rds")
+    oligodendrocyte <- paste0("Oli_", cohort, "_SZ.rds")
+    opc <- paste0("Opc_", cohort, "_SZ.rds")
+    gli <- paste0("Gli_", cohort, "_SZ.rds")
+
+    cell_list <- c(astrocyte, excitatory, inhibitory, microglia, oligodendrocyte, opc, gli)
+    plot_list <- list()
+
+    for (cell in cell_list) {
       res_path <- paste0("results/DEA/", cohort, "/LimmaCPMLogAgeSexCell/DEAresults_", cell)
 
       cell_type <- strsplit(cell, "_")[[1]][1]
@@ -1318,7 +1444,7 @@ main <- function(){
 
   inh_neurons <- c("ID2_LAMP5", "VIP", "ID2_PAX6", "ID2_NCKAP5", "PVALB", "SST")
 
-  method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex")
+  method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex", "LimmaCPMLogAge")
   for (method in method_list){
     plot_list <- list()
     for (excitatory in exc_neurons){
@@ -1513,7 +1639,7 @@ main <- function(){
 
   ### create enhanced volcano plots
 
-  method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex", "LimmaCPMLogAgeSexCell")
+  method_list <- c("LimmaCPMLog", "LimmaCPMLogAgeSex", "LimmaCPMLogAge")
 
   for (method in method_list){
   for (cohort in cohort_list){
@@ -1806,6 +1932,11 @@ get_title <- function(method){
   if (method == "LimmaCPMLogAgeSexCell"){
     return("CPMLog with Age, Sex, and Cell Number (Limma)")
   }
+
+  if (method == "LimmaCPMLogAge"){
+    return("CPMLog with Age (Limma)")
+  }
+
   if (method == "CPM"){
     return("CPM")
   }
